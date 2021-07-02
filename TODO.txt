@@ -1,0 +1,5 @@
+Features:
+
+* Instance reusage: Instances of one level are immediately reused vs. reused after k elements vs. never reused
+* Seekable: ExtendedXmlEventReader has a position information (struct containing all relevant position information) that can be queried or set; several positioning strategies are possible and could exist in parallel: seekable due to SeekableByteChannel (no data stored additionally in memory) vs. buffering in memory (=> nodes need a free() method to inform the framework to release memory; both approaches have to be tested because it is not clear whether the StAX reader works correctly when changing the position within an input stream) vs. keeping StAX events in memory (Node.free() required as well) vs. no going backwards at all
+* Custom Nodes: Think about whether it would be beneficial to offer the user to let the framework create his custom nodes (particularly elements) that might provide further methods like getAttributeAsInt() etc.
