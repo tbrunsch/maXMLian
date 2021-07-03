@@ -19,6 +19,11 @@
 
 	<build>
 		<testSourceDirectory>test</testSourceDirectory>
+		<testResources>
+			<testResource>
+				<directory>${basedir}/resources</directory>
+			</testResource>
+		</testResources>
 	</build>
 
 	<dependencies>
