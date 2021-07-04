@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import dd.kms.maxmlian.api.*;
@@ -65,23 +66,24 @@ public class ParseWholeFileTest
 		Document document = XmlParser.readXml(Files.newInputStream(xmlFile));
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
 
 		compareNodes(document, domDocument);
 	}
 
-	private static void compareNodes(Node node, org.w3c.dom.Node domNode) {
-		String nodeName = domNode.getNodeName();
-		Assert.assertEquals("Wrong node name", nodeName, node.getNodeName());
-		Assert.assertEquals("Wrong local name of node '" + nodeName + "'", domNode.getLocalName(), node.getLocalName());
-		Assert.assertEquals("Wrong prefix of node '" + nodeName + "'", domNode.getPrefix(), node.getPrefix());
-		Assert.assertEquals("Wrong namespace URI of node '" + nodeName + "'", domNode.getNamespaceURI(), node.getNamespaceURI());
+	private static void compareNodes(Node node, org.w3c.dom.Node domNode) throws XMLStreamException {
+		String name = domNode.getNodeName();
+		Assert.assertEquals("Wrong node name", name, node.getNodeName());
+		Assert.assertEquals("Wrong local name of node '" + name + "'", domNode.getLocalName(), node.getLocalName());
+		Assert.assertEquals("Wrong prefix of node '" + name + "'", domNode.getPrefix(), node.getPrefix());
+		Assert.assertEquals("Wrong namespace URI of node '" + name + "'", domNode.getNamespaceURI(), node.getNamespaceURI());
 
 		short domNodeType = domNode.getNodeType();
 		NodeType expectedNodeType = getNodeType(domNodeType);
 		NodeType nodeType = node.getNodeType();
-		Assert.assertEquals("Wrong type of node '" + nodeName + "'", expectedNodeType, nodeType);
+		Assert.assertEquals("Wrong type of node '" + name + "'", expectedNodeType, nodeType);
 
 		switch (nodeType) {
 			case ELEMENT:
@@ -117,9 +119,21 @@ public class ParseWholeFileTest
 			default:
 				throw new UnsupportedOperationException("The test does currently not support node type '" + nodeType + "'");
 		}
+
+		Iterable<Node> children = node.getChildren();
+		NodeList domChildren = domNode.getChildNodes();
+		int numDomChildren = domChildren.getLength();
+		int childIndex = 0;
+		for (Node child : children) {
+			Assert.assertTrue("Wrong number of children of node '" + name + "'", childIndex < numDomChildren);
+			org.w3c.dom.Node domChild = domChildren.item(childIndex);
+			compareNodes(child, domChild);
+			childIndex++;
+		}
+		Assert.assertEquals("Wrong number of children of node '" + name + "'", numDomChildren, childIndex);
 	}
 
-	private static void compareElements(Element element, org.w3c.dom.Element domElement) {
+	private static void compareElements(Element element, org.w3c.dom.Element domElement) throws XMLStreamException {
 		String name = element.getNodeName();
 		Assert.assertEquals("Wrong tag name of element '" + name + "'", element.getTagName(), domElement.getTagName());
 
@@ -129,6 +143,7 @@ public class ParseWholeFileTest
 		for (String attributeName : attributesByName.keySet()) {
 			Attr attribute = attributesByName.get(attributeName);
 			org.w3c.dom.Node domAttribute = domAttributes.getNamedItem(attributeName);
+			Assert.assertNotNull("Wrong attribute name '" + attributeName + "'", domAttribute);
 			compareNodes(attribute, domAttribute);
 		}
 	}
@@ -184,7 +199,7 @@ public class ParseWholeFileTest
 		 */
 	}
 
-	private static void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType) {
+	private static void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType) throws XMLStreamException {
 		String name = domDocType.getName();
 		Assert.assertEquals("Wrong name of document type '" + name + "'", domDocType.getName(), docType.getName());
 		Assert.assertEquals("Wrong public ID of document type '" + name + "'", domDocType.getPublicId(), docType.getPublicId());
@@ -196,6 +211,7 @@ public class ParseWholeFileTest
 		for (String entityName : entitiesByName.keySet()) {
 			Entity entity = entitiesByName.get(entityName);
 			org.w3c.dom.Node domEntity = domEntities.getNamedItem(entityName);
+			Assert.assertNotNull("Wrong entity name '" + entityName + "'", domEntity);
 			compareNodes(entity, domEntity);
 		}
 
@@ -205,6 +221,7 @@ public class ParseWholeFileTest
 		for (String notationName : notationsByName.keySet()) {
 			Notation notation = notationsByName.get(notationName);
 			org.w3c.dom.Node domNotation = domNotations.getNamedItem(notationName);
+			Assert.assertNotNull("Wrong notation name '" + notationName + "'", domNotation);
 			compareNodes(notation, domNotation);
 		}
 
