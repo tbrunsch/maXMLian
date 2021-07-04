@@ -28,6 +28,13 @@ class TextImpl extends CharacterDataImpl implements Text
 		setData(data);
 	}
 
+	void initializeFromData(String data) {
+		super.initializePosition();
+		setData(data);
+		// TODO: How to set isElementContentWhitespace in this case?
+		this.isElementContentWhitespace = false;
+	}
+
 	@Override
 	public String getNodeName() {
 		return "#text";

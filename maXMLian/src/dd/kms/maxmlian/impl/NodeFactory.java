@@ -128,6 +128,13 @@ class NodeFactory
 		return text;
 	}
 
+	Text createText(String data, int depth) {
+		// TODO: Later we might reuse instances of the specified depth
+		TextImpl text = new TextImpl(eventReader, this);
+		text.initializeFromData(data);
+		return text;
+	}
+
 	private dd.kms.maxmlian.api.Comment createComment(javax.xml.stream.events.Comment event) {
 		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
 		CommentImpl comment = new CommentImpl(eventReader, this);
@@ -175,15 +182,15 @@ class NodeFactory
 
 	NamespaceImpl createNamespace(javax.xml.stream.events.Namespace ns, int depth) {
 		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
-		NamespaceImpl namespace = new NamespaceImpl();
-		namespace.initializeFromNamespace(ns);
+		NamespaceImpl namespace = new NamespaceImpl(this);
+		namespace.initializeFromNamespace(ns, depth);
 		return namespace;
 	}
 
 	AttrImpl createAttribute(javax.xml.stream.events.Attribute attribute, int depth) {
 		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
-		AttrImpl attr = new AttrImpl();
-		attr.initializeFromAttribute(attribute);
+		AttrImpl attr = new AttrImpl(this);
+		attr.initializeFromAttribute(attribute, depth);
 		return attr;
 	}
 }

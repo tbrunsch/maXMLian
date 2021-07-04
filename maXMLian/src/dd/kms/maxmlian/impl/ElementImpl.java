@@ -10,7 +10,6 @@ import javax.xml.stream.events.StartElement;
 
 import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.Element;
-import dd.kms.maxmlian.api.NodeType;
 
 class ElementImpl extends NodeImpl implements Element
 {
@@ -102,12 +101,12 @@ class ElementImpl extends NodeImpl implements Element
 
 	@Override
 	public String getNamespaceURI() {
-		return name.getNamespaceURI();
+		return XmlUtils.emptyToNull(name.getNamespaceURI());
 	}
 
 	@Override
 	public String getPrefix() {
-		return name.getPrefix();
+		return XmlUtils.emptyToNull(name.getPrefix());
 	}
 
 	@Override

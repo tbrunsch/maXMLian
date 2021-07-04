@@ -3,20 +3,28 @@ package dd.kms.maxmlian.impl;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.events.Attribute;
 
 import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.Node;
-import dd.kms.maxmlian.api.NodeType;
+import dd.kms.maxmlian.api.Text;
 
 class AttrImpl implements Attr
 {
-	private Attribute	attribute;
-	private AttrImpl	prevSibling;
-	private AttrImpl	nextSibling;
+	private final NodeFactory	nodeFactory;
+	Attribute					attribute;
+	private int					depth;
+	private AttrImpl			prevSibling;
+	private AttrImpl			nextSibling;
 
-	void initializeFromAttribute(Attribute attribute) {
+	AttrImpl(NodeFactory nodeFactory) {
+		this.nodeFactory = nodeFactory;
+	}
+
+	void initializeFromAttribute(Attribute attribute, int depth) {
 		this.attribute = attribute;
+		this.depth = depth;
 	}
 
 	void setPrevSibling(AttrImpl prevSibling) {
@@ -50,7 +58,11 @@ class AttrImpl implements Attr
 
 	@Override
 	public boolean getSpecified() {
-		return attribute.isSpecified();
+		/*
+		 * For some reason, javax.xml.stream.events.NamespaceImpl is constructed with
+		 * isSpecified being set to false although it is true.
+		 */
+		return attribute.isSpecified() || attribute.getEventType() == XMLStreamConstants.NAMESPACE;
 	}
 
 	@Override
@@ -75,7 +87,8 @@ class AttrImpl implements Attr
 
 	@Override
 	public Iterable<Node> getChildren() {
-		return Collections.emptyList();
+		Text text = nodeFactory.createText(getValue(), depth + 1);
+		return Collections.singletonList(text);
 	}
 
 	@Override
@@ -99,12 +112,12 @@ class AttrImpl implements Attr
 
 	@Override
 	public String getNamespaceURI() {
-		return attribute.getName().getNamespaceURI();
+		return XmlUtils.emptyToNull(attribute.getName().getNamespaceURI());
 	}
 
 	@Override
 	public String getPrefix() {
-		return attribute.getName().getPrefix();
+		return XmlUtils.emptyToNull(attribute.getName().getPrefix());
 	}
 
 	@Override

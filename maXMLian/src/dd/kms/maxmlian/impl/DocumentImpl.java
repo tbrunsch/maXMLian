@@ -102,26 +102,6 @@ public class DocumentImpl extends NodeImpl implements Document
 		return "#document";
 	}
 
-	@Override
-	public String getNodeValue() {
-		return null;
-	}
-
-	@Override
-	public String getNamespaceURI() {
-		return null;
-	}
-
-	@Override
-	public String getPrefix() {
-		return null;
-	}
-
-	@Override
-	public String getLocalName() {
-		return null;
-	}
-
 	// TODO: Check whether this method must still be public
 	public static Document createDocument(InputStream inputStream) throws XMLStreamException {
 		XMLInputFactory factory = XMLInputFactory.newInstance();
