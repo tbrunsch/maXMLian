@@ -71,8 +71,8 @@ public class DocumentImpl extends NodeImpl implements Document
 	}
 
 	@Override
-	public Iterable<Node> getChildren() throws XMLStreamException {
-		Iterable<Node> children = super.getChildren();
+	public Iterable<Node> getChildNodes() throws XMLStreamException {
+		Iterable<Node> children = super.getChildNodes();
 		retrievedChildren = true;
 		return children;
 	}

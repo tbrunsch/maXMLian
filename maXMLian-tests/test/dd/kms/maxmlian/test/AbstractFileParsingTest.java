@@ -121,7 +121,7 @@ public abstract class AbstractFileParsingTest
 
 		int numChildrenToParse = getNumberOfChildrenToParse(depth);
 		if (numChildrenToParse > 0) {
-			Iterable<Node> children = node.getChildren();
+			Iterable<Node> children = node.getChildNodes();
 			NodeList domChildren = domNode.getChildNodes();
 			int numDomChildren = domChildren.getLength();
 			int childIndex = 0;

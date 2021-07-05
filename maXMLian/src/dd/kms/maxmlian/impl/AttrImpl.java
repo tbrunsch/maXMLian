@@ -86,7 +86,7 @@ class AttrImpl implements Attr
 	}
 
 	@Override
-	public Iterable<Node> getChildren() {
+	public Iterable<Node> getChildNodes() {
 		Text text = nodeFactory.createText(getValue(), depth + 1);
 		return Collections.singletonList(text);
 	}

@@ -47,7 +47,7 @@ class EntityImpl implements Entity
 	}
 
 	@Override
-	public Iterable<Node> getChildren() {
+	public Iterable<Node> getChildNodes() {
 		return Collections.emptyList();
 	}
 

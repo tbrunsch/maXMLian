@@ -17,7 +17,7 @@ public interface Node
 	 * @return an {@link Iterable} over the child nodes
 	 * @throws XmlStateException if the XML file has already be parsed beyond the
 	 */
-	Iterable<Node> getChildren() throws XMLStreamException;
+	Iterable<Node> getChildNodes() throws XMLStreamException;
 	Node getFirstChild() throws XMLStreamException;
 	Node getNextSibling();
 	Map<String, Attr> getAttributes();

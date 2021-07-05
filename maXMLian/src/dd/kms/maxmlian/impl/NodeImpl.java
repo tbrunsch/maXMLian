@@ -41,7 +41,7 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	@Override
-	public Iterable<Node> getChildren() throws XMLStreamException {
+	public Iterable<Node> getChildNodes() throws XMLStreamException {
 		NodeType nodeType = getNodeType();
 		if (nodeType == NodeType.ELEMENT || nodeType == NodeType.DOCUMENT) {
 			if (!eventReader.position(initialPosition)) {
@@ -136,7 +136,7 @@ abstract class NodeImpl implements Node, Iterable<Node>
 		if (nodeType == NodeType.TEXT || nodeType == NodeType.COMMENT) {
 			builder.append(getNodeValue());
 		}
-		for (Node child : getChildren()) {
+		for (Node child : getChildNodes()) {
 			((NodeImpl) child).appendTextContentTo(builder);
 		}
 	}

@@ -31,7 +31,7 @@ class NotationImpl implements Notation
 	}
 
 	@Override
-	public Iterable<Node> getChildren() {
+	public Iterable<Node> getChildNodes() {
 		return Collections.emptyList();
 	}
 
