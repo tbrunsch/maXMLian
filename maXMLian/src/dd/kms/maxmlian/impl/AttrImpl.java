@@ -58,11 +58,7 @@ class AttrImpl implements Attr
 
 	@Override
 	public boolean getSpecified() {
-		/*
-		 * For some reason, javax.xml.stream.events.NamespaceImpl is constructed with
-		 * isSpecified being set to false although it is true.
-		 */
-		return attribute.isSpecified() || attribute.getEventType() == XMLStreamConstants.NAMESPACE;
+		return attribute.isSpecified();
 	}
 
 	@Override
