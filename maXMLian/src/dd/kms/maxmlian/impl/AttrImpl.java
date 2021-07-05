@@ -87,13 +87,13 @@ class AttrImpl implements Attr
 
 	@Override
 	public Iterable<Node> getChildNodes() {
-		Text text = nodeFactory.createText(getValue(), depth + 1);
-		return Collections.singletonList(text);
+		Node child = getFirstChild();
+		return Collections.singletonList(child);
 	}
 
 	@Override
 	public Node getFirstChild() {
-		return null;
+		return nodeFactory.createText(getValue(), depth + 1);
 	}
 
 	Attr getPreviousSibling() {
