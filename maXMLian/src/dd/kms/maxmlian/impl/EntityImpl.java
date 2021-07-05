@@ -6,17 +6,16 @@ import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.EntityDeclaration;
 
-import dd.kms.maxmlian.api.Attr;
-import dd.kms.maxmlian.api.Entity;
-import dd.kms.maxmlian.api.Node;
-import dd.kms.maxmlian.api.NodeType;
+import dd.kms.maxmlian.api.*;
 
 class EntityImpl implements Entity
 {
+	private final DocumentType		docType;
 	private final EntityDeclaration	entityDeclaration;
 	private final Entity			nextSibling;
 
-	EntityImpl(EntityDeclaration entityDeclaration, Entity nextSibling) {
+	EntityImpl(DocumentType docType, EntityDeclaration entityDeclaration, Entity nextSibling) {
+		this.docType = docType;
 		this.entityDeclaration = entityDeclaration;
 		this.nextSibling = nextSibling;
 	}
@@ -44,6 +43,11 @@ class EntityImpl implements Entity
 	@Override
 	public String getNodeValue() {
 		return null;
+	}
+
+	@Override
+	public Node getParentNode() {
+		return docType;
 	}
 
 	@Override

@@ -69,15 +69,26 @@ public abstract class AbstractFileParsingTest
 
 		prepareTest(domDocument);
 
-		compareNodes(document, domDocument, 0);
+		compareNodes(document, domDocument, 0, true);
 	}
 
-	private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth) throws XMLStreamException {
+	private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth, boolean recursively) throws XMLStreamException {
 		String name = domNode.getNodeName();
 		Assert.assertEquals("Wrong node name", name, node.getNodeName());
 		Assert.assertEquals("Wrong local name of node '" + name + "'", domNode.getLocalName(), node.getLocalName());
 		Assert.assertEquals("Wrong prefix of node '" + name + "'", domNode.getPrefix(), node.getPrefix());
 		Assert.assertEquals("Wrong namespace URI of node '" + name + "'", domNode.getNamespaceURI(), node.getNamespaceURI());
+
+		Node parent = node.getParentNode();
+		org.w3c.dom.Node domParent = domNode.getParentNode();
+		if (domParent == null) {
+			if (parent != null) {
+				Assert.fail("Unexpected parent '" + parent.getNodeName() + "'");
+			}
+		} else {
+			Assert.assertNotNull("Expected parent '" + domParent.getNodeName() + "'", parent);
+			compareNodes(parent, domParent, depth - 1, false);
+		}
 
 		short domNodeType = domNode.getNodeType();
 		NodeType expectedNodeType = getNodeType(domNodeType);
@@ -119,6 +130,10 @@ public abstract class AbstractFileParsingTest
 				throw new UnsupportedOperationException("The test does currently not support node type '" + nodeType + "'");
 		}
 
+		if (!recursively) {
+			return;
+		}
+
 		int numChildrenToParse = getNumberOfChildrenToParse(depth);
 		if (numChildrenToParse > 0) {
 			Iterable<Node> children = node.getChildNodes();
@@ -128,7 +143,7 @@ public abstract class AbstractFileParsingTest
 			for (Node child : children) {
 				Assert.assertTrue("Wrong number of children of node '" + name + "'", childIndex < numDomChildren);
 				org.w3c.dom.Node domChild = domChildren.item(childIndex);
-				compareNodes(child, domChild, depth + 1);
+				compareNodes(child, domChild, depth + 1, true);
 				childIndex++;
 				if (childIndex >= numChildrenToParse) {
 					break;
@@ -155,7 +170,7 @@ public abstract class AbstractFileParsingTest
 				Attr attribute = attributesByName.get(attributeName);
 				org.w3c.dom.Node domAttribute = domAttributes.getNamedItem(attributeName);
 				Assert.assertNotNull("Wrong attribute name '" + attributeName + "'", domAttribute);
-				compareNodes(attribute, domAttribute, depth + 1);
+				compareNodes(attribute, domAttribute, depth + 1, true);
 				attributeIndex++;
 				if (attributeIndex >= numChildrenToParse) {
 					break;
@@ -232,7 +247,7 @@ public abstract class AbstractFileParsingTest
 				Entity entity = entitiesByName.get(entityName);
 				org.w3c.dom.Node domEntity = domEntities.getNamedItem(entityName);
 				Assert.assertNotNull("Wrong entity name '" + entityName + "'", domEntity);
-				compareNodes(entity, domEntity, depth + 1);
+				compareNodes(entity, domEntity, depth + 1, true);
 				entityIndex++;
 				if (entityIndex >= numChildrenToParse) {
 					break;
@@ -249,7 +264,7 @@ public abstract class AbstractFileParsingTest
 				Notation notation = notationsByName.get(notationName);
 				org.w3c.dom.Node domNotation = domNotations.getNamedItem(notationName);
 				Assert.assertNotNull("Wrong notation name '" + notationName + "'", domNotation);
-				compareNodes(notation, domNotation, depth + 1);
+				compareNodes(notation, domNotation, depth + 1, true);
 				notationIndex++;
 				if (notationIndex >= numChildrenToParse) {
 					break;

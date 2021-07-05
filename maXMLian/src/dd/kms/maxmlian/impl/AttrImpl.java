@@ -3,12 +3,10 @@ package dd.kms.maxmlian.impl;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.events.Attribute;
 
 import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.Node;
-import dd.kms.maxmlian.api.Text;
 
 class AttrImpl implements Attr
 {
@@ -82,6 +80,11 @@ class AttrImpl implements Attr
 	}
 
 	@Override
+	public Node getParentNode() {
+		return null;
+	}
+
+	@Override
 	public Iterable<Node> getChildNodes() {
 		Node child = getFirstChild();
 		return Collections.singletonList(child);
@@ -89,7 +92,9 @@ class AttrImpl implements Attr
 
 	@Override
 	public Node getFirstChild() {
-		return nodeFactory.createText(getValue(), depth + 1);
+		TextImpl text = nodeFactory.createText(getValue(), depth + 1);
+		text.setParentNode(this);
+		return text;
 	}
 
 	Attr getPreviousSibling() {

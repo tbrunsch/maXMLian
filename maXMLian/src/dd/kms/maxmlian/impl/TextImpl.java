@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.xml.stream.events.Characters;
 
-import dd.kms.maxmlian.api.NodeType;
 import dd.kms.maxmlian.api.Text;
 
 class TextImpl extends CharacterDataImpl implements Text
@@ -16,7 +15,7 @@ class TextImpl extends CharacterDataImpl implements Text
 	}
 
 	void initializeFromCharacters(Characters characters, List<Characters> additionalCharacters) {
-		super.initializePosition();
+		super.initialize();
 		String data = characters.getData();
 		this.isElementContentWhitespace = characters.isIgnorableWhiteSpace();
 		if (additionalCharacters != null) {
@@ -29,7 +28,7 @@ class TextImpl extends CharacterDataImpl implements Text
 	}
 
 	void initializeFromData(String data) {
-		super.initializePosition();
+		super.initialize();
 		setData(data);
 		// TODO: How to set isElementContentWhitespace in this case?
 		this.isElementContentWhitespace = false;

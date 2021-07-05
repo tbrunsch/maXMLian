@@ -10,6 +10,7 @@ public interface Node
 	String getNodeValue();
 	NodeType getNodeType();
 
+	Node getParentNode();
 	/**
 	 * This method returns the child nodes of the current node. It must not be called if the XML file has
 	 * already parsed beyond the opening tag of that element. If so, an exception is thrown.

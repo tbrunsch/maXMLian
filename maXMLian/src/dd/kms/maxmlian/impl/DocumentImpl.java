@@ -26,7 +26,7 @@ public class DocumentImpl extends NodeImpl implements Document
 	}
 
 	void initializeFromStartDocument(StartDocument startDocument) {
-		super.initializePosition();
+		super.initialize();
 		inputEncoding = startDocument.getCharacterEncodingScheme();
 		standalone = startDocument.isStandalone();
 		xmlVersion = startDocument.getVersion();
@@ -68,6 +68,11 @@ public class DocumentImpl extends NodeImpl implements Document
 		} finally {
 			retrievedChildren = true;
 		}
+	}
+
+	@Override
+	public Node getParentNode() {
+		return null;
 	}
 
 	@Override

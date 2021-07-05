@@ -23,7 +23,7 @@ class ElementImpl extends NodeImpl implements Element
 	}
 
 	void initializeFromStartElement(StartElement startElement) {
-		super.initializePosition();
+		super.initialize();
 		this.name = startElement.getName();
 		this.namespaceIterator = startElement.getNamespaces();
 		this.attributeIterator = startElement.getAttributes();

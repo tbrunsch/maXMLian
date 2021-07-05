@@ -5,17 +5,16 @@ import java.util.Map;
 
 import javax.xml.stream.events.NotationDeclaration;
 
-import dd.kms.maxmlian.api.Attr;
-import dd.kms.maxmlian.api.Node;
-import dd.kms.maxmlian.api.NodeType;
-import dd.kms.maxmlian.api.Notation;
+import dd.kms.maxmlian.api.*;
 
 class NotationImpl implements Notation
 {
+	private final DocumentType			docType;
 	private final NotationDeclaration	notationDeclaration;
 	private final Notation				nextSibling;
 
-	NotationImpl(NotationDeclaration notationDeclaration, Notation nextSibling) {
+	NotationImpl(DocumentType docType, NotationDeclaration notationDeclaration, Notation nextSibling) {
+		this.docType = docType;
 		this.notationDeclaration = notationDeclaration;
 		this.nextSibling = nextSibling;
 	}
@@ -28,6 +27,11 @@ class NotationImpl implements Notation
 	@Override
 	public String getNodeValue() {
 		return null;
+	}
+
+	@Override
+	public Node getParentNode() {
+		return docType;
 	}
 
 	@Override

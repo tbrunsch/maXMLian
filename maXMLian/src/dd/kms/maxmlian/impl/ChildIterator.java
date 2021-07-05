@@ -16,6 +16,7 @@ class ChildIterator implements Iterator<Node>
 	private int     depth;
 	private boolean retrievedNext;
 	private Node    next;
+	private Node	parent;
 
 	ChildIterator(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
 		this.eventReader = eventReader;
@@ -26,6 +27,10 @@ class ChildIterator implements Iterator<Node>
 		depth = eventReader.getDepth();
 		retrievedNext = false;
 		next = null;
+	}
+
+	void setParentNode(Node parent) {
+		this.parent = parent;
 	}
 
 	@Override
@@ -58,6 +63,9 @@ class ChildIterator implements Iterator<Node>
 			} catch (XMLStreamException e) {
 				throw new XmlException("Cannot read next child from XML", e);
 			}
+		}
+		if (next != null) {
+			((NodeImpl) next).setParentNode(parent);
 		}
 		retrievedNext = true;
 	}

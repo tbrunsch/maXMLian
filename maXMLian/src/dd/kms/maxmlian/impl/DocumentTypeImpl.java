@@ -13,7 +13,6 @@ import javax.xml.stream.events.NotationDeclaration;
 
 import dd.kms.maxmlian.api.DocumentType;
 import dd.kms.maxmlian.api.Entity;
-import dd.kms.maxmlian.api.NodeType;
 import dd.kms.maxmlian.api.Notation;
 
 class DocumentTypeImpl extends NodeImpl implements DocumentType
@@ -28,7 +27,7 @@ class DocumentTypeImpl extends NodeImpl implements DocumentType
 	}
 
 	void initializeFromDtd(DTD dtd) {
-		initializePosition();
+		initialize();
 		this.dtd = dtd;
 	}
 
@@ -52,7 +51,7 @@ class DocumentTypeImpl extends NodeImpl implements DocumentType
 		Entity nextSibling = null;
 		for (int i = entityDeclarations.size() - 1; i >= 0; i--) {
 			EntityDeclaration entityDeclaration = entityDeclarations.get(i);
-			Entity entity = new EntityImpl(entityDeclaration, nextSibling);
+			Entity entity = new EntityImpl(this, entityDeclaration, nextSibling);
 			entityMap.put(entity.getNodeName(), entity);
 			nextSibling = entity;
 		}
@@ -69,7 +68,7 @@ class DocumentTypeImpl extends NodeImpl implements DocumentType
 		Notation nextSibling = null;
 		for (int i = notationDeclarations.size() - 1; i >= 0; i--) {
 			NotationDeclaration notationDeclaration = notationDeclarations.get(i);
-			Notation notation = new NotationImpl(notationDeclaration, nextSibling);
+			Notation notation = new NotationImpl(this, notationDeclaration, nextSibling);
 			notationMap.put(notation.getNodeName(), notation);
 			nextSibling = notation;
 		}

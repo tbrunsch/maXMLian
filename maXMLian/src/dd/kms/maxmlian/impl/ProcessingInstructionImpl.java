@@ -1,6 +1,5 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.NodeType;
 import dd.kms.maxmlian.api.ProcessingInstruction;
 
 class ProcessingInstructionImpl extends NodeImpl implements ProcessingInstruction
@@ -13,7 +12,7 @@ class ProcessingInstructionImpl extends NodeImpl implements ProcessingInstructio
 	}
 
 	void initializeFromProcessingInstruction(javax.xml.stream.events.ProcessingInstruction processingInstruction) {
-		super.initializePosition();
+		super.initialize();
 		target = processingInstruction.getTarget();
 		data = processingInstruction.getData();
 	}

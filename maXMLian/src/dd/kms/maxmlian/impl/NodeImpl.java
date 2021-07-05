@@ -22,22 +22,33 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	private long							initialPosition;
 	private long                          	initialNodeCounterDepth;
 
-	final StringBuilder						stringBuilder		= new StringBuilder();
+	private Node							parent;
+	private final StringBuilder				stringBuilder		= new StringBuilder();
 
 	NodeImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
 		this.eventReader = eventReader;
 		this.nodeFactory = nodeFactory;
 	}
 
-	void initializePosition() {
+	void initialize() {
 		initialDepth = eventReader.getDepth();
 		initialPosition = eventReader.position();
 		initialNodeCounterDepth = eventReader.getNodeCounter(initialDepth);
+		parent = null;
+	}
+
+	void setParentNode(Node parent) {
+		this.parent = parent;
 	}
 
 	@Override
 	public String getNodeValue() {
 		return null;
+	}
+
+	@Override
+	public Node getParentNode() {
+		return parent;
 	}
 
 	@Override
@@ -61,7 +72,9 @@ abstract class NodeImpl implements Node, Iterable<Node>
 		} catch (XMLStreamException e) {
 			throw createStateException(PARSE_CHILDREN_ERROR, e);
 		}
-		return nodeFactory.createChildIterator();
+		ChildIterator childIterator = nodeFactory.createChildIterator();
+		childIterator.setParentNode(this);
+		return childIterator;
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.Comment;
-import dd.kms.maxmlian.api.NodeType;
 
 class CommentImpl extends CharacterDataImpl implements Comment
 {
@@ -10,7 +9,7 @@ class CommentImpl extends CharacterDataImpl implements Comment
 	}
 
 	void initializeFromComment(javax.xml.stream.events.Comment comment) {
-		super.initializePosition();
+		super.initialize();
 		setData(comment.getText());
 	}
 

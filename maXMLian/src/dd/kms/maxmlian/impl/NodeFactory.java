@@ -128,7 +128,7 @@ class NodeFactory
 		return text;
 	}
 
-	Text createText(String data, int depth) {
+	TextImpl createText(String data, int depth) {
 		// TODO: Later we might reuse instances of the specified depth
 		TextImpl text = new TextImpl(eventReader, this);
 		text.initializeFromData(data);
