@@ -10,8 +10,7 @@ import javax.xml.stream.events.StartDocument;
 
 import dd.kms.maxmlian.api.*;
 
-// TODO: Check whether this class still must be public
-public class DocumentImpl extends NodeImpl implements Document
+class DocumentImpl extends NodeImpl implements Document
 {
 	private String  inputEncoding;
 	private boolean standalone;
@@ -21,7 +20,7 @@ public class DocumentImpl extends NodeImpl implements Document
 	private DocumentType docType;
 	private Element      documentElement;
 
-	public DocumentImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
+	DocumentImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
 		super(eventReader, nodeFactory);
 	}
 
@@ -105,18 +104,5 @@ public class DocumentImpl extends NodeImpl implements Document
 	@Override
 	public String getNodeName() {
 		return "#document";
-	}
-
-	// TODO: Check whether this method must still be public
-	public static Document createDocument(InputStream inputStream) throws XMLStreamException {
-		XMLInputFactory factory = XMLInputFactory.newInstance();
-		XMLEventReader eventReader = factory.createXMLEventReader(inputStream);
-		ExtendedXmlEventReader extendedReader = new ExtendedXmlEventReader(eventReader);
-		NodeFactory nodeFactory = new NodeFactory(extendedReader);
-		Node child = nodeFactory.readFirstChildNode();
-		if (child.getNodeType() == NodeType.DOCUMENT) {
-			return (Document) child;
-		}
-		throw new XMLStreamException("Unable to find document node in XML stream");
 	}
 }

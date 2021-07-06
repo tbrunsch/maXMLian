@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.junit.Assert;
@@ -59,12 +56,14 @@ public abstract class AbstractFileParsingTest
 	}
 
 	@Test
-	public void testParsingWholeFile() throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
-		Document document = XmlParser.readXml(Files.newInputStream(xmlFile));
-
+	public void testParsingWholeFile() throws IOException, XMLStreamException, javax.xml.parsers.ParserConfigurationException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setNamespaceAware(true);
-		DocumentBuilder builder = factory.newDocumentBuilder();
+		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
+
+		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+		domFactory.setNamespaceAware(true);
+		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
 		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
 
 		prepareTest(domDocument);

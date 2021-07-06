@@ -32,5 +32,4 @@ public interface Node
 	 * at this node, including this node. The tree is traversed in preorder.
 	 */
 	String getTextContent() throws XMLStreamException;
-//	boolean isDefaultNamespace(String namespaceURI);
 }
