@@ -2,7 +2,6 @@ package dd.kms.maxmlian.impl;
 
 import static javax.xml.stream.XMLStreamConstants.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
@@ -14,15 +13,16 @@ import dd.kms.maxmlian.api.*;
 class NodeFactory
 {
 	private final ExtendedXmlEventReader	eventReader;
+	private final ObjectFactory				objectFactory;
 
 	NodeFactory(ExtendedXmlEventReader eventReader) {
 		this.eventReader = eventReader;
+		// TODO: Make configurable
+		this.objectFactory = new ObjectFactoryWithoutReuse(eventReader, this);
 	}
 
 	ChildIterator createChildIterator() {
-		int depth = eventReader.getDepth();
-		// TODO: Reuse NodesImpl instances for childDepth
-		ChildIterator iterator = new ChildIterator(eventReader, this);
+		ChildIterator iterator = objectFactory.createChildIterator(eventReader.getDepth());
 		iterator.initialize();
 		return iterator;
 	}
@@ -115,29 +115,26 @@ class NodeFactory
 	}
 
 	private Element createElement(StartElement startElement) {
-		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
-		ElementImpl element = new ElementImpl(eventReader, this);
+		ElementImpl element = objectFactory.createElement(eventReader.getDepth());
 		element.initializeFromStartElement(startElement);
 		return element;
 	}
 
 	private Text createText(Characters characters, List<Characters> additionalCharacters) {
-		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
-		TextImpl text = characters.isCData() ? new CDATASectionImpl(eventReader, this) : new TextImpl(eventReader, this);
+		int depth = eventReader.getDepth();
+		TextImpl text = characters.isCData() ? objectFactory.createCDataSection(depth) : objectFactory.createText(depth);
 		text.initializeFromCharacters(characters, additionalCharacters);
 		return text;
 	}
 
 	TextImpl createText(String data, int depth) {
-		// TODO: Later we might reuse instances of the specified depth
-		TextImpl text = new TextImpl(eventReader, this);
+		TextImpl text = objectFactory.createText(depth);
 		text.initializeFromData(data);
 		return text;
 	}
 
 	private dd.kms.maxmlian.api.Comment createComment(javax.xml.stream.events.Comment event) {
-		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
-		CommentImpl comment = new CommentImpl(eventReader, this);
+		CommentImpl comment = objectFactory.createComment(eventReader.getDepth());
 		comment.initializeFromComment(event);
 		return comment;
 	}
@@ -158,8 +155,7 @@ class NodeFactory
 				break;
 			}
 			if (additionalCharacters == null) {
-				// TODO Later we might reuse instances of the current depth in order to reduce the number of instantiations
-				additionalCharacters = new ArrayList<>();
+				additionalCharacters = objectFactory.createCharactersList(eventReader.getDepth());
 			}
 			additionalCharacters.add(characters);
 			eventReader.nextEvent();
@@ -168,8 +164,7 @@ class NodeFactory
 	}
 
 	private dd.kms.maxmlian.api.ProcessingInstruction createProcessingInstruction(javax.xml.stream.events.ProcessingInstruction processingInstruction) {
-		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
-		ProcessingInstructionImpl procInstruction = new ProcessingInstructionImpl(eventReader, this);
+		ProcessingInstructionImpl procInstruction = objectFactory.createProcessingInstruction(eventReader.getDepth());
 		procInstruction.initializeFromProcessingInstruction(processingInstruction);
 		return procInstruction;
 	}
@@ -181,15 +176,13 @@ class NodeFactory
 	}
 
 	NamespaceImpl createNamespace(javax.xml.stream.events.Namespace ns, int depth) {
-		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
-		NamespaceImpl namespace = new NamespaceImpl(this);
+		NamespaceImpl namespace = objectFactory.createNamespace(depth);
 		namespace.initializeFromNamespace(ns, depth);
 		return namespace;
 	}
 
 	AttrImpl createAttribute(javax.xml.stream.events.Attribute attribute, int depth) {
-		// TODO: Later we might reuse instances of the current depth in order to reduce the number of instantiations
-		AttrImpl attr = new AttrImpl(this);
+		AttrImpl attr = objectFactory.createAttribute(depth);
 		attr.initializeFromAttribute(attribute, depth);
 		return attr;
 	}
