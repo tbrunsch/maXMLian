@@ -136,6 +136,10 @@ abstract class NodeImpl implements Node, Iterable<Node>
 		return null;
 	}
 
+	protected Map<String, Attr> createAttributesByQNameMap() {
+		return nodeFactory.createAttributesByQNameMap(initialDepth);
+	}
+
 	protected NamespaceImpl createNamespace(javax.xml.stream.events.Namespace namespace) {
 		return nodeFactory.createNamespace(namespace, initialDepth);
 	}

@@ -8,6 +8,7 @@ import javax.xml.stream.events.DTD;
 import javax.xml.stream.events.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import dd.kms.maxmlian.api.*;
 
@@ -20,7 +21,7 @@ class NodeFactory
 	NodeFactory(ExtendedXmlEventReader eventReader) {
 		this.eventReader = eventReader;
 		// TODO: Make configurable
-		this.objectFactory = new ObjectFactoryWithoutReuse(eventReader, this);
+		this.objectFactory = new DefaultObjectFactory(eventReader, this);
 	}
 
 	ChildIterator createChildIterator() {
@@ -166,6 +167,10 @@ class NodeFactory
 		DocumentImpl document = new DocumentImpl(eventReader, this);
 		document.initializeFromStartDocument(startDocument);
 		return document;
+	}
+
+	Map<String, Attr> createAttributesByQNameMap(int depth) {
+		return objectFactory.createAttributesByQNameMap(depth);
 	}
 
 	NamespaceImpl createNamespace(javax.xml.stream.events.Namespace ns, int depth) {

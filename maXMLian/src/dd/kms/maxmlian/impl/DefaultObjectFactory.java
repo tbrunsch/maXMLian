@@ -1,19 +1,23 @@
 package dd.kms.maxmlian.impl;
 
+import dd.kms.maxmlian.api.Attr;
+
 import javax.xml.stream.events.Characters;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This object factory creates new instances whenever an instance of a certain
  * type is requested. It does not reuse instances it has created earlier.
  */
-class ObjectFactoryWithoutReuse implements ObjectFactory
+class DefaultObjectFactory implements ObjectFactory
 {
 	private final ExtendedXmlEventReader	eventReader;
 	private final NodeFactory				nodeFactory;
 
-	ObjectFactoryWithoutReuse(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
+	DefaultObjectFactory(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
 		this.eventReader = eventReader;
 		this.nodeFactory = nodeFactory;
 	}
@@ -49,6 +53,11 @@ class ObjectFactoryWithoutReuse implements ObjectFactory
 	}
 
 	@Override
+	public Map<String, Attr> createAttributesByQNameMap(int depth) {
+		return new LinkedHashMap<>(4, 0.75f);
+	}
+
+	@Override
 	public NamespaceImpl createNamespace(int depth) {
 		return new NamespaceImpl(nodeFactory);
 	}
@@ -56,10 +65,5 @@ class ObjectFactoryWithoutReuse implements ObjectFactory
 	@Override
 	public AttrImpl createAttribute(int depth) {
 		return new AttrImpl(nodeFactory);
-	}
-
-	@Override
-	public List<Characters> createCharactersList(int depth) {
-		return new ArrayList<>(1);
 	}
 }

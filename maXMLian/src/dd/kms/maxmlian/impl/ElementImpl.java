@@ -2,7 +2,6 @@ package dd.kms.maxmlian.impl;
 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -39,8 +38,7 @@ class ElementImpl extends NodeImpl implements Element
 		if (attributeIterator == null) {
 			throw new IllegalStateException("Attribute iterator of element '" + getTagName() + "' is null");
 		}
-		// TODO: Possibly reuse old maps
-		attributesByQName = new LinkedHashMap<>();
+		attributesByQName = createAttributesByQNameMap();
 		AttrImpl prevAttr = null;
 
 		while (namespaceIterator.hasNext()) {
