@@ -26,6 +26,7 @@ class ElementImpl extends NodeImpl implements Element
 		this.name = startElement.getName();
 		this.namespaceIterator = startElement.getNamespaces();
 		this.attributeIterator = startElement.getAttributes();
+		this.attributesByQName = null;
 	}
 
 	private void initializeAttributeMap() {
