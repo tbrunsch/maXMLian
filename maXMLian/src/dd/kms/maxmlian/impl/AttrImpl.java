@@ -12,17 +12,16 @@ class AttrImpl implements Attr
 {
 	private final NodeFactory	nodeFactory;
 	Attribute					attribute;
-	private int					depth;
 	private AttrImpl			prevSibling;
 	private AttrImpl			nextSibling;
+	private AttrText			text;
 
 	AttrImpl(NodeFactory nodeFactory) {
 		this.nodeFactory = nodeFactory;
 	}
 
-	void initializeFromAttribute(Attribute attribute, int depth) {
+	void initializeFromAttribute(Attribute attribute) {
 		this.attribute = attribute;
-		this.depth = depth;
 	}
 
 	void setPrevSibling(AttrImpl prevSibling) {
@@ -92,8 +91,11 @@ class AttrImpl implements Attr
 
 	@Override
 	public Node getFirstChild() {
-		TextImpl text = nodeFactory.createText(getValue(), depth + 1);
+		if (text == null) {
+			text = new AttrText();
+		}
 		text.setParentNode(this);
+		text.setData(getValue());
 		return text;
 	}
 

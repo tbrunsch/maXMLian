@@ -18,20 +18,11 @@ class TextImpl extends CharacterDataImpl implements Text
 		super.initialize();
 		String data = characters.getData();
 		this.isElementContentWhitespace = characters.isIgnorableWhiteSpace();
-		if (additionalCharacters != null) {
-			for (Characters additionalCharacter : additionalCharacters) {
-				data += additionalCharacter.getData();
-				this.isElementContentWhitespace &= additionalCharacter.isIgnorableWhiteSpace();
-			}
+		for (Characters additionalCharacter : additionalCharacters) {
+			data += additionalCharacter.getData();
+			this.isElementContentWhitespace &= additionalCharacter.isIgnorableWhiteSpace();
 		}
 		setData(data);
-	}
-
-	void initializeFromData(String data) {
-		super.initialize();
-		setData(data);
-		// TODO: How to set isElementContentWhitespace in this case?
-		this.isElementContentWhitespace = false;
 	}
 
 	@Override

@@ -2,11 +2,12 @@ package dd.kms.maxmlian.impl;
 
 import static javax.xml.stream.XMLStreamConstants.*;
 
-import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.DTD;
 import javax.xml.stream.events.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import dd.kms.maxmlian.api.*;
 
@@ -14,6 +15,7 @@ class NodeFactory
 {
 	private final ExtendedXmlEventReader	eventReader;
 	private final ObjectFactory				objectFactory;
+	private final List<Characters>			additionalCharacters	= new ArrayList<>();
 
 	NodeFactory(ExtendedXmlEventReader eventReader) {
 		this.eventReader = eventReader;
@@ -127,12 +129,6 @@ class NodeFactory
 		return text;
 	}
 
-	TextImpl createText(String data, int depth) {
-		TextImpl text = objectFactory.createText(depth);
-		text.initializeFromData(data);
-		return text;
-	}
-
 	private dd.kms.maxmlian.api.Comment createComment(javax.xml.stream.events.Comment event) {
 		CommentImpl comment = objectFactory.createComment(eventReader.getDepth());
 		comment.initializeFromComment(event);
@@ -144,7 +140,7 @@ class NodeFactory
 	 * {@code isCData} is set as available. If no such events are available, then null is returned.
 	 */
 	private List<Characters> readAdditionalCharacters(int charactersEventType, boolean isCData) throws XMLStreamException {
-		List<Characters> additionalCharacters = null;
+		additionalCharacters.clear();
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.peek();
 			if (event.getEventType() != charactersEventType) {
@@ -153,9 +149,6 @@ class NodeFactory
 			Characters characters = event.asCharacters();
 			if (characters.isCData() != isCData){
 				break;
-			}
-			if (additionalCharacters == null) {
-				additionalCharacters = objectFactory.createCharactersList(eventReader.getDepth());
 			}
 			additionalCharacters.add(characters);
 			eventReader.nextEvent();
@@ -177,13 +170,13 @@ class NodeFactory
 
 	NamespaceImpl createNamespace(javax.xml.stream.events.Namespace ns, int depth) {
 		NamespaceImpl namespace = objectFactory.createNamespace(depth);
-		namespace.initializeFromNamespace(ns, depth);
+		namespace.initializeFromNamespace(ns);
 		return namespace;
 	}
 
 	AttrImpl createAttribute(javax.xml.stream.events.Attribute attribute, int depth) {
 		AttrImpl attr = objectFactory.createAttribute(depth);
-		attr.initializeFromAttribute(attribute, depth);
+		attr.initializeFromAttribute(attribute);
 		return attr;
 	}
 }

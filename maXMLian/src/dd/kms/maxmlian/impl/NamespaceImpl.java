@@ -10,8 +10,8 @@ class NamespaceImpl extends AttrImpl implements Namespace
 		super(nodeFactory);
 	}
 
-	void initializeFromNamespace(javax.xml.stream.events.Namespace namespace, int depth) {
-		initializeFromAttribute(namespace, depth);
+	void initializeFromNamespace(javax.xml.stream.events.Namespace namespace) {
+		initializeFromAttribute(namespace);
 		this.defaultNamespaceDeclaration = namespace.isDefaultNamespaceDeclaration();
 	}
 

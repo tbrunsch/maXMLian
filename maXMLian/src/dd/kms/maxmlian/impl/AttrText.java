@@ -1,0 +1,94 @@
+package dd.kms.maxmlian.impl;
+
+import dd.kms.maxmlian.api.Attr;
+import dd.kms.maxmlian.api.Node;
+import dd.kms.maxmlian.api.Text;
+
+import javax.xml.stream.XMLStreamException;
+import java.util.Collections;
+import java.util.Map;
+
+class AttrText implements Text
+{
+	private Attr	parent;
+	private String	data;
+
+	void setData(String data) {
+		this.data = data;
+	}
+
+	void setParentNode(Attr parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public boolean isElementContentWhitespace() {
+		for (int i = 0; i < data.length(); i++) {
+			char c = data.charAt(i);
+			if (!Character.isWhitespace(c)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public String getData() {
+		return data;
+	}
+
+	@Override
+	public String getNodeName() {
+		return "#text";
+	}
+
+	@Override
+	public String getNodeValue() {
+		return data;
+	}
+
+	@Override
+	public Node getParentNode() {
+		return parent;
+	}
+
+	@Override
+	public Iterable<Node> getChildNodes() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Node getFirstChild() throws XMLStreamException {
+		return null;
+	}
+
+	@Override
+	public Node getNextSibling() {
+		return null;
+	}
+
+	@Override
+	public Map<String, Attr> getAttributes() {
+		return Collections.emptyMap();
+	}
+
+	@Override
+	public String getNamespaceURI() {
+		return null;
+	}
+
+	@Override
+	public String getPrefix() {
+		return null;
+	}
+
+	@Override
+	public String getLocalName() {
+		return null;
+	}
+
+	@Override
+	public String getTextContent() throws XMLStreamException {
+		return data;
+	}
+}
