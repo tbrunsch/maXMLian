@@ -23,13 +23,7 @@ class AttrText implements Text
 
 	@Override
 	public boolean isElementContentWhitespace() {
-		for (int i = 0; i < data.length(); i++) {
-			char c = data.charAt(i);
-			if (!Character.isWhitespace(c)) {
-				return false;
-			}
-		}
-		return true;
+		return false;
 	}
 
 	@Override
