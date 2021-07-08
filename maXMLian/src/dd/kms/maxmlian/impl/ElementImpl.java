@@ -90,7 +90,7 @@ class ElementImpl extends NodeImpl implements Element
 
 	@Override
 	public String getNodeName() {
-		return XmlUtils.getQualifiedName(name);
+		return ImplUtils.getQualifiedName(name);
 	}
 
 	@Override
@@ -100,12 +100,12 @@ class ElementImpl extends NodeImpl implements Element
 
 	@Override
 	public String getNamespaceURI() {
-		return XmlUtils.emptyToNull(name.getNamespaceURI());
+		return ImplUtils.emptyToNull(name.getNamespaceURI());
 	}
 
 	@Override
 	public String getPrefix() {
-		return XmlUtils.emptyToNull(name.getPrefix());
+		return ImplUtils.emptyToNull(name.getPrefix());
 	}
 
 	@Override

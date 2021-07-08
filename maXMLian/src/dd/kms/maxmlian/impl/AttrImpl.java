@@ -50,7 +50,7 @@ class AttrImpl implements Attr
 
 	@Override
 	public String getName() {
-		return XmlUtils.getQualifiedName(attribute.getName());
+		return ImplUtils.getQualifiedName(attribute.getName());
 	}
 
 	@Override
@@ -115,12 +115,12 @@ class AttrImpl implements Attr
 
 	@Override
 	public String getNamespaceURI() {
-		return XmlUtils.emptyToNull(attribute.getName().getNamespaceURI());
+		return ImplUtils.emptyToNull(attribute.getName().getNamespaceURI());
 	}
 
 	@Override
 	public String getPrefix() {
-		return XmlUtils.emptyToNull(attribute.getName().getPrefix());
+		return ImplUtils.emptyToNull(attribute.getName().getPrefix());
 	}
 
 	@Override

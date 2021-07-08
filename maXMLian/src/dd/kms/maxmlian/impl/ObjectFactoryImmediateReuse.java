@@ -6,8 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static dd.kms.maxmlian.impl.ImplUtils.get;
+import static dd.kms.maxmlian.impl.ImplUtils.set;
+
 /**
- * This object factory creates reuses created instances as much as possible.
+ * This object factory reuses created instances as fast as possible. Whenever a node
+ * of a certain depth and a certain type is requested, the previous node instance
+ * of the same depth and type are returned. Only the first node with that depth
+ * and type will be instantiated.
  */
 class ObjectFactoryImmediateReuse extends DefaultObjectFactory
 {
@@ -75,7 +81,7 @@ class ObjectFactoryImmediateReuse extends DefaultObjectFactory
 	/**
 	 * Namespaces and attributes cannot be reused immediately because an element can have multiple of them
 	 * at the same time. Since namespaces and attributes are stored in an attributesByQNameMap,
-	 * we ensure that an element is not reused multiple times between two consecutive calls of
+	 * we ensure that an instance is not reused multiple times between two consecutive calls of
 	 * {@link #createAttributesByQNameMap(int)}.
 	 */
 	private void makeNamespacesAndElementsReusable(int depth) {
@@ -103,43 +109,4 @@ class ObjectFactoryImmediateReuse extends DefaultObjectFactory
 		return attribute != null ? attribute : attributes.addElementForLaterReuse(super.createAttribute(depth));
 	}
 
-	private static <T> T get(List<T> list, int index) {
-		return index < list.size() ? list.get(index) : null;
-	}
-
-	private static <T> T set(List<T> list, int index, T value) {
-		if (index < list.size()) {
-			list.set(index, value);
-		} else {
-			while (list.size() < index) {
-				list.add(null);
-			}
-			list.add(value);
-		}
-		return value;
-	}
-
-	private static class ReusableElementsCollection<T>
-	{
-		private final List<T>	data					= new ArrayList<>();
-		private int				numNonReusableElements;
-
-		T pollReusableElement() {
-			if (numNonReusableElements == data.size()) {
-				return null;
-			}
-			return data.get(numNonReusableElements++);
-		}
-
-		T addElementForLaterReuse(T element) {
-			assert numNonReusableElements == data.size() : "This method is meant to be called if no reusable element is available anymore";
-			data.add(element);
-			numNonReusableElements++;
-			return element;
-		}
-
-		void makeElementsReusable() {
-			numNonReusableElements = 0;
-		}
-	}
 }

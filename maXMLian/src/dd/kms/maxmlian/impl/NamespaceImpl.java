@@ -51,6 +51,6 @@ class NamespaceImpl extends AttrImpl implements Namespace
 	 * expected to be null.
 	 */
 	private String getLocalPart() {
-		return XmlUtils.emptyToNull(attribute.getName().getLocalPart());
+		return ImplUtils.emptyToNull(attribute.getName().getLocalPart());
 	}
 }
