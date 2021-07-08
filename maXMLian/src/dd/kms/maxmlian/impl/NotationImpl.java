@@ -9,12 +9,10 @@ import dd.kms.maxmlian.api.*;
 
 class NotationImpl implements Notation
 {
-	private final DocumentType			docType;
 	private final NotationDeclaration	notationDeclaration;
 	private final Notation				nextSibling;
 
-	NotationImpl(DocumentType docType, NotationDeclaration notationDeclaration, Notation nextSibling) {
-		this.docType = docType;
+	NotationImpl(NotationDeclaration notationDeclaration, Notation nextSibling) {
 		this.notationDeclaration = notationDeclaration;
 		this.nextSibling = nextSibling;
 	}
@@ -31,7 +29,7 @@ class NotationImpl implements Notation
 
 	@Override
 	public Node getParentNode() {
-		return docType;
+		return null;
 	}
 
 	@Override

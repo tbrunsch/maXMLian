@@ -10,12 +10,10 @@ import dd.kms.maxmlian.api.*;
 
 class EntityImpl implements Entity
 {
-	private final DocumentType		docType;
 	private final EntityDeclaration	entityDeclaration;
 	private final Entity			nextSibling;
 
-	EntityImpl(DocumentType docType, EntityDeclaration entityDeclaration, Entity nextSibling) {
-		this.docType = docType;
+	EntityImpl(EntityDeclaration entityDeclaration, Entity nextSibling) {
 		this.entityDeclaration = entityDeclaration;
 		this.nextSibling = nextSibling;
 	}
@@ -47,7 +45,7 @@ class EntityImpl implements Entity
 
 	@Override
 	public Node getParentNode() {
-		return docType;
+		return null;
 	}
 
 	@Override
