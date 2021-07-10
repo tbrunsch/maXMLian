@@ -5,6 +5,9 @@ import java.util.List;
 
 class ImplUtils
 {
+	static final int	INSTANCE_REUSE_IMMEDIATE	= 1;
+	static final int	INSTANCE_REUSE_NONE			= Integer.MAX_VALUE;
+
 	static String getQualifiedName(QName name) {
 		String prefix = emptyToNull(name.getPrefix());
 		String localPart = emptyToNull(name.getLocalPart());

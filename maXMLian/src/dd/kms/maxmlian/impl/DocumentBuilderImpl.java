@@ -12,12 +12,18 @@ import java.io.InputStream;
 
 class DocumentBuilderImpl implements DocumentBuilder
 {
+	private final int	reuseDelay;
+
+	DocumentBuilderImpl(int reuseDelay) {
+		this.reuseDelay = reuseDelay;
+	}
+
 	@Override
 	public Document parse(InputStream is) throws XMLStreamException {
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader = factory.createXMLEventReader(is);
 		ExtendedXmlEventReader extendedReader = new ExtendedXmlEventReader(eventReader);
-		NodeFactory nodeFactory = new NodeFactory(extendedReader);
+		NodeFactory nodeFactory = new NodeFactory(extendedReader, reuseDelay);
 		Node child = nodeFactory.readFirstChildNode();
 		if (child.getNodeType() == NodeType.DOCUMENT) {
 			return (Document) child;

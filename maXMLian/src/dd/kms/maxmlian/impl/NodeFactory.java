@@ -18,10 +18,11 @@ class NodeFactory
 	private final ObjectFactory				objectFactory;
 	private final List<Characters>			additionalCharacters	= new ArrayList<>();
 
-	NodeFactory(ExtendedXmlEventReader eventReader) {
+	NodeFactory(ExtendedXmlEventReader eventReader, int reuseDelay) {
 		this.eventReader = eventReader;
-		// TODO: Make configurable
-		this.objectFactory = new DefaultObjectFactory(eventReader, this);
+		this.objectFactory =	reuseDelay == ImplUtils.INSTANCE_REUSE_IMMEDIATE	? new ObjectFactoryImmediateReuse(eventReader, this) :
+								reuseDelay == ImplUtils.INSTANCE_REUSE_NONE			? new DefaultObjectFactory(eventReader, this)
+																					: new ObjectFactoryDelayedReuse(eventReader, this, reuseDelay);
 	}
 
 	ChildIterator createChildIterator() {
