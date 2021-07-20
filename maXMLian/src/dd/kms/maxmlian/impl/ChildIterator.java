@@ -61,7 +61,7 @@ class ChildIterator implements Iterator<Node>
 			try {
 				next = nodeFactory.readFirstChildNode();
 			} catch (XMLStreamException e) {
-				throw new XmlException("Cannot read next child from XML", e);
+				throw new XmlException("Cannot read next child from XML: " + e.getMessage(), e);
 			}
 		}
 		if (next != null) {

@@ -91,7 +91,7 @@ abstract class NodeImpl implements Node, Iterable<Node>
 		try {
 			return nodeFactory.getNextSibling(initialDepth);
 		} catch (XMLStreamException e) {
-			throw new XmlException("Cannot read next sibling from XML", e);
+			throw new XmlException("Cannot read next sibling from XML: " + e.getMessage(), e);
 		}
 	}
 
