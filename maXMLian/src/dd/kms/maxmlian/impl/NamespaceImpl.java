@@ -21,15 +21,6 @@ class NamespaceImpl extends AttrImpl implements Namespace
 	}
 
 	@Override
-	public boolean getSpecified() {
-		/*
-		 * For some reason, javax.xml.stream.events.NamespaceImpl is constructed with
-		 * isSpecified = false though it should be true.
-		 */
-		return true;
-	}
-
-	@Override
 	public String getName() {
 		return getLocalPart() != null ? super.getName() : getLocalName();
 	}

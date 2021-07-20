@@ -54,11 +54,6 @@ class AttrImpl implements Attr
 	}
 
 	@Override
-	public boolean getSpecified() {
-		return attribute.isSpecified();
-	}
-
-	@Override
 	public String getValue() {
 		return attribute.getValue();
 	}

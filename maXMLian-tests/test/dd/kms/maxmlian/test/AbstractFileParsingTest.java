@@ -182,7 +182,6 @@ public abstract class AbstractFileParsingTest
 		String name = domAttribute.getName();
 		Assert.assertEquals("Wrong name of an attribute", name, attribute.getName());
 		Assert.assertEquals("Wrong value of attribute '" + name + "'", domAttribute.getValue(), attribute.getValue());
-		Assert.assertEquals("Wrong value of getSpecified() of attribute '" + name + "'", domAttribute.getSpecified(), attribute.getSpecified());
 		Assert.assertEquals("Wrong value of isId() of attribute '" + name + "'", domAttribute.isId(), attribute.isId());
 	}
 
