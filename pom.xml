@@ -11,6 +11,7 @@
 	<modules>
 		<module>maXMLian</module>
 		<module>maXMLian-tests</module>
+		<module>maXMLian-benchmarks</module>
 		<module>maXMLian-xml-generator</module>
     </modules>
 
