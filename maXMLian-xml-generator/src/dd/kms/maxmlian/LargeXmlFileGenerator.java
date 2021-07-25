@@ -145,13 +145,13 @@ public class LargeXmlFileGenerator
 			.add("synchronized", method.isSynchronized())
 			.getDefinitions();
 		try (Element ignored = new Element(ELEMENT_NAME_METHOD, attributeDefinitions)) {
-			writeArgumentTypes(method);
+			writeParameterTypes(method);
 			writeReturnType(method);
 			writeExceptionTypes(method);
 		}
 	}
 
-	private void writeArgumentTypes(MethodX method) throws IOException {
+	private void writeParameterTypes(MethodX method) throws IOException {
 		try (Element ignored = new Element(ELEMENT_NAME_PARAMETER_TYPES)) {
 			for (ClassX parameterType : method.getParameterTypes()) {
 				writeClass(parameterType);
