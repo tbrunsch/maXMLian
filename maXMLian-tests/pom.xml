@@ -28,14 +28,30 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>5.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-runner</artifactId>
+			<version>1.5.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>dd.kms.maxmlian</groupId>
 			<artifactId>maxmlian</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>dd.kms.maxmlian</groupId>
+			<artifactId>maxmlian-xml-generator</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

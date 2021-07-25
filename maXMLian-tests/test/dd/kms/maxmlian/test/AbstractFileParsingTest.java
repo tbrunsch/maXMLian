@@ -1,62 +1,50 @@
 package dd.kms.maxmlian.test;
 
+import dd.kms.maxmlian.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.stream.XMLStreamException;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import dd.kms.maxmlian.api.*;
-
-@RunWith(Parameterized.class)
-public abstract class AbstractFileParsingTest
+@ExtendWith({LargeXmlTestFileDeletionExtension.class})
+abstract class AbstractFileParsingTest
 {
-	private final Path	xmlFile;
-
-	public AbstractFileParsingTest(Path xmlFile) {
-		this.xmlFile = xmlFile;
-	}
-
 	abstract void prepareTest(org.w3c.dom.Document domDocument);
 	abstract int getNumberOfChildrenToParse(int depth);
 
-	@Parameterized.Parameters(name = "{0}")
-	public static List<Path> collectResourceXmlFiles() throws IOException, URISyntaxException {
-		URL resourceDirectoryUrl = AbstractFileParsingTest.class.getResource("/");
-		URI resourceDirectoryUri = resourceDirectoryUrl.toURI();
-		Path resourceDirectory = Paths.get(resourceDirectoryUri);
-		List<Path> resourceXmlFiles = new ArrayList<>();
+	static List<Path> collectXmlFiles() throws IOException, URISyntaxException {
+		Path resourceDirectory = TestUtils.getResourceDirectory();
+		List<Path> xmlFiles = new ArrayList<>();
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourceDirectory)) {
 			for (Path resourcePath : stream) {
 				if (Files.isRegularFile(resourcePath) && isXmlFile(resourcePath)) {
-					resourceXmlFiles.add(resourcePath);
+					xmlFiles.add(resourcePath);
 				}
 			}
 		}
-		return resourceXmlFiles;
+		xmlFiles.add(TestUtils.getLargeXmlFile());
+		return xmlFiles;
 	}
 
 	private static boolean isXmlFile(Path file) {
 		return file.getFileName().toString().toLowerCase().endsWith(".xml");
 	}
 
-	@Test
-	public void testParsingWholeFile() throws IOException, XMLStreamException, javax.xml.parsers.ParserConfigurationException, SAXException {
+	@ParameterizedTest
+	@MethodSource("collectXmlFiles")
+	void testParsingWholeFile(Path xmlFile) throws IOException, XMLStreamException, javax.xml.parsers.ParserConfigurationException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
@@ -73,26 +61,26 @@ public abstract class AbstractFileParsingTest
 
 	private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth, boolean recursively) throws XMLStreamException {
 		String name = domNode.getNodeName();
-		Assert.assertEquals("Wrong node name", name, node.getNodeName());
-		Assert.assertEquals("Wrong local name of node '" + name + "'", domNode.getLocalName(), node.getLocalName());
-		Assert.assertEquals("Wrong prefix of node '" + name + "'", domNode.getPrefix(), node.getPrefix());
-		Assert.assertEquals("Wrong namespace URI of node '" + name + "'", domNode.getNamespaceURI(), node.getNamespaceURI());
+		Assertions.assertEquals(name, node.getNodeName(), "Wrong node name");
+		Assertions.assertEquals(domNode.getLocalName(), node.getLocalName(), "Wrong local name of node '" + name + "'");
+		Assertions.assertEquals(domNode.getPrefix(), node.getPrefix(), "Wrong prefix of node '" + name + "'");
+		Assertions.assertEquals(domNode.getNamespaceURI(), node.getNamespaceURI(), "Wrong namespace URI of node '" + name + "'");
 
 		Node parent = node.getParentNode();
 		org.w3c.dom.Node domParent = domNode.getParentNode();
 		if (domParent == null) {
 			if (parent != null) {
-				Assert.fail("Unexpected parent '" + parent.getNodeName() + "'");
+				Assertions.fail("Unexpected parent '" + parent.getNodeName() + "'");
 			}
 		} else {
-			Assert.assertNotNull("Expected parent '" + domParent.getNodeName() + "'", parent);
+			Assertions.assertNotNull(parent, "Expected parent '" + domParent.getNodeName() + "'");
 			compareNodes(parent, domParent, depth - 1, false);
 		}
 
 		short domNodeType = domNode.getNodeType();
 		NodeType expectedNodeType = getNodeType(domNodeType);
 		NodeType nodeType = node.getNodeType();
-		Assert.assertEquals("Wrong type of node '" + name + "'", expectedNodeType, nodeType);
+		Assertions.assertEquals(expectedNodeType, nodeType, "Wrong type of node '" + name + "'");
 
 		switch (nodeType) {
 			case ELEMENT:
@@ -140,7 +128,7 @@ public abstract class AbstractFileParsingTest
 			int numDomChildren = domChildren.getLength();
 			int childIndex = 0;
 			for (Node child : children) {
-				Assert.assertTrue("Wrong number of children of node '" + name + "'", childIndex < numDomChildren);
+				Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + name + "'");
 				org.w3c.dom.Node domChild = domChildren.item(childIndex);
 				compareNodes(child, domChild, depth + 1, true);
 				childIndex++;
@@ -150,25 +138,25 @@ public abstract class AbstractFileParsingTest
 			}
 			if (childIndex < numChildrenToParse) {
 				// this check must only be evaluated if the number of children has not been limited
-				Assert.assertEquals("Wrong number of children of node '" + name + "'", numDomChildren, childIndex);
+				Assertions.assertEquals(numDomChildren, childIndex, "Wrong number of children of node '" + name + "'");
 			}
 		}
 	}
 
 	private void compareElements(Element element, org.w3c.dom.Element domElement, int depth) throws XMLStreamException {
 		String name = element.getNodeName();
-		Assert.assertEquals("Wrong tag name of element '" + name + "'", element.getTagName(), domElement.getTagName());
+		Assertions.assertEquals(element.getTagName(), domElement.getTagName(), "Wrong tag name of element '" + name + "'");
 
 		int numChildrenToParse = getNumberOfChildrenToParse(depth);
 		if (numChildrenToParse > 0) {
 			Map<String, Attr> attributesByName = element.getAttributes();
 			org.w3c.dom.NamedNodeMap domAttributes = domElement.getAttributes();
-			Assert.assertEquals("Wrong number of attributes of element '" + name + "'", domAttributes.getLength(), attributesByName.size());
+			Assertions.assertEquals(domAttributes.getLength(), attributesByName.size(), "Wrong number of attributes of element '" + name + "'");
 			int attributeIndex = 0;
 			for (String attributeName : attributesByName.keySet()) {
 				Attr attribute = attributesByName.get(attributeName);
 				org.w3c.dom.Node domAttribute = domAttributes.getNamedItem(attributeName);
-				Assert.assertNotNull("Wrong attribute name '" + attributeName + "'", domAttribute);
+				Assertions.assertNotNull(domAttribute, "Wrong attribute name '" + attributeName + "'");
 				compareNodes(attribute, domAttribute, depth + 1, true);
 				attributeIndex++;
 				if (attributeIndex >= numChildrenToParse) {
@@ -180,46 +168,46 @@ public abstract class AbstractFileParsingTest
 
 	private void compareAttributes(Attr attribute, org.w3c.dom.Attr domAttribute) {
 		String name = domAttribute.getName();
-		Assert.assertEquals("Wrong name of an attribute", name, attribute.getName());
-		Assert.assertEquals("Wrong value of attribute '" + name + "'", domAttribute.getValue(), attribute.getValue());
-		Assert.assertEquals("Wrong value of isId() of attribute '" + name + "'", domAttribute.isId(), attribute.isId());
+		Assertions.assertEquals(name, attribute.getName(), "Wrong name of an attribute");
+		Assertions.assertEquals(domAttribute.getValue(), attribute.getValue(), "Wrong value of attribute '" + name + "'");
+		Assertions.assertEquals(domAttribute.isId(), attribute.isId(), "Wrong value of isId() of attribute '" + name + "'");
 	}
 
 	private void compareTexts(Text text, org.w3c.dom.Text domText) {
 		String name = domText.getNodeName();
-		Assert.assertEquals("Wrong data of text node '" + name + "'", domText.getData(), text.getData());
-		Assert.assertEquals("Wrong value of isElementContextWhiteSpace() of text node '" + name + "'", domText.isElementContentWhitespace(), text.isElementContentWhitespace());
+		Assertions.assertEquals(domText.getData(), text.getData(), "Wrong data of text node '" + name + "'");
+		Assertions.assertEquals(domText.isElementContentWhitespace(), text.isElementContentWhitespace(), "Wrong value of isElementContextWhiteSpace() of text node '" + name + "'");
 	}
 
 	private void compareCDataSections(CDATASection cDataSection, org.w3c.dom.CDATASection domCDataSection) {
 		String name = domCDataSection.getNodeName();
-		Assert.assertEquals("Wrong data of CDATA section node '" + name + "'", domCDataSection.getData(), cDataSection.getData());
-		Assert.assertEquals("Wrong value of isElementContextWhiteSpace() of CDATA section node '" + name + "'", domCDataSection.isElementContentWhitespace(), cDataSection.isElementContentWhitespace());
+		Assertions.assertEquals(domCDataSection.getData(), cDataSection.getData(), "Wrong data of CDATA section node '" + name + "'");
+		Assertions.assertEquals(domCDataSection.isElementContentWhitespace(), cDataSection.isElementContentWhitespace(), "Wrong value of isElementContextWhiteSpace() of CDATA section node '" + name + "'");
 	}
 
 	private void compareEntities(Entity entity, org.w3c.dom.Entity domEntity) {
 		String name = entity.getNodeName();
-		Assert.assertEquals("Wrong public ID of entity '" + name + "'", domEntity.getPublicId(), entity.getPublicId());
-		Assert.assertEquals("Wrong system ID of entity '" + name + "'", domEntity.getSystemId(), entity.getSystemId());
-		Assert.assertEquals("Wrong notation name of entity '" + name + "'", domEntity.getNotationName(), entity.getNotationName());
+		Assertions.assertEquals(domEntity.getPublicId(), entity.getPublicId(), "Wrong public ID of entity '" + name + "'");
+		Assertions.assertEquals(domEntity.getSystemId(), entity.getSystemId(), "Wrong system ID of entity '" + name + "'");
+		Assertions.assertEquals(domEntity.getNotationName(), entity.getNotationName(), "Wrong notation name of entity '" + name + "'");
 	}
 
 	private void compareProcessingInstructions(ProcessingInstruction processingInstruction, org.w3c.dom.ProcessingInstruction domProcessingInstruction) {
 		String name = domProcessingInstruction.getNodeName();
-		Assert.assertEquals("Wrong data of processing instruction '" + name + "'", domProcessingInstruction.getData(), processingInstruction.getData());
-		Assert.assertEquals("Wrong target of processing instruction '" + name + "'", domProcessingInstruction.getTarget(), processingInstruction.getTarget());
+		Assertions.assertEquals(domProcessingInstruction.getData(), processingInstruction.getData(), "Wrong data of processing instruction '" + name + "'");
+		Assertions.assertEquals(domProcessingInstruction.getTarget(), processingInstruction.getTarget(), "Wrong target of processing instruction '" + name + "'");
 	}
 
 	private void compareComments(Comment comment, org.w3c.dom.Comment domComment) {
 		String name = domComment.getNodeName();
-		Assert.assertEquals("Wrong data of comment '" + name + "'", domComment.getData(), comment.getData());
+		Assertions.assertEquals(domComment.getData(), comment.getData(), "Wrong data of comment '" + name + "'");
 	}
 
 	private void compareDocuments(Document document, org.w3c.dom.Document domDocument) {
 		String name = domDocument.getNodeName();
-		Assert.assertEquals("Wrong input encoding of document '" + name + "'", domDocument.getInputEncoding().toUpperCase(), document.getInputEncoding().toUpperCase());
-		Assert.assertEquals("Wrong value of getXmlStandalone() of document '" + name + "'", domDocument.getXmlStandalone(), document.getXmlStandalone());
-		Assert.assertEquals("Wrong XML version of document '" + name + "'", domDocument.getXmlVersion(), document.getXmlVersion());
+		Assertions.assertEquals(domDocument.getInputEncoding().toUpperCase(), document.getInputEncoding().toUpperCase(), "Wrong input encoding of document '" + name + "'");
+		Assertions.assertEquals(domDocument.getXmlStandalone(), document.getXmlStandalone(), "Wrong value of getXmlStandalone() of document '" + name + "'");
+		Assertions.assertEquals(domDocument.getXmlVersion(), document.getXmlVersion(), "Wrong XML version of document '" + name + "'");
 
 		/*
 		 * Do not test getDocumentElement() and getDoctype() because this will make document.getChildren()
@@ -230,21 +218,21 @@ public abstract class AbstractFileParsingTest
 
 	private void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType, int depth) throws XMLStreamException {
 		String name = domDocType.getName();
-		Assert.assertEquals("Wrong name of document type '" + name + "'", domDocType.getName(), docType.getName());
-		Assert.assertEquals("Wrong public ID of document type '" + name + "'", domDocType.getPublicId(), docType.getPublicId());
-		Assert.assertEquals("Wrong system ID of document type '" + name + "'", domDocType.getSystemId(), docType.getSystemId());
+		Assertions.assertEquals(domDocType.getName(), docType.getName(), "Wrong name of document type '" + name + "'");
+		Assertions.assertEquals(domDocType.getPublicId(), docType.getPublicId(), "Wrong public ID of document type '" + name + "'");
+		Assertions.assertEquals(domDocType.getSystemId(), docType.getSystemId(), "Wrong system ID of document type '" + name + "'");
 
 		int numChildrenToParse = getNumberOfChildrenToParse(depth);
 
 		if (numChildrenToParse > 0) {
 			Map<String, Entity> entitiesByName = docType.getEntities();
 			org.w3c.dom.NamedNodeMap domEntities = domDocType.getEntities();
-			Assert.assertEquals("Wrong number of entities of document type '" + name + "'", domEntities.getLength(), entitiesByName.size());
+			Assertions.assertEquals(domEntities.getLength(), entitiesByName.size(), "Wrong number of entities of document type '" + name + "'");
 			int entityIndex = 0;
 			for (String entityName : entitiesByName.keySet()) {
 				Entity entity = entitiesByName.get(entityName);
 				org.w3c.dom.Node domEntity = domEntities.getNamedItem(entityName);
-				Assert.assertNotNull("Wrong entity name '" + entityName + "'", domEntity);
+				Assertions.assertNotNull(domEntity, "Wrong entity name '" + entityName + "'");
 				compareNodes(entity, domEntity, depth + 1, true);
 				entityIndex++;
 				if (entityIndex >= numChildrenToParse) {
@@ -256,12 +244,12 @@ public abstract class AbstractFileParsingTest
 		if (numChildrenToParse > 0) {
 			Map<String, Notation> notationsByName = docType.getNotations();
 			org.w3c.dom.NamedNodeMap domNotations = domDocType.getNotations();
-			Assert.assertEquals("Wrong number of notations of document type '" + name + "'", domNotations.getLength(), notationsByName.size());
+			Assertions.assertEquals(domNotations.getLength(), notationsByName.size(), "Wrong number of notations of document type '" + name + "'");
 			int notationIndex = 0;
 			for (String notationName : notationsByName.keySet()) {
 				Notation notation = notationsByName.get(notationName);
 				org.w3c.dom.Node domNotation = domNotations.getNamedItem(notationName);
-				Assert.assertNotNull("Wrong notation name '" + notationName + "'", domNotation);
+				Assertions.assertNotNull(domNotation, "Wrong notation name '" + notationName + "'");
 				compareNodes(notation, domNotation, depth + 1, true);
 				notationIndex++;
 				if (notationIndex >= numChildrenToParse) {
@@ -275,8 +263,8 @@ public abstract class AbstractFileParsingTest
 
 	private void compareNotations(Notation notation, org.w3c.dom.Notation domNotation) {
 		String name = domNotation.getNodeName();
-		Assert.assertEquals("Wrong public ID of notation '" + name + "'", domNotation.getPublicId(), notation.getPublicId());
-		Assert.assertEquals("Wrong system ID of notation '" + name + "'", domNotation.getSystemId(), notation.getSystemId());
+		Assertions.assertEquals(domNotation.getPublicId(), notation.getPublicId(), "Wrong public ID of notation '" + name + "'");
+		Assertions.assertEquals(domNotation.getSystemId(), notation.getSystemId(), "Wrong system ID of notation '" + name + "'");
 	}
 
 	private static NodeType getNodeType(short domNodeType) {

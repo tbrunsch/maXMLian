@@ -1,7 +1,5 @@
 package dd.kms.maxmlian.test;
 
-import java.nio.file.Path;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -14,13 +12,9 @@ import org.w3c.dom.NodeList;
  * (cf. {@link ParseWholeFileTest}) because skipping XML events is implemented
  * differently than parsing them.
  */
-public class ParseWithLimitedChildNumberTest extends AbstractFileParsingTest
+class ParseWithLimitedChildNumberTest extends AbstractFileParsingTest
 {
 	private int maxNumberOfChildrenToParse;
-
-	public ParseWithLimitedChildNumberTest(Path xmlFile) {
-		super(xmlFile);
-	}
 
 	@Override
 	void prepareTest(Document domDocument) {

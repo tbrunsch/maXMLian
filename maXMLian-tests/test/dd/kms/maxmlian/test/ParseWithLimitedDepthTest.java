@@ -1,7 +1,5 @@
 package dd.kms.maxmlian.test;
 
-import java.nio.file.Path;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -16,10 +14,6 @@ import org.w3c.dom.NodeList;
 public class ParseWithLimitedDepthTest extends AbstractFileParsingTest
 {
 	private int maxDepthToConsider;
-
-	public ParseWithLimitedDepthTest(Path xmlFile) {
-		super(xmlFile);
-	}
 
 	@Override
 	void prepareTest(Document domDocument) {

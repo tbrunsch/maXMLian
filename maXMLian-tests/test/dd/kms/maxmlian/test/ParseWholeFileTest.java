@@ -1,7 +1,5 @@
 package dd.kms.maxmlian.test;
 
-import java.nio.file.Path;
-
 import org.w3c.dom.Document;
 
 /**
@@ -10,12 +8,8 @@ import org.w3c.dom.Document;
  * the ultimate unit test, it does not cover use cases where the document is only
  * parsed partially while some other parts are skipped.
  */
-public class ParseWholeFileTest extends AbstractFileParsingTest
+class ParseWholeFileTest extends AbstractFileParsingTest
 {
-	public ParseWholeFileTest(Path xmlFile) {
-		super(xmlFile);
-	}
-
 	@Override
 	void prepareTest(Document domDocument) {
 		// nothing to do
