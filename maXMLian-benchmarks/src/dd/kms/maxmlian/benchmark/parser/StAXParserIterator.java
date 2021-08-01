@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 
-public class StAXParser extends AbstractParser
+public class StAXParserIterator extends AbstractParser
 {
 	@Override
 	void doParseXml(Path xmlFile) throws Exception {

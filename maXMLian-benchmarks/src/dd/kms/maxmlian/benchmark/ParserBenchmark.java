@@ -1,9 +1,6 @@
 package dd.kms.maxmlian.benchmark;
 
-import dd.kms.maxmlian.benchmark.parser.DomParser;
-import dd.kms.maxmlian.benchmark.parser.MaXMLianParser;
-import dd.kms.maxmlian.benchmark.parser.Parser;
-import dd.kms.maxmlian.benchmark.parser.StAXParser;
+import dd.kms.maxmlian.benchmark.parser.*;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -21,7 +18,8 @@ public class ParserBenchmark
 	static {
 		// Register parsers
 		PARSERS_BY_NAME.put(DUMMY_PARSER_NAME,							new MaXMLianParser(1));
-		PARSERS_BY_NAME.put("StAX parser",								new StAXParser());
+		PARSERS_BY_NAME.put("StAX parser (Cursor API)",					new StAXParserCursor());
+		PARSERS_BY_NAME.put("StAX parser (Iterator API)",				new StAXParserIterator());
 		PARSERS_BY_NAME.put("MaXMLian with immediate instance reuse",	new MaXMLianParser(1));
 		PARSERS_BY_NAME.put("MaXMLian with instance reuse delay 5",		new MaXMLianParser(5));
 		PARSERS_BY_NAME.put("MaXMLian without instance reuse",			new MaXMLianParser(Integer.MAX_VALUE));

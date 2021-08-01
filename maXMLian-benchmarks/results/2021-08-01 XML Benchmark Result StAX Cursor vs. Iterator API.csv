@@ -1,0 +1,81 @@
+XML Benchmark Result,,,,,
+File:,C:\Users\Yoda\Desktop\XML Benchmark.xml,,,,
+Size:,1031.8454 MB,,,,
+Trials:,3,,,,
+,,,,,,
+Parsing Method,,,StAX parser (Cursor API),StAX parser (Iterator API),MaXMLian with immediate instance reuse
+Document Parsing Time [s],,min,0.00,0.00,0.00
+,,avg,0.00,0.00,0.0033
+,,max,0.00,0.00,0.01
+Tree Traversal Time [s],,min,8.72,14.222,19.002
+,,avg,8.935,14.3857,19.277
+,,max,9.27,14.60,19.53
+Total Parsing Time [s],,min,8.72,14.222,19.012
+,,avg,8.935,14.3857,19.2803
+,,max,9.27,14.60,19.53
+Memory Consumption without GC [MB],after parsing document,min,0.00,0.00,0.00
+,,avg,0.00,0.00,0.00
+,,max,0.00,0.00,0.00
+,after 10 % tree traversal,min,66.7986,30.7969,4.8191
+,,avg,67.4695,31.4636,198.1522
+,,max,68.8052,32.7969,296.8191
+,after 20 % tree traversal,min,52.7986,46.7969,0.8191
+,,avg,53.4695,47.4636,180.8189
+,,max,54.8052,48.7969,272.8191
+,after 30 % tree traversal,min,38.7986,62.7969,2.8191
+,,avg,39.4695,63.4636,169.4855
+,,max,40.8052,64.7969,254.8191
+,after 40 % tree traversal,min,26.7986,74.7969,138.8191
+,,avg,27.4695,76.1303,192.1522
+,,max,28.8052,78.7969,220.8191
+,after 50 % tree traversal,min,14.7986,86.7969,118.8191
+,,avg,15.4695,87.4636,158.8189
+,,max,16.8052,88.7969,180.8191
+,after 60 % tree traversal,min,2.7986,104.7969,112.8191
+,,avg,3.4695,105.4636,139.4855
+,,max,4.8052,106.7969,154.8191
+,after 70 % tree traversal,min,64.7986,116.7969,100.8191
+,,avg,65.4695,117.4636,114.1522
+,,max,66.8052,118.7969,122.8191
+,after 80 % tree traversal,min,52.7986,130.7969,92.8184
+,,avg,53.4695,132.1303,94.8189
+,,max,54.8052,134.7969,96.8191
+,after 90 % tree traversal,min,42.7986,144.7969,58.8184
+,,avg,43.4695,145.4636,67.4855
+,,max,44.8052,146.7969,80.8191
+,after 100 % tree traversal,min,30.7986,148.7969,16.8184
+,,avg,31.4695,149.4636,32.1522
+,,max,32.8052,150.7969,58.8191
+Memory Consumption with GC [MB],after parsing document,min,0.0102,0.0103,0.0344
+,,avg,0.0102,0.0103,0.0344
+,,max,0.0102,0.0103,0.0344
+,after 10 % tree traversal,min,0.0139,0.0152,0.0559
+,,avg,0.014,0.0152,0.0559
+,,max,0.0141,0.0152,0.0559
+,after 20 % tree traversal,min,0.014,0.0142,0.0552
+,,avg,0.014,0.0142,0.0552
+,,max,0.0142,0.0142,0.0552
+,after 30 % tree traversal,min,0.014,0.0142,0.0553
+,,avg,0.014,0.0142,0.0555
+,,max,0.0142,0.0142,0.056
+,after 40 % tree traversal,min,0.0139,0.0141,0.0552
+,,avg,0.014,0.0141,0.0555
+,,max,0.0142,0.0141,0.056
+,after 50 % tree traversal,min,0.014,0.0141,0.0549
+,,avg,0.014,0.0141,0.0552
+,,max,0.0142,0.0141,0.0557
+,after 60 % tree traversal,min,0.0141,0.0143,0.058
+,,avg,0.0142,0.0143,0.0582
+,,max,0.0143,0.0143,0.0587
+,after 70 % tree traversal,min,0.0141,0.0143,0.0576
+,,avg,0.0142,0.0143,0.0578
+,,max,0.0144,0.0143,0.0583
+,after 80 % tree traversal,min,0.0141,0.0143,0.0579
+,,avg,0.0142,0.0143,0.0581
+,,max,0.0144,0.0143,0.0586
+,after 90 % tree traversal,min,0.0141,0.0144,0.058
+,,avg,0.0142,0.0144,0.0583
+,,max,0.0144,0.0144,0.0588
+,after 100 % tree traversal,min,0.0141,0.0143,0.0583
+,,avg,0.0142,0.0143,0.0585
+,,max,0.0144,0.0143,0.059
