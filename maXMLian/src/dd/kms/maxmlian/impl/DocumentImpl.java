@@ -1,34 +1,31 @@
 package dd.kms.maxmlian.impl;
 
-import java.io.InputStream;
+import dd.kms.maxmlian.api.Document;
+import dd.kms.maxmlian.api.DocumentType;
+import dd.kms.maxmlian.api.Element;
+import dd.kms.maxmlian.api.Node;
+
 import java.util.Iterator;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartDocument;
-
-import dd.kms.maxmlian.api.*;
 
 class DocumentImpl extends NodeImpl implements Document
 {
-	private String  inputEncoding;
-	private boolean standalone;
-	private String	xmlVersion;
+	private String 			inputEncoding;
+	private boolean			standalone;
+	private String			xmlVersion;
 
-	private boolean      retrievedChildren;
-	private DocumentType docType;
-	private Element      documentElement;
+	private boolean			retrievedChildren;
+	private DocumentType	docType;
+	private Element			documentElement;
 
-	DocumentImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
-		super(eventReader, nodeFactory);
+	DocumentImpl(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
+		super(streamReader, nodeFactory);
 	}
 
-	void initializeFromStartDocument(StartDocument startDocument) {
+	void initialize(String characterEncodingScheme, boolean standalone, String version) {
 		super.initialize();
-		inputEncoding = startDocument.getCharacterEncodingScheme();
-		standalone = startDocument.isStandalone();
-		xmlVersion = startDocument.getVersion();
+		this.inputEncoding = characterEncodingScheme;
+		this.standalone = standalone;
+		this.xmlVersion = version;
 	}
 
 	@Override
@@ -75,10 +72,10 @@ class DocumentImpl extends NodeImpl implements Document
 	}
 
 	@Override
-	public Iterable<Node> getChildNodes() throws XMLStreamException {
-		Iterable<Node> children = super.getChildNodes();
+	public Iterable<Node> getChildNodes() {
+		resetReaderPosition(PARSE_CHILDREN_ERROR);
 		retrievedChildren = true;
-		return children;
+		return this;
 	}
 
 	@Override

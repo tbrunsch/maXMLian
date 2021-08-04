@@ -7,14 +7,14 @@ class ProcessingInstructionImpl extends NodeImpl implements ProcessingInstructio
 	private String	target;
 	private String	data;
 
-	ProcessingInstructionImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
+	ProcessingInstructionImpl(ExtendedXmlStreamReader eventReader, NodeFactory nodeFactory) {
 		super(eventReader, nodeFactory);
 	}
 
-	void initializeFromProcessingInstruction(javax.xml.stream.events.ProcessingInstruction processingInstruction) {
+	void initialize(String target, String data) {
 		super.initialize();
-		target = processingInstruction.getTarget();
-		data = processingInstruction.getData();
+		this.target = target;
+		this.data = data;
 	}
 
 	@Override

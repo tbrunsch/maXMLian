@@ -10,7 +10,7 @@ import dd.kms.maxmlian.api.Node;
 
 class ChildIterator implements Iterator<Node>
 {
-	private final ExtendedXmlEventReader	eventReader;
+	private final ExtendedXmlStreamReader	streamReader;
 	private final NodeFactory				nodeFactory;
 
 	private int     depth;
@@ -18,13 +18,13 @@ class ChildIterator implements Iterator<Node>
 	private Node    next;
 	private Node	parent;
 
-	ChildIterator(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
-		this.eventReader = eventReader;
+	ChildIterator(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
+		this.streamReader = streamReader;
 		this.nodeFactory = nodeFactory;
 	}
 
 	void initialize() {
-		depth = eventReader.getDepth();
+		depth = streamReader.getDepth();
 		retrievedNext = false;
 		next = null;
 	}
@@ -55,7 +55,8 @@ class ChildIterator implements Iterator<Node>
 		if (next != null) {
 			next = next.getNextSibling();
 		} else {
-			if (eventReader.getDepth() != depth) {
+			// TODO: Either support resetting position consequently or do not support it at all
+			if (streamReader.getDepth() != depth) {
 				throw new XmlStateException("Cannot access first child because the XML reader has already parsed beyond the start position of the node");
 			}
 			try {

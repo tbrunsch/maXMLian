@@ -1,31 +1,32 @@
 package dd.kms.maxmlian.impl;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.events.StartElement;
-
 import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.Element;
+import dd.kms.maxmlian.api.Node;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
+import java.util.Collections;
+import java.util.Map;
 
 class ElementImpl extends NodeImpl implements Element
 {
-	private QName										name;
-	private Map<String, Attr>							attributesByQName;
-	private Iterator<javax.xml.stream.events.Namespace>	namespaceIterator;
-	private Iterator<javax.xml.stream.events.Attribute>	attributeIterator;
+	private static final String	PARSE_ATTRIBUTES_ERROR	= "Cannot parse attributes when the XML reader has already parsed beyond the start position of that element";
 
-	ElementImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
+	private String				namespaceUri;
+	private String				localName;
+	private String				prefix;
+	private Map<String, Attr>	attributesByQName;
+
+	ElementImpl(ExtendedXmlStreamReader eventReader, NodeFactory nodeFactory) {
 		super(eventReader, nodeFactory);
 	}
 
-	void initializeFromStartElement(StartElement startElement) {
+	void initialize(String namespaceUri, String localName, String prefix) {
 		super.initialize();
-		this.name = startElement.getName();
-		this.namespaceIterator = startElement.getNamespaces();
-		this.attributeIterator = startElement.getAttributes();
+		this.namespaceUri = ImplUtils.emptyToNull(namespaceUri);
+		this.localName = localName;
+		this.prefix = ImplUtils.emptyToNull(prefix);
 		this.attributesByQName = null;
 	}
 
@@ -33,36 +34,45 @@ class ElementImpl extends NodeImpl implements Element
 		if (attributesByQName != null) {
 			return;
 		}
-		if (namespaceIterator == null) {
-			throw new IllegalStateException("dd.kms.maxmlian.api.Namespace iterator of element '" + getTagName() + "' is null");
-		}
-		if (attributeIterator == null) {
-			throw new IllegalStateException("Attribute iterator of element '" + getTagName() + "' is null");
-		}
+		resetReaderPosition(PARSE_ATTRIBUTES_ERROR);
+		XMLStreamReader reader = getReader();
+
 		attributesByQName = createAttributesByQNameMap();
 		AttrImpl prevAttr = null;
+		// TODO: Make namespace awareness configurable; (Boolean)streamReader.getProperty("javax.xml.stream.isNamespaceAware")
+		boolean namespaceAware = true;
+		if (namespaceAware) {
+			prevAttr = addNamespaceAttributes(reader, prevAttr);
+			// TODO: setNamespaceContext(); // see XMLEventAllocatorImpl.getXMLEvent()
+		}
+		addAttributes(reader, prevAttr);
+	}
 
-		while (namespaceIterator.hasNext()) {
-			javax.xml.stream.events.Namespace ns = namespaceIterator.next();
-			NamespaceImpl namespace = createNamespace(ns);
-			if (prevAttr != null) {
-				prevAttr.setNextSibling(namespace);
-			}
+	private AttrImpl addNamespaceAttributes(XMLStreamReader reader, AttrImpl prevAttr) {
+		int numNamespaces = reader.getNamespaceCount();
+		for (int i = 0; i < numNamespaces; i++) {
+			String uri = reader.getNamespaceURI(i);
+			String prefix = reader.getNamespacePrefix(i);
+			NamespaceImpl namespace = createNamespace(prefix, uri);
+			namespace.setPrevSibling(prevAttr);
 			attributesByQName.put(namespace.getName(), namespace);
 			prevAttr = namespace;
 		}
+		return prevAttr;
+	}
 
-		while (attributeIterator.hasNext()) {
-			javax.xml.stream.events.Attribute attribute = attributeIterator.next();
-			AttrImpl attr = createAttribute(attribute);
-			if (prevAttr != null) {
-				prevAttr.setNextSibling(attr);
-			}
+	private AttrImpl addAttributes(XMLStreamReader reader, AttrImpl prevAttr) {
+		int numAttributes = reader.getAttributeCount();
+		for (int i = 0; i < numAttributes; i++) {
+			QName name = reader.getAttributeName(i);
+			String value = reader.getAttributeValue(i);
+			String type = reader.getAttributeType(i);
+			AttrImpl attr = createAttribute(name.getNamespaceURI(), name.getLocalPart(), name.getPrefix(), value, type);
+			attr.setPrevSibling(prevAttr);
 			attributesByQName.put(attr.getName(), attr);
 			prevAttr = attr;
 		}
-		namespaceIterator = null;
-		attributeIterator = null;
+		return prevAttr;
 	}
 
 	@Override
@@ -90,7 +100,7 @@ class ElementImpl extends NodeImpl implements Element
 
 	@Override
 	public String getNodeName() {
-		return ImplUtils.getQualifiedName(name);
+		return ImplUtils.getQualifiedName(localName, prefix);
 	}
 
 	@Override
@@ -100,16 +110,22 @@ class ElementImpl extends NodeImpl implements Element
 
 	@Override
 	public String getNamespaceURI() {
-		return ImplUtils.emptyToNull(name.getNamespaceURI());
+		return namespaceUri;
 	}
 
 	@Override
 	public String getPrefix() {
-		return ImplUtils.emptyToNull(name.getPrefix());
+		return prefix;
 	}
 
 	@Override
 	public String getLocalName() {
-		return name.getLocalPart();
+		return localName;
+	}
+
+	@Override
+	public Iterable<Node> getChildNodes() {
+		resetReaderPosition(PARSE_CHILDREN_ERROR);
+		return this;
 	}
 }

@@ -31,13 +31,13 @@ class ObjectFactoryDelayedReuse extends DefaultObjectFactory
 	private final List<RoundRobinCycle<ReusableElementsCollection<AttrImpl>>>		attributeCollections		= new ArrayList<>();
 
 	/**
-	 * @param eventReader The XML event reader
+	 * @param streamReader The XML stream reader
 	 * @param nodeFactory The factory used by most nodes to create further nodes
 	 * @param reuseDelay The number of instances of each node type and depth to create
 	 *                   of such a node until the first one is reused
 	 */
-	ObjectFactoryDelayedReuse(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory, int reuseDelay) {
-		super(eventReader, nodeFactory);
+	ObjectFactoryDelayedReuse(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory, int reuseDelay) {
+		super(streamReader, nodeFactory);
 		this.reusableDelay = reuseDelay;
 	}
 

@@ -1,27 +1,28 @@
 package dd.kms.maxmlian.impl;
 
-import java.util.Collections;
-import java.util.Map;
-
-import javax.xml.stream.events.Attribute;
-
 import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.Node;
 
+import java.util.Collections;
+import java.util.Map;
+
 class AttrImpl implements Attr
 {
-	private final NodeFactory	nodeFactory;
-	Attribute					attribute;
-	private AttrImpl			prevSibling;
-	private AttrImpl			nextSibling;
-	private AttrText			text;
+	private String		namespaceUri;
+	private String		localName;
+	private String		prefix;
+	private String		value;
+	private String		type;
+	private AttrImpl	prevSibling;
+	private AttrImpl	nextSibling;
+	private AttrText	text;
 
-	AttrImpl(NodeFactory nodeFactory) {
-		this.nodeFactory = nodeFactory;
-	}
-
-	void initializeFromAttribute(Attribute attribute) {
-		this.attribute = attribute;
+	void initialize(String namespaceUri, String localName, String prefix, String value, String type) {
+		this.namespaceUri = ImplUtils.emptyToNull(namespaceUri);
+		this.localName = localName;
+		this.prefix = ImplUtils.emptyToNull(prefix);
+		this.value = value;
+		this.type = type;
 	}
 
 	void setPrevSibling(AttrImpl prevSibling) {
@@ -36,7 +37,7 @@ class AttrImpl implements Attr
 		}
 	}
 
-	void setNextSibling(AttrImpl nextSibling) {
+	private void setNextSibling(AttrImpl nextSibling) {
 		if (nextSibling != this.nextSibling && this.nextSibling != null && this.nextSibling.getPreviousSibling() == this) {
 			// ensure that the old next sibling no longer has this attribute as previous sibling
 			this.nextSibling.setPrevSibling(null);
@@ -50,17 +51,17 @@ class AttrImpl implements Attr
 
 	@Override
 	public String getName() {
-		return ImplUtils.getQualifiedName(attribute.getName());
+		return ImplUtils.getQualifiedName(localName, prefix);
 	}
 
 	@Override
 	public String getValue() {
-		return attribute.getValue();
+		return value;
 	}
 
 	@Override
 	public boolean isId() {
-		return getValue().equalsIgnoreCase("id");
+		return "id".equalsIgnoreCase(value);
 	}
 
 	@Override
@@ -70,7 +71,7 @@ class AttrImpl implements Attr
 
 	@Override
 	public String getNodeValue() {
-		return getValue();
+		return value;
 	}
 
 	@Override
@@ -110,17 +111,17 @@ class AttrImpl implements Attr
 
 	@Override
 	public String getNamespaceURI() {
-		return ImplUtils.emptyToNull(attribute.getName().getNamespaceURI());
+		return namespaceUri;
 	}
 
 	@Override
 	public String getPrefix() {
-		return ImplUtils.emptyToNull(attribute.getName().getPrefix());
+		return prefix;
 	}
 
 	@Override
 	public String getLocalName() {
-		return attribute.getName().getLocalPart();
+		return localName;
 	}
 
 	@Override

@@ -4,44 +4,22 @@ import dd.kms.maxmlian.api.Namespace;
 
 class NamespaceImpl extends AttrImpl implements Namespace
 {
-	private boolean	defaultNamespaceDeclaration;
-
-	NamespaceImpl(NodeFactory nodeFactory) {
-		super(nodeFactory);
-	}
-
-	void initializeFromNamespace(javax.xml.stream.events.Namespace namespace) {
-		initializeFromAttribute(namespace);
-		this.defaultNamespaceDeclaration = namespace.isDefaultNamespaceDeclaration();
+	@Override
+	void initialize(String namespaceUri, String localName, String prefix, String value, String type) {
+		if (localName == null) {
+			/*
+			 * Consider the namespace declaratione xmlns="http://www.w3.org/".
+			 * - The StAX parser interprets "xmlns" as prefix
+			 * - The DOM parser interprets "xmlns" as local name
+			 */
+			localName = prefix;
+			prefix = null;
+		}
+		super.initialize(namespaceUri, localName, prefix, value, type);
 	}
 
 	@Override
 	public boolean isDefaultNamespaceDeclaration() {
-		return defaultNamespaceDeclaration;
-	}
-
-	@Override
-	public String getName() {
-		return getLocalPart() != null ? super.getName() : getLocalName();
-	}
-
-	@Override
-	public String getPrefix() {
-		return getLocalPart() != null ? super.getPrefix() : null;
-	}
-
-	@Override
-	public String getLocalName() {
-		return getLocalPart() != null ? super.getLocalName() : super.getPrefix();
-	}
-
-	/**
-	 * This method is required for special handling of namespace declaration xmlns="...".
-	 * The StAX parser considers "xmlns" as prefix and "" as local name, but in DOM
-	 * "xmlns" is expected to be the name as well as the local name and the prefix is
-	 * expected to be null.
-	 */
-	private String getLocalPart() {
-		return ImplUtils.emptyToNull(attribute.getName().getLocalPart());
+		return getLocalName() == null;
 	}
 }

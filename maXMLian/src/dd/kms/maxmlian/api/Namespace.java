@@ -3,7 +3,7 @@ package dd.kms.maxmlian.api;
 public interface Namespace extends Attr
 {
 	/**
-	 * @return the prefix or "" for default namespace declarations
+	 * @return the prefix or {@code null} for default namespace declarations
 	 */
 	String getPrefix();
 

@@ -6,7 +6,7 @@ abstract class CharacterDataImpl extends NodeImpl implements CharacterData
 {
 	private String	data;
 
-	CharacterDataImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
+	CharacterDataImpl(ExtendedXmlStreamReader eventReader, NodeFactory nodeFactory) {
 		super(eventReader, nodeFactory);
 	}
 

@@ -2,10 +2,7 @@ package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.Attr;
 
-import javax.xml.stream.events.Characters;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,42 +11,42 @@ import java.util.Map;
  */
 class DefaultObjectFactory implements ObjectFactory
 {
-	private final ExtendedXmlEventReader	eventReader;
+	private final ExtendedXmlStreamReader	streamReader;
 	private final NodeFactory				nodeFactory;
 
-	DefaultObjectFactory(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
-		this.eventReader = eventReader;
+	DefaultObjectFactory(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
+		this.streamReader = streamReader;
 		this.nodeFactory = nodeFactory;
 	}
 
 	@Override
 	public ChildIterator createChildIterator(int depth) {
-		return new ChildIterator(eventReader, nodeFactory);
+		return new ChildIterator(streamReader, nodeFactory);
 	}
 
 	@Override
 	public ElementImpl createElement(int depth) {
-		return new ElementImpl(eventReader, nodeFactory);
+		return new ElementImpl(streamReader, nodeFactory);
 	}
 
 	@Override
 	public TextImpl createText(int depth) {
-		return new TextImpl(eventReader, nodeFactory);
+		return new TextImpl(streamReader, nodeFactory);
 	}
 
 	@Override
 	public CDATASectionImpl createCDataSection(int depth) {
-		return new CDATASectionImpl(eventReader, nodeFactory);
+		return new CDATASectionImpl(streamReader, nodeFactory);
 	}
 
 	@Override
 	public CommentImpl createComment(int depth) {
-		return new CommentImpl(eventReader, nodeFactory);
+		return new CommentImpl(streamReader, nodeFactory);
 	}
 
 	@Override
 	public ProcessingInstructionImpl createProcessingInstruction(int depth) {
-		return new ProcessingInstructionImpl(eventReader, nodeFactory);
+		return new ProcessingInstructionImpl(streamReader, nodeFactory);
 	}
 
 	@Override
@@ -59,11 +56,11 @@ class DefaultObjectFactory implements ObjectFactory
 
 	@Override
 	public NamespaceImpl createNamespace(int depth) {
-		return new NamespaceImpl(nodeFactory);
+		return new NamespaceImpl();
 	}
 
 	@Override
 	public AttrImpl createAttribute(int depth) {
-		return new AttrImpl(nodeFactory);
+		return new AttrImpl();
 	}
 }

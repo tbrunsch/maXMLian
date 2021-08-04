@@ -27,8 +27,8 @@ class ObjectFactoryImmediateReuse extends DefaultObjectFactory
 	private final List<ReusableElementsCollection<NamespaceImpl>>	namespaceCollections	= new ArrayList<>();
 	private final List<ReusableElementsCollection<AttrImpl>>		attributeCollections	= new ArrayList<>();
 
-	ObjectFactoryImmediateReuse(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
-		super(eventReader, nodeFactory);
+	ObjectFactoryImmediateReuse(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
+		super(streamReader, nodeFactory);
 	}
 
 	@Override

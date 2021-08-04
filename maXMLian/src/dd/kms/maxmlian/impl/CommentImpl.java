@@ -4,17 +4,27 @@ import dd.kms.maxmlian.api.Comment;
 
 class CommentImpl extends CharacterDataImpl implements Comment
 {
-	CommentImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
+	CommentImpl(ExtendedXmlStreamReader eventReader, NodeFactory nodeFactory) {
 		super(eventReader, nodeFactory);
 	}
 
-	void initializeFromComment(javax.xml.stream.events.Comment comment) {
+	void initialize(String text) {
 		super.initialize();
-		setData(comment.getText());
+		setData(text);
 	}
 
 	@Override
 	public String getNodeName() {
 		return "#comment";
+	}
+
+	@Override
+	public String getTextContent() {
+		return getNodeValue();
+	}
+
+	@Override
+	void appendTextContentTo(StringBuilder builder) {
+		builder.append(getNodeValue());
 	}
 }

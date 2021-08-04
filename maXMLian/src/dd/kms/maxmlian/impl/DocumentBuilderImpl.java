@@ -5,9 +5,9 @@ import dd.kms.maxmlian.api.DocumentBuilder;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.NodeType;
 
-import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 
 class DocumentBuilderImpl implements DocumentBuilder
@@ -21,9 +21,9 @@ class DocumentBuilderImpl implements DocumentBuilder
 	@Override
 	public Document parse(InputStream is) throws XMLStreamException {
 		XMLInputFactory factory = XMLInputFactory.newInstance();
-		XMLEventReader eventReader = factory.createXMLEventReader(is);
-		ExtendedXmlEventReader extendedReader = new ExtendedXmlEventReader(eventReader);
-		NodeFactory nodeFactory = new NodeFactory(extendedReader, reuseDelay);
+		XMLStreamReader reader = factory.createXMLStreamReader(is);
+		ExtendedXmlStreamReader streamReader = new ExtendedXmlStreamReader(reader);
+		NodeFactory nodeFactory = new NodeFactory(streamReader, reuseDelay);
 		Node child = nodeFactory.readFirstChildNode();
 		if (child.getNodeType() == NodeType.DOCUMENT) {
 			return (Document) child;

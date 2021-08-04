@@ -1,62 +1,65 @@
 package dd.kms.maxmlian.impl;
 
-import static javax.xml.stream.XMLStreamConstants.*;
-
+import dd.kms.maxmlian.api.*;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.DTD;
-import javax.xml.stream.events.*;
-import java.util.ArrayList;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.EntityDeclaration;
+import javax.xml.stream.events.NotationDeclaration;
 import java.util.List;
 import java.util.Map;
 
-import dd.kms.maxmlian.api.*;
+import static javax.xml.stream.XMLStreamConstants.*;
 
 class NodeFactory
 {
-	private final ExtendedXmlEventReader	eventReader;
-	private final ObjectFactory				objectFactory;
-	private final List<Characters>			additionalCharacters	= new ArrayList<>();
+	private static final String		PROPERTY_ENTITIES		= "javax.xml.stream.entities";
+	private static final String		PROPERTY_NOTATIONS		= "javax.xml.stream.notations";
 
-	NodeFactory(ExtendedXmlEventReader eventReader, int reuseDelay) {
-		this.eventReader = eventReader;
-		this.objectFactory =	reuseDelay == ImplUtils.INSTANCE_REUSE_IMMEDIATE	? new ObjectFactoryImmediateReuse(eventReader, this) :
-								reuseDelay == ImplUtils.INSTANCE_REUSE_NONE			? new DefaultObjectFactory(eventReader, this)
-																					: new ObjectFactoryDelayedReuse(eventReader, this, reuseDelay);
+	private final ExtendedXmlStreamReader	streamReader;
+	private final XMLStreamReader			reader;
+	private final ObjectFactory				objectFactory;
+	private final StringBuilder				additionalCharactersBuilder	= new StringBuilder();
+
+	NodeFactory(ExtendedXmlStreamReader streamReader, int reuseDelay) {
+		this.streamReader = streamReader;
+		this.reader = streamReader.getReader();
+		this.objectFactory =	reuseDelay == ImplUtils.INSTANCE_REUSE_IMMEDIATE	? new ObjectFactoryImmediateReuse(streamReader, this) :
+								reuseDelay == ImplUtils.INSTANCE_REUSE_NONE			? new DefaultObjectFactory(streamReader, this)
+																					: new ObjectFactoryDelayedReuse(streamReader, this, reuseDelay);
 	}
 
 	ChildIterator createChildIterator() {
-		ChildIterator iterator = objectFactory.createChildIterator(eventReader.getDepth());
+		ChildIterator iterator = objectFactory.createChildIterator(streamReader.getDepth());
 		iterator.initialize();
 		return iterator;
 	}
 
 	Node readFirstChildNode() throws XMLStreamException {
-		int depth = eventReader.getDepth();
-		if (eventReader.getNextDepth() == depth) {
+		int depth = streamReader.getDepth();
+		if (streamReader.getNextDepth() == depth) {
 			return null;
 		}
-		// use a while loop here to skip unsupported events
-		while (eventReader.hasNext()) {
-			XMLEvent event = eventReader.nextEvent();
-			if (eventReader.getDepth() <= depth) {
-				// parent node closed => no children, hand back this event
+		if (streamReader.hasNext()) {
+			streamReader.next();
+			if (streamReader.getDepth() <= depth) {
+				// parent node closed => no children
 				return null;
 			}
-			return createNode(event);
+			return createNode();
 		}
 		return null;
 	}
 
 	Node getNextSibling(int depth) throws XMLStreamException {
-		while (eventReader.hasNext()) {
-			XMLEvent event = eventReader.nextEvent();
-			int currentDepth = eventReader.getDepth();
+		while (streamReader.hasNext()) {
+			streamReader.next();
+			int currentDepth = streamReader.getDepth();
 			if (currentDepth < depth) {
 				// no next sibling available
 				return null;
 			} else if (currentDepth == depth) {
-				Node nextSibling = createNode(event);
+				Node nextSibling = createNode();
 				if (nextSibling != null) {
 					return nextSibling;
 				}
@@ -65,44 +68,36 @@ class NodeFactory
 		return null;
 	}
 
-	private Node createNode(XMLEvent event) throws XMLStreamException {
-		int eventType = event.getEventType();
+	private Node createNode() throws XMLStreamException {
+		int eventType = reader.getEventType();
 		switch (eventType) {
 			case START_ELEMENT:
-				return createElement(event.asStartElement());
+				return createElement();
 
 			case END_ELEMENT:
 				return null;
 
-			case CHARACTERS: {
-				Characters characters = event.asCharacters();
-				/*
-				 * The StAX parser does not read all characters at once if there are too many,
-				 * but in DOM only one text node is created => read further characters if
-				 * available.
-				 */
-				List<Characters> additionalCharacters = readAdditionalCharacters(characters.getEventType(), characters.isCData());
-				return createText(characters, additionalCharacters);
-			}
+			case CHARACTERS:
+			case SPACE:
+				return createText(eventType);
+
+			case CDATA:
+				return createCData();
 
 			case COMMENT:
-				return createComment((javax.xml.stream.events.Comment) event);
-
-			case NAMESPACE:
-				// no idea what to do with it
-				return null;
+				return createComment();
 
 			case PROCESSING_INSTRUCTION:
-				return createProcessingInstruction((javax.xml.stream.events.ProcessingInstruction) event);
+				return createProcessingInstruction();
 
 			case START_DOCUMENT:
-				return createDocument((StartDocument) event);
+				return createDocument();
 
 			case END_DOCUMENT:
 				return null;
 
 			case DTD:
-				return createDocumentType((DTD) event);
+				return createDocumentType();
 
 			default:
 			{
@@ -111,62 +106,66 @@ class NodeFactory
 		}
 	}
 
-	private DocumentType createDocumentType(DTD dtd) {
-		DocumentTypeImpl documentType = new DocumentTypeImpl(eventReader, this);
-		documentType.initializeFromDtd(dtd);
+	private DocumentType createDocumentType() {
+		DocumentTypeImpl documentType = new DocumentTypeImpl(streamReader, this);
+		String documentTypeDeclaration = reader.getText();
+		List<EntityDeclaration> entityDeclarations = (List<EntityDeclaration>) reader.getProperty(PROPERTY_ENTITIES);
+		List<NotationDeclaration> notationDeclarations = (List<NotationDeclaration>) reader.getProperty(PROPERTY_NOTATIONS);
+		documentType.initialize(documentTypeDeclaration, entityDeclarations, notationDeclarations);
 		return documentType;
-
 	}
 
-	private Element createElement(StartElement startElement) {
-		ElementImpl element = objectFactory.createElement(eventReader.getDepth());
-		element.initializeFromStartElement(startElement);
+	private Element createElement() {
+		ElementImpl element = objectFactory.createElement(streamReader.getDepth());
+		element.initialize(reader.getNamespaceURI(), reader.getLocalName(), reader.getPrefix());
 		return element;
 	}
 
-	private Text createText(Characters characters, List<Characters> additionalCharacters) {
-		int depth = eventReader.getDepth();
-		TextImpl text = characters.isCData() ? objectFactory.createCDataSection(depth) : objectFactory.createText(depth);
-		text.initializeFromCharacters(characters, additionalCharacters);
+	private Text createText(int eventType) throws XMLStreamException {
+		int depth = streamReader.getDepth();
+		TextImpl text = objectFactory.createText(depth);
+		text.initialize(reader.getText(), readAdditionalCharacters(eventType), eventType == SPACE);
 		return text;
 	}
 
-	private dd.kms.maxmlian.api.Comment createComment(javax.xml.stream.events.Comment event) {
-		CommentImpl comment = objectFactory.createComment(eventReader.getDepth());
-		comment.initializeFromComment(event);
+	private Text createCData() throws XMLStreamException {
+		int depth = streamReader.getDepth();
+		TextImpl text = objectFactory.createCDataSection(depth);
+		text.initialize(reader.getText(), readAdditionalCharacters(CDATA), false);
+		return text;
+	}
+
+	private Comment createComment() {
+		CommentImpl comment = objectFactory.createComment(streamReader.getDepth());
+		comment.initialize(reader.getText());
 		return comment;
 	}
 
 	/**
-	 * Reads as many successive CHARACTERS events of type {@code charactersEventType} and that are CDATA if and only if
-	 * {@code isCData} is set as available. If no such events are available, then null is returned.
+	 * @return the concatenated text of all successive events of type {@code charactersEventType}.
 	 */
-	private List<Characters> readAdditionalCharacters(int charactersEventType, boolean isCData) throws XMLStreamException {
-		additionalCharacters.clear();
-		while (eventReader.hasNext()) {
-			XMLEvent event = eventReader.peek();
-			if (event.getEventType() != charactersEventType) {
+	private StringBuilder readAdditionalCharacters(int charactersEventType) throws XMLStreamException {
+		additionalCharactersBuilder.setLength(0);
+		while (streamReader.hasNext()) {
+			streamReader.peek();
+			if (reader.getEventType() != charactersEventType) {
 				break;
 			}
-			Characters characters = event.asCharacters();
-			if (characters.isCData() != isCData){
-				break;
-			}
-			additionalCharacters.add(characters);
-			eventReader.nextEvent();
+			additionalCharactersBuilder.append(reader.getText());
+			streamReader.next();
 		}
-		return additionalCharacters;
+		return additionalCharactersBuilder;
 	}
 
-	private dd.kms.maxmlian.api.ProcessingInstruction createProcessingInstruction(javax.xml.stream.events.ProcessingInstruction processingInstruction) {
-		ProcessingInstructionImpl procInstruction = objectFactory.createProcessingInstruction(eventReader.getDepth());
-		procInstruction.initializeFromProcessingInstruction(processingInstruction);
+	private ProcessingInstruction createProcessingInstruction() {
+		ProcessingInstructionImpl procInstruction = objectFactory.createProcessingInstruction(streamReader.getDepth());
+		procInstruction.initialize(reader.getPITarget(), reader.getPIData());
 		return procInstruction;
 	}
 
-	private Document createDocument(StartDocument startDocument) {
-		DocumentImpl document = new DocumentImpl(eventReader, this);
-		document.initializeFromStartDocument(startDocument);
+	private Document createDocument() {
+		DocumentImpl document = new DocumentImpl(streamReader, this);
+		document.initialize(reader.getEncoding(), reader.isStandalone(), reader.getVersion());
 		return document;
 	}
 
@@ -174,15 +173,15 @@ class NodeFactory
 		return objectFactory.createAttributesByQNameMap(depth);
 	}
 
-	NamespaceImpl createNamespace(javax.xml.stream.events.Namespace ns, int depth) {
+	NamespaceImpl createNamespace(String localName, String value, int depth) {
 		NamespaceImpl namespace = objectFactory.createNamespace(depth);
-		namespace.initializeFromNamespace(ns);
+		namespace.initialize("http://www.w3.org/2000/xmlns/", localName, "xmlns", value, null);
 		return namespace;
 	}
 
-	AttrImpl createAttribute(javax.xml.stream.events.Attribute attribute, int depth) {
+	AttrImpl createAttribute(String namespaceUri, String localName, String prefix, String value, String type, int depth) {
 		AttrImpl attr = objectFactory.createAttribute(depth);
-		attr.initializeFromAttribute(attribute);
+		attr.initialize(namespaceUri, localName, prefix, value, type);
 		return attr;
 	}
 }

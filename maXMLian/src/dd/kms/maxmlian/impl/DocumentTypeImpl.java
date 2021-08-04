@@ -1,5 +1,11 @@
 package dd.kms.maxmlian.impl;
 
+import dd.kms.maxmlian.api.DocumentType;
+import dd.kms.maxmlian.api.Entity;
+import dd.kms.maxmlian.api.Notation;
+
+import javax.xml.stream.events.EntityDeclaration;
+import javax.xml.stream.events.NotationDeclaration;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -7,33 +13,28 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.stream.events.DTD;
-import javax.xml.stream.events.EntityDeclaration;
-import javax.xml.stream.events.NotationDeclaration;
-
-import dd.kms.maxmlian.api.DocumentType;
-import dd.kms.maxmlian.api.Entity;
-import dd.kms.maxmlian.api.Notation;
-
 class DocumentTypeImpl extends NodeImpl implements DocumentType
 {
 	private static final Pattern	DOCTYPE_NAME_PATTERN	= Pattern.compile("^\\s*<!DOCTYPE\\s+(\\w+).*", Pattern.DOTALL);
 	private static final Pattern	INTERNAL_SUBSET_PATTERN	= Pattern.compile("^\\s*<!DOCTYPE\\s+[^\\[]*\\[(.*)\\]\\s*>$", Pattern.DOTALL);
 
-	private DTD	dtd;
+	private String						documentTypeDeclaration;
+	private List<EntityDeclaration>		entityDeclarations;
+	private List<NotationDeclaration>	notationDeclarations;
 
-	DocumentTypeImpl(ExtendedXmlEventReader eventReader, NodeFactory nodeFactory) {
+	DocumentTypeImpl(ExtendedXmlStreamReader eventReader, NodeFactory nodeFactory) {
 		super(eventReader, nodeFactory);
 	}
 
-	void initializeFromDtd(DTD dtd) {
-		initialize();
-		this.dtd = dtd;
+	void initialize(String documentTypeDeclaration, List<EntityDeclaration> entityDeclarations, List<NotationDeclaration> notationDeclarations) {
+		super.initialize();
+		this.documentTypeDeclaration = documentTypeDeclaration;
+		this.entityDeclarations = entityDeclarations;
+		this.notationDeclarations = notationDeclarations;
 	}
 
 	@Override
 	public String getName() {
-		String documentTypeDeclaration = dtd.getDocumentTypeDeclaration();
 		Matcher matcher = DOCTYPE_NAME_PATTERN.matcher(documentTypeDeclaration);
 		if (!matcher.matches() || matcher.groupCount() != 1) {
 			throw new IllegalStateException("Cannot extract name from document type declaration: '" + documentTypeDeclaration + "'");
@@ -43,7 +44,6 @@ class DocumentTypeImpl extends NodeImpl implements DocumentType
 
 	@Override
 	public Map<String, Entity> getEntities() {
-		List<EntityDeclaration> entityDeclarations = dtd.getEntities();
 		if (entityDeclarations == null || entityDeclarations.isEmpty()) {
 			return Collections.emptyMap();
 		}
@@ -60,7 +60,6 @@ class DocumentTypeImpl extends NodeImpl implements DocumentType
 
 	@Override
 	public Map<String, Notation> getNotations() {
-		List<NotationDeclaration> notationDeclarations = dtd.getNotations();
 		if (notationDeclarations == null || notationDeclarations.isEmpty()) {
 			return Collections.emptyMap();
 		}
@@ -87,12 +86,10 @@ class DocumentTypeImpl extends NodeImpl implements DocumentType
 
 	@Override
 	public String getInternalSubset() {
-		String documentTypeDeclaration = dtd.getDocumentTypeDeclaration();
 		Matcher matcher = INTERNAL_SUBSET_PATTERN.matcher(documentTypeDeclaration);
-		if (!matcher.matches() || matcher.groupCount() != 1) {
-			return null;
-		}
-		return matcher.group(1).trim();
+		return matcher.matches() && matcher.groupCount() == 1
+				? matcher.group(1).trim()
+				: null;
 	}
 
 	@Override

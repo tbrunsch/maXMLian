@@ -54,7 +54,7 @@ class EntityImpl implements Entity
 	}
 
 	@Override
-	public Node getFirstChild() throws XMLStreamException {
+	public Node getFirstChild() {
 		return null;
 	}
 

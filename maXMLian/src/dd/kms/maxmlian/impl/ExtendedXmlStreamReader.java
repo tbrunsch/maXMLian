@@ -1,35 +1,42 @@
 package dd.kms.maxmlian.impl;
 
-import java.util.Stack;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
+import java.util.Arrays;
 
-class ExtendedXmlEventReader
+class ExtendedXmlStreamReader
 {
-	private final XMLEventReader	reader;
+	private final XMLStreamReader	reader;
 
 	private long					position;
 	private long[]					nodeCounterByDepth	= new long[10];
 	private int   					depth				= -1;
 	private int						nextDepth			= 0;
+	private boolean					peekedEvent			= true;			// the start document event is initially available
 
-	ExtendedXmlEventReader(XMLEventReader reader) {
+	ExtendedXmlStreamReader(XMLStreamReader reader) {
 		this.reader = reader;
 	}
 
-	boolean hasNext() {
+	XMLStreamReader getReader() {
+		return reader;
+	}
+
+	boolean hasNext() throws XMLStreamException {
 		return reader.hasNext();
 	}
 
-	XMLEvent nextEvent() throws XMLStreamException {
-		XMLEvent event = reader.nextEvent();
+	void next() throws XMLStreamException {
+		if (peekedEvent) {
+			peekedEvent = false;
+		} else {
+			reader.next();
+		}
 
 		depth = nextDepth;
 		position++;
-		switch (event.getEventType()) {
+		switch (reader.getEventType()) {
 			case XMLEvent.START_DOCUMENT:
 			case XMLEvent.START_ELEMENT:
 				nextDepth = depth + 1;
@@ -45,11 +52,13 @@ class ExtendedXmlEventReader
 				incrementNodeCounter(depth);
 				break;
 		}
-		return event;
 	}
 
-	XMLEvent peek() throws XMLStreamException {
-		return reader.peek();
+	void peek() throws XMLStreamException {
+		if (!peekedEvent) {
+			reader.next();
+			peekedEvent = true;
+		}
 	}
 
 	long position() {
@@ -58,7 +67,7 @@ class ExtendedXmlEventReader
 
 	boolean position(long position) throws XMLStreamException {
 		while (this.position < position && hasNext()) {
-			nextEvent();
+			next();
 		}
 		if (this.position < position) {
 			throw new IllegalStateException("The requested position " + position + " is beyond the maximum position " + this.position);
@@ -75,26 +84,22 @@ class ExtendedXmlEventReader
 	}
 
 	/**
-	 * @return the depth of the node belonging to the last parsed XMLEvent
+	 * @return the depth of the node belonging to the last parsed XML event
 	 */
 	int getDepth() {
-//		Problem: Knoten, die geöffnet und gleich wieder geschlossen werden, können über depth nicht korrekt ausgedrückt werden
 		return depth;
 	}
 
-	// TODO: Add JavaDoc
+	/**
+	 * @return the depth a node would have when opened here
+	 */
 	int getNextDepth() {
 		return nextDepth;
 	}
 
 	private void incrementNodeCounter(int depth) {
-		int depthLimit = nodeCounterByDepth.length;
-		if (depth >= depthLimit) {
-			long[] newNodeCounterByDepth = new long[2*depthLimit];
-			for (int i = 0; i < depthLimit; i++) {
-				newNodeCounterByDepth[i] = nodeCounterByDepth[i];
-			}
-			nodeCounterByDepth = newNodeCounterByDepth;
+		if (depth >= nodeCounterByDepth.length) {
+			nodeCounterByDepth = Arrays.copyOf(nodeCounterByDepth, 2*nodeCounterByDepth.length);
 		}
 		nodeCounterByDepth[depth]++;
 	}

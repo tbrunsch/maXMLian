@@ -24,7 +24,7 @@ abstract class AbstractFileParsingTest
 	abstract void prepareTest(org.w3c.dom.Document domDocument);
 	abstract int getNumberOfChildrenToParse(int depth);
 
-	static List<Path> collectXmlFiles() throws IOException, URISyntaxException {
+	static List<Path> collectXmlFiles() throws IOException {
 		Path resourceDirectory = TestUtils.getResourceDirectory();
 		List<Path> xmlFiles = new ArrayList<>();
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourceDirectory)) {
@@ -44,9 +44,9 @@ abstract class AbstractFileParsingTest
 
 	@ParameterizedTest
 	@MethodSource("collectXmlFiles")
-	void testParsingWholeFile(Path xmlFile) throws IOException, XMLStreamException, javax.xml.parsers.ParserConfigurationException, SAXException {
+	void testParsingFile(Path xmlFile) throws IOException, XMLStreamException, javax.xml.parsers.ParserConfigurationException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+		DocumentBuilder documentBuilder = factory.immediateInstanceReuse().newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
 		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();

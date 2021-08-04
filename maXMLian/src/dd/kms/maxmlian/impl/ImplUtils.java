@@ -1,6 +1,5 @@
 package dd.kms.maxmlian.impl;
 
-import javax.xml.namespace.QName;
 import java.util.List;
 
 class ImplUtils
@@ -8,16 +7,13 @@ class ImplUtils
 	static final int	INSTANCE_REUSE_IMMEDIATE	= 1;
 	static final int	INSTANCE_REUSE_NONE			= Integer.MAX_VALUE;
 
-	static String getQualifiedName(QName name) {
-		String prefix = emptyToNull(name.getPrefix());
-		String localPart = emptyToNull(name.getLocalPart());
-		return prefix == null ? localPart : prefix + ":" + localPart;
+	static String getQualifiedName(String localName, String prefix) {
+		return prefix == null ? localName : prefix + ":" + localName;
 	}
 
 	static String emptyToNull(String s) {
 		return s != null && s.length() == 0 ? null : s;
 	}
-
 
 	static <T> T get(List<T> list, int index) {
 		return index < list.size() ? list.get(index) : null;
