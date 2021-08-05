@@ -1,22 +1,22 @@
 package dd.kms.maxmlian.impl;
 
-import java.util.Iterator;
+import dd.kms.maxmlian.api.Node;
+import dd.kms.maxmlian.api.XmlException;
 
 import javax.xml.stream.XMLStreamException;
-
-import dd.kms.maxmlian.api.XmlException;
-import dd.kms.maxmlian.api.XmlStateException;
-import dd.kms.maxmlian.api.Node;
+import java.util.Iterator;
 
 class ChildIterator implements Iterator<Node>
 {
+	private static final String	PARSE_CHILDREN_ERROR	= "Cannot parse children when the XML reader has already parsed beyond the start position of that node";
+
 	private final ExtendedXmlStreamReader	streamReader;
 	private final NodeFactory				nodeFactory;
 
-	private int     depth;
-	private boolean retrievedNext;
-	private Node    next;
-	private Node	parent;
+	private long		initialPosition;
+	private boolean 	retrievedNext;
+	private Node    	next;
+	private NodeImpl	parent;
 
 	ChildIterator(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
 		this.streamReader = streamReader;
@@ -24,12 +24,12 @@ class ChildIterator implements Iterator<Node>
 	}
 
 	void initialize() {
-		depth = streamReader.getDepth();
+		initialPosition = streamReader.position();
 		retrievedNext = false;
 		next = null;
 	}
 
-	void setParentNode(Node parent) {
+	void setParentNode(NodeImpl parent) {
 		this.parent = parent;
 	}
 
@@ -55,10 +55,7 @@ class ChildIterator implements Iterator<Node>
 		if (next != null) {
 			next = next.getNextSibling();
 		} else {
-			// TODO: Either support resetting position consequently or do not support it at all
-			if (streamReader.getDepth() != depth) {
-				throw new XmlStateException("Cannot access first child because the XML reader has already parsed beyond the start position of the node");
-			}
+			parent.resetReaderPosition(PARSE_CHILDREN_ERROR);
 			try {
 				next = nodeFactory.readFirstChildNode();
 			} catch (XMLStreamException e) {

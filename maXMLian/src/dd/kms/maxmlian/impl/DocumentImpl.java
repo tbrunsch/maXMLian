@@ -73,8 +73,6 @@ class DocumentImpl extends NodeImpl implements Document
 
 	@Override
 	public Iterable<Node> getChildNodes() {
-		resetReaderPosition(PARSE_CHILDREN_ERROR);
-		retrievedChildren = true;
 		return this;
 	}
 

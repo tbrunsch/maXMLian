@@ -125,7 +125,6 @@ class ElementImpl extends NodeImpl implements Element
 
 	@Override
 	public Iterable<Node> getChildNodes() {
-		resetReaderPosition(PARSE_CHILDREN_ERROR);
 		return this;
 	}
 }

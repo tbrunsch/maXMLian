@@ -14,15 +14,14 @@ import java.util.Map;
 // The class is also an Iterable over its own children
 abstract class NodeImpl implements Node, Iterable<Node>
 {
-	static final String	PARSE_CHILDREN_ERROR			= "Cannot parse children when the XML reader has already parsed beyond the start position of that node";
 	private static final String	PARSE_SIBLING_ERROR		= "Cannot parse sibling when the XML reader has already parsed beyond the end of that node";
 
 	private final ExtendedXmlStreamReader	streamReader;
 	private final NodeFactory				nodeFactory;
 
 	// Positional information
-	private int								initialDepth;
 	private long							initialPosition;
+	private int								initialDepth;
 	private long                          	initialNodeCounterDepth;
 
 	private Node							parent;
@@ -34,8 +33,8 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	void initialize() {
-		initialDepth = streamReader.getDepth();
 		initialPosition = streamReader.position();
+		initialDepth = streamReader.getDepth();
 		initialNodeCounterDepth = streamReader.getNodeCounter(initialDepth);
 		parent = null;
 	}
@@ -75,7 +74,6 @@ abstract class NodeImpl implements Node, Iterable<Node>
 
 	@Override
 	public Iterator<Node> iterator() {
-		resetReaderPosition(PARSE_CHILDREN_ERROR);
 		ChildIterator childIterator = nodeFactory.createChildIterator();
 		childIterator.setParentNode(this);
 		return childIterator;
