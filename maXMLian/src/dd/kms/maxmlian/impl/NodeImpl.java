@@ -48,12 +48,8 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	void resetReaderPosition(String errorMessage) {
-		try {
-			if (!streamReader.position(initialPosition)) {
-				throw createStateException(errorMessage);
-			}
-		} catch (XMLStreamException e) {
-			throw createStateException(errorMessage, e);
+		if (!streamReader.position(initialPosition)) {
+			throw createStateException(errorMessage);
 		}
 	}
 
@@ -144,9 +140,5 @@ abstract class NodeImpl implements Node, Iterable<Node>
 
 	private XmlStateException createStateException(String message) {
 		return new XmlStateException(getClass() + " '" + getNodeName() + "': " + message);
-	}
-
-	private XmlStateException createStateException(String message, Throwable cause) {
-		return new XmlStateException(getClass() + " '" + getNodeName() + "': " + message, cause);
 	}
 }

@@ -8,8 +8,4 @@ public class XmlStateException extends RuntimeException
 	public XmlStateException(String message) {
 		super(message);
 	}
-
-	public XmlStateException(String message, Throwable cause) {
-		super(message, cause);
-	}
 }

@@ -65,18 +65,20 @@ class ExtendedXmlStreamReader
 		return position;
 	}
 
-	boolean position(long position) throws XMLStreamException {
-		while (this.position < position && hasNext()) {
-			next();
-		}
-		if (this.position < position) {
-			throw new IllegalStateException("The requested position " + position + " is beyond the maximum position " + this.position);
-		}
-		if (this.position == position) {
-			return true;
-		}
-		// Currently we do not support moving back in the XML file
-		return false;
+	boolean position(long position) {
+		/*
+		 * Setting the position is possible in general, but not as long as maXMLian is
+		 * based on StAX. The reason is that the StAX parser has an internal state:
+		 *
+		 * com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl has a field
+		 * fScanner of type com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl,
+		 * which extends com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl,
+		 * which manages, among others, a stack of opened entities (field fEntityStack).
+		 *
+		 * Since maXMLian has no chance to update this state, changing the position would
+		 * leave the StAX parser in a state that does not reflect the new position.
+		 */
+		return this.position == position;
 	}
 
 	long getNodeCounter(int depth) {
