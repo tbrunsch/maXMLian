@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE sample [
+	<!ENTITY generalEntity "This is a general entity">
+	<!NOTATION textFile SYSTEM "notepad.exe">
+	<!ENTITY externalUnparsedEntity SYSTEM "external_entities/external_entity.txt" NDATA textFile>
+	<!ELEMENT sample (text | elementWithExternalEntityReference)*>
+	<!ELEMENT text (#PCDATA)>
+	<!ELEMENT elementWithExternalEntityReference EMPTY>
+	<!ATTLIST elementWithExternalEntityReference reference ENTITY #REQUIRED>
+]>
+<sample>
+  <text>
+	The content of generalEntity is: &generalEntity;
+  </text>
+  <text>
+	Predefined entities: &lt; &gt; &quot; &apos; &amp;
+  </text>
+  <elementWithExternalEntityReference reference="externalUnparsedEntity"/>
+</sample>
