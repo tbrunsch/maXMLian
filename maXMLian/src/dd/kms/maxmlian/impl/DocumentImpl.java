@@ -9,7 +9,7 @@ import java.util.Iterator;
 
 class DocumentImpl extends NodeImpl implements Document
 {
-	private String 			inputEncoding;
+	private String			xmlEncoding;
 	private boolean			standalone;
 	private String			xmlVersion;
 
@@ -23,7 +23,7 @@ class DocumentImpl extends NodeImpl implements Document
 
 	void initialize(String characterEncodingScheme, boolean standalone, String version) {
 		super.initialize();
-		this.inputEncoding = characterEncodingScheme;
+		this.xmlEncoding = characterEncodingScheme;
 		this.standalone = standalone;
 		this.xmlVersion = version;
 	}
@@ -82,8 +82,8 @@ class DocumentImpl extends NodeImpl implements Document
 	}
 
 	@Override
-	public String getInputEncoding() {
-		return inputEncoding;
+	public String getXmlEncoding() {
+		return xmlEncoding;
 	}
 
 	@Override

@@ -205,7 +205,7 @@ abstract class AbstractFileParsingTest
 
 	private void compareDocuments(Document document, org.w3c.dom.Document domDocument) {
 		String name = domDocument.getNodeName();
-		Assertions.assertEquals(domDocument.getInputEncoding().toUpperCase(), document.getInputEncoding().toUpperCase(), "Wrong input encoding of document '" + name + "'");
+		Assertions.assertEquals(domDocument.getXmlEncoding(), document.getXmlEncoding(), "Wrong XML encoding of document '" + name + "'");
 		Assertions.assertEquals(domDocument.getXmlStandalone(), document.getXmlStandalone(), "Wrong value of getXmlStandalone() of document '" + name + "'");
 		Assertions.assertEquals(domDocument.getXmlVersion(), document.getXmlVersion(), "Wrong XML version of document '" + name + "'");
 

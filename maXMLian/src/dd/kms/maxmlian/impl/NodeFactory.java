@@ -165,7 +165,7 @@ class NodeFactory
 
 	private Document createDocument() {
 		DocumentImpl document = new DocumentImpl(streamReader, this);
-		document.initialize(reader.getEncoding(), reader.isStandalone(), reader.getVersion());
+		document.initialize(reader.getCharacterEncodingScheme(), reader.isStandalone(), reader.getVersion());
 		return document;
 	}
 

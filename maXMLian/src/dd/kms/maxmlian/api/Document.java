@@ -9,7 +9,7 @@ public interface Document extends Node
 
 	DocumentType getDoctype();
 	Element getDocumentElement();
-	String getInputEncoding();
+	String getXmlEncoding();
 	boolean getXmlStandalone();
 	String getXmlVersion();
 }
