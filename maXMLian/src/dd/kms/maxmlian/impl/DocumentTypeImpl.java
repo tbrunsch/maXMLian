@@ -57,8 +57,14 @@ class DocumentTypeImpl extends NodeImpl implements DocumentType
 		Entity nextSibling = null;
 		for (int i = entityDeclarations.size() - 1; i >= 0; i--) {
 			EntityDeclaration entityDeclaration = entityDeclarations.get(i);
+			String entityName = entityDeclaration.getName();
+			// only consider general entities, not parameter entities
+			boolean isParameterEntity = entityName.startsWith("%");
+			if (isParameterEntity) {
+				continue;
+			}
 			Entity entity = new EntityImpl(entityDeclaration, nextSibling);
-			entityMap.put(entity.getNodeName(), entity);
+			entityMap.put(entityName, entity);
 			nextSibling = entity;
 		}
 		return entityMap;
