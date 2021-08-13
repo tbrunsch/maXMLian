@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>A Simple XHTML page</title>
+  </head>
+  <body>
+    <p>This is a simple page in the XML compatible XHTML language.</p>
+    <table>
+      <tr>
+        <th>Column 1</th>
+	    <th>Column 2</th>
+      </tr>
+      <tr>
+        <td>line 1, value 1</td>
+	    <td>line 1, value 2</td>
+      </tr>
+      <tr>
+        <td>line 2, value 1</td>
+	    <td>line 2, value 2</td>
+      </tr>
+    </table>
+  </body>
+</html>
