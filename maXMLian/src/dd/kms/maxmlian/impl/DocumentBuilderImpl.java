@@ -5,9 +5,7 @@ import dd.kms.maxmlian.api.DocumentBuilder;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.NodeType;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.*;
 import java.io.InputStream;
 
 class DocumentBuilderImpl implements DocumentBuilder
