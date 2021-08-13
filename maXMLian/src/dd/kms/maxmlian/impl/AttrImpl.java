@@ -28,24 +28,12 @@ class AttrImpl implements Attr
 	void setPrevSibling(AttrImpl prevSibling) {
 		if (prevSibling != this.prevSibling && this.prevSibling != null && this.prevSibling.getNextSibling() == this) {
 			// ensure that the old previous sibling no longer has this attribute as next sibling
-			this.prevSibling.setNextSibling(null);
+			this.prevSibling.nextSibling = null;
 		}
 		this.prevSibling = prevSibling;
 		if (prevSibling != null && prevSibling.getNextSibling() != this) {
 			// ensure that the new previous sibling has this attribute as next sibling
-			prevSibling.setNextSibling(this);
-		}
-	}
-
-	private void setNextSibling(AttrImpl nextSibling) {
-		if (nextSibling != this.nextSibling && this.nextSibling != null && this.nextSibling.getPreviousSibling() == this) {
-			// ensure that the old next sibling no longer has this attribute as previous sibling
-			this.nextSibling.setPrevSibling(null);
-		}
-		this.nextSibling = nextSibling;
-		if (nextSibling != null && nextSibling.getPreviousSibling() != this) {
-			// ensure that the new next sibling has this attribute as previous sibling
-			nextSibling.setPrevSibling(this);
+			prevSibling.nextSibling = this;
 		}
 	}
 
