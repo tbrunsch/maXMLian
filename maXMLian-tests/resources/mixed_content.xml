@@ -1,0 +1,42 @@
+<!--
+This sample file contains elements with mixed content and is particularly used to test the implementation of getTextContent().
+-->
+<sample>
+	<text>
+		A1
+		<element>
+			B1
+		</element>
+		A2
+		<element>
+			B2
+		</element>
+		A3
+	</text>
+	<element>
+		A4
+		<element>
+			B3
+			<text/>
+		</element>
+		<text>
+			<text>
+				C1
+			</text>
+			<element>
+				C2
+				<element>
+					D1
+				</element>
+			</element>
+			B4
+		</text>
+		A5
+	</element>
+	<text>
+		<element>
+			B5
+		</element>
+		A6
+	</text>
+</sample>
