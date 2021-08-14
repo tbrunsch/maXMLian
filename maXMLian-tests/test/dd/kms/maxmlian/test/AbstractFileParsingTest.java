@@ -8,9 +8,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,7 +44,7 @@ abstract class AbstractFileParsingTest
 
 	@ParameterizedTest
 	@MethodSource("collectXmlFiles")
-	void testParsingFile(Path xmlFile) throws IOException, XMLStreamException, javax.xml.parsers.ParserConfigurationException, SAXException {
+	void testParsingFile(Path xmlFile) throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = factory.immediateInstanceReuse().newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
@@ -78,7 +78,7 @@ abstract class AbstractFileParsingTest
 		}
 
 		short domNodeType = domNode.getNodeType();
-		NodeType expectedNodeType = getNodeType(domNodeType);
+		NodeType expectedNodeType = TestUtils.getNodeType(domNodeType);
 		NodeType nodeType = node.getNodeType();
 		Assertions.assertEquals(expectedNodeType, nodeType, "Wrong type of node '" + name + "'");
 
@@ -265,32 +265,5 @@ abstract class AbstractFileParsingTest
 		String name = domNotation.getNodeName();
 		Assertions.assertEquals(domNotation.getPublicId(), notation.getPublicId(), "Wrong public ID of notation '" + name + "'");
 		Assertions.assertEquals(domNotation.getSystemId(), notation.getSystemId(), "Wrong system ID of notation '" + name + "'");
-	}
-
-	private static NodeType getNodeType(short domNodeType) {
-		switch (domNodeType) {
-			case org.w3c.dom.Node.ATTRIBUTE_NODE:
-				return NodeType.ATTRIBUTE;
-			case org.w3c.dom.Node.DOCUMENT_NODE:
-				return NodeType.DOCUMENT;
-			case org.w3c.dom.Node.COMMENT_NODE:
-				return NodeType.COMMENT;
-			case org.w3c.dom.Node.TEXT_NODE:
-				return NodeType.TEXT;
-			case org.w3c.dom.Node.ELEMENT_NODE:
-				return NodeType.ELEMENT;
-			case org.w3c.dom.Node.CDATA_SECTION_NODE:
-				return NodeType.CDATA_SECTION;
-			case org.w3c.dom.Node.DOCUMENT_TYPE_NODE:
-				return NodeType.DOCUMENT_TYPE;
-			case org.w3c.dom.Node.ENTITY_NODE:
-				return NodeType.ENTITY;
-			case org.w3c.dom.Node.NOTATION_NODE:
-				return NodeType.NOTATION;
-			case org.w3c.dom.Node.PROCESSING_INSTRUCTION_NODE:
-				return NodeType.PROCESSING_INSTRUCTION;
-			default:
-				throw new UnsupportedOperationException("DOM node type " + domNodeType + " is currently not supported");
-		}
 	}
 }

@@ -1,6 +1,7 @@
 package dd.kms.maxmlian.test;
 
 import dd.kms.maxmlian.LargeXmlFileGenerator;
+import dd.kms.maxmlian.api.NodeType;
 
 import java.io.IOException;
 import java.net.URI;
@@ -38,5 +39,32 @@ class TestUtils
 			throw new IllegalStateException("Resource URL '" + resourceDirectoryUrl + "' is not valid URI");
 		}
 		return Paths.get(resourceDirectoryUri);
+	}
+
+	static NodeType getNodeType(short domNodeType) {
+		switch (domNodeType) {
+			case org.w3c.dom.Node.ATTRIBUTE_NODE:
+				return NodeType.ATTRIBUTE;
+			case org.w3c.dom.Node.DOCUMENT_NODE:
+				return NodeType.DOCUMENT;
+			case org.w3c.dom.Node.COMMENT_NODE:
+				return NodeType.COMMENT;
+			case org.w3c.dom.Node.TEXT_NODE:
+				return NodeType.TEXT;
+			case org.w3c.dom.Node.ELEMENT_NODE:
+				return NodeType.ELEMENT;
+			case org.w3c.dom.Node.CDATA_SECTION_NODE:
+				return NodeType.CDATA_SECTION;
+			case org.w3c.dom.Node.DOCUMENT_TYPE_NODE:
+				return NodeType.DOCUMENT_TYPE;
+			case org.w3c.dom.Node.ENTITY_NODE:
+				return NodeType.ENTITY;
+			case org.w3c.dom.Node.NOTATION_NODE:
+				return NodeType.NOTATION;
+			case org.w3c.dom.Node.PROCESSING_INSTRUCTION_NODE:
+				return NodeType.PROCESSING_INSTRUCTION;
+			default:
+				throw new UnsupportedOperationException("DOM node type " + domNodeType + " is currently not supported");
+		}
 	}
 }
