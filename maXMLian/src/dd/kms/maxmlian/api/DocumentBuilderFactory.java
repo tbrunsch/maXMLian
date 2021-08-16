@@ -60,6 +60,8 @@ public interface DocumentBuilderFactory
 	 */
 	DocumentBuilderFactory immediateInstanceReuse();
 
+	DocumentBuilderFactory setNamespaceAware(boolean namespaceAware);
+
 	DocumentBuilder newDocumentBuilder();
 
 	// void setIgnoringComments(boolean ignoreComments);

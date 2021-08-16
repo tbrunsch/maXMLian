@@ -4,6 +4,10 @@ import dd.kms.maxmlian.api.Namespace;
 
 class NamespaceImpl extends AttrImpl implements Namespace
 {
+	NamespaceImpl(boolean namespaceAware) {
+		super(namespaceAware);
+	}
+
 	@Override
 	void initialize(String namespaceUri, String localName, String prefix, String value, String type) {
 		if (localName == null) {

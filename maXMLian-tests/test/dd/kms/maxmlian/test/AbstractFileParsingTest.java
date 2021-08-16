@@ -24,7 +24,18 @@ abstract class AbstractFileParsingTest
 	abstract void prepareTest(org.w3c.dom.Document domDocument);
 	abstract int getNumberOfChildrenToParse(int depth);
 
-	static List<Path> collectXmlFiles() throws IOException {
+	static List<Object[]> getParameters() throws IOException {
+		List<Object[]> parameters = new ArrayList<>();
+		List<Path> paths = collectXmlFiles();
+		for (boolean namespaceAware : new boolean[]{ false, true }) {
+			for (Path path : paths) {
+				parameters.add(new Object[]{ path, namespaceAware });
+			}
+		}
+		return parameters;
+	}
+
+	private static List<Path> collectXmlFiles() throws IOException {
 		Path resourceDirectory = TestUtils.getResourceDirectory();
 		List<Path> xmlFiles = new ArrayList<>();
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourceDirectory)) {
@@ -42,15 +53,16 @@ abstract class AbstractFileParsingTest
 		return file.getFileName().toString().toLowerCase().endsWith(".xml");
 	}
 
-	@ParameterizedTest
-	@MethodSource("collectXmlFiles")
-	void testParsingFile(Path xmlFile) throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
+	@ParameterizedTest(name = "{0}, namespace aware: {1}")
+	@MethodSource("getParameters")
+	void testParsingFile(Path xmlFile, boolean namespaceAware) throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(namespaceAware);
 		DocumentBuilder documentBuilder = factory.immediateInstanceReuse().newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
 		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-		domFactory.setNamespaceAware(true);
+		domFactory.setNamespaceAware(namespaceAware);
 		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
 		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
 

@@ -120,6 +120,10 @@ abstract class NodeImpl implements Node, Iterable<Node>
 		return null;
 	}
 
+	boolean isNamespaceAware() {
+		return nodeFactory.isNamespaceAware();
+	}
+
 	Map<String, Attr> createAttributesByQNameMap() {
 		return nodeFactory.createAttributesByQNameMap(initialDepth);
 	}

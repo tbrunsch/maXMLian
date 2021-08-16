@@ -39,9 +39,7 @@ class ElementImpl extends NodeImpl implements Element
 
 		attributesByQName = createAttributesByQNameMap();
 		AttrImpl prevAttr = null;
-		// TODO: Make namespace awareness configurable; (Boolean)streamReader.getProperty("javax.xml.stream.isNamespaceAware")
-		boolean namespaceAware = true;
-		if (namespaceAware) {
+		if (isNamespaceAware()) {
 			prevAttr = addNamespaceAttributes(reader, prevAttr);
 			// TODO: setNamespaceContext(); // see XMLEventAllocatorImpl.getXMLEvent()
 		}
@@ -110,17 +108,17 @@ class ElementImpl extends NodeImpl implements Element
 
 	@Override
 	public String getNamespaceURI() {
-		return namespaceUri;
+		return isNamespaceAware() ? namespaceUri : null;
 	}
 
 	@Override
 	public String getPrefix() {
-		return prefix;
+		return isNamespaceAware() ? prefix : null;
 	}
 
 	@Override
 	public String getLocalName() {
-		return localName;
+		return isNamespaceAware() ? localName : null;
 	}
 
 	@Override

@@ -5,7 +5,8 @@ import dd.kms.maxmlian.api.DocumentBuilderFactory;
 
 public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 {
-	private int	reuseDelay	= ImplUtils.INSTANCE_REUSE_NONE;
+	private int		reuseDelay		= ImplUtils.INSTANCE_REUSE_NONE;
+	private boolean namespaceAware	= false;
 
 	@Override
 	public DocumentBuilderFactory withoutInstanceReuse() {
@@ -29,7 +30,13 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 	}
 
 	@Override
+	public DocumentBuilderFactory setNamespaceAware(boolean namespaceAware) {
+		this.namespaceAware = namespaceAware;
+		return this;
+	}
+
+	@Override
 	public DocumentBuilder newDocumentBuilder() {
-		return new DocumentBuilderImpl(reuseDelay);
+		return new DocumentBuilderImpl(reuseDelay, namespaceAware);
 	}
 }

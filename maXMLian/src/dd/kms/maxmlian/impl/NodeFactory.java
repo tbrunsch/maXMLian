@@ -19,14 +19,20 @@ class NodeFactory
 	private final ExtendedXmlStreamReader	streamReader;
 	private final XMLStreamReader			reader;
 	private final ObjectFactory				objectFactory;
+	private final boolean					namespaceAware;
 	private final StringBuilder				additionalCharactersBuilder	= new StringBuilder();
 
-	NodeFactory(ExtendedXmlStreamReader streamReader, int reuseDelay) {
+	NodeFactory(ExtendedXmlStreamReader streamReader, int reuseDelay, boolean namespaceAware) {
 		this.streamReader = streamReader;
 		this.reader = streamReader.getReader();
+		this.namespaceAware = namespaceAware;
 		this.objectFactory =	reuseDelay == ImplUtils.INSTANCE_REUSE_IMMEDIATE	? new ObjectFactoryImmediateReuse(streamReader, this) :
 								reuseDelay == ImplUtils.INSTANCE_REUSE_NONE			? new DefaultObjectFactory(streamReader, this)
 																					: new ObjectFactoryDelayedReuse(streamReader, this, reuseDelay);
+	}
+
+	boolean isNamespaceAware() {
+		return namespaceAware;
 	}
 
 	ChildIterator createChildIterator() {

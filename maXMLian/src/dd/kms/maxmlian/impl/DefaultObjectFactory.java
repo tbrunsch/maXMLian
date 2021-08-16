@@ -56,11 +56,11 @@ class DefaultObjectFactory implements ObjectFactory
 
 	@Override
 	public NamespaceImpl createNamespace(int depth) {
-		return new NamespaceImpl();
+		return new NamespaceImpl(nodeFactory.isNamespaceAware());
 	}
 
 	@Override
 	public AttrImpl createAttribute(int depth) {
-		return new AttrImpl();
+		return new AttrImpl(nodeFactory.isNamespaceAware());
 	}
 }

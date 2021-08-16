@@ -8,14 +8,20 @@ import java.util.Map;
 
 class AttrImpl implements Attr
 {
-	private String		namespaceUri;
-	private String		localName;
-	private String		prefix;
-	private String		value;
-	private String		type;
-	private AttrImpl	prevSibling;
-	private AttrImpl	nextSibling;
-	private AttrText	text;
+	private final boolean	namespaceAware;
+
+	private String			namespaceUri;
+	private String			localName;
+	private String			prefix;
+	private String			value;
+	private String			type;
+	private AttrImpl		prevSibling;
+	private AttrImpl		nextSibling;
+	private AttrText		text;
+
+	AttrImpl(boolean namespaceAware) {
+		this.namespaceAware = namespaceAware;
+	}
 
 	void initialize(String namespaceUri, String localName, String prefix, String value, String type) {
 		this.namespaceUri = ImplUtils.emptyToNull(namespaceUri);
@@ -99,17 +105,17 @@ class AttrImpl implements Attr
 
 	@Override
 	public String getNamespaceURI() {
-		return namespaceUri;
+		return namespaceAware ? namespaceUri : null;
 	}
 
 	@Override
 	public String getPrefix() {
-		return prefix;
+		return namespaceAware ? prefix : null;
 	}
 
 	@Override
 	public String getLocalName() {
-		return localName;
+		return namespaceAware ? localName : null;
 	}
 
 	@Override
