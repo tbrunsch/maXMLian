@@ -19,7 +19,10 @@ public class NamespaceXmlFileGenerator extends AbstractXmlFileGenerator
 	private static final String	PREFIX_1			= "a";
 	private static final String	PREFIX_2			= "b";
 
+	private int	numWrittenElements;
+
 	public synchronized void generate(Path file) throws IOException {
+		numWrittenElements = 0;
 		try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
 			reset(writer);
 			write("<?xml version=\"1.0\"?>");
@@ -58,7 +61,8 @@ public class NamespaceXmlFileGenerator extends AbstractXmlFileGenerator
 			}
 			for (boolean changeNamespace : Arrays.asList(false, true)) {
 				Attributes attributes = new Attributes()
-					.add(paramName, prefix != null ? prefix : "");
+					.add(paramName, prefix != null ? prefix : "")
+					.add("index", numWrittenElements++);
 				if (changeNamespace) {
 					String namespace = PREFIX_2.equals(prefix) ? NAMESPACE_1 : NAMESPACE_2;
 					attributes.add(namespaceAttribute, namespace);
