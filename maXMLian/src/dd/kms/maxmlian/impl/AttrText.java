@@ -82,7 +82,7 @@ class AttrText implements Text
 	}
 
 	@Override
-	public String getTextContent() throws XMLStreamException {
+	public String getTextContent() {
 		return data;
 	}
 }

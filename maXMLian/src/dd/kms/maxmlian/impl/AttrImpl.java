@@ -89,10 +89,6 @@ class AttrImpl implements Attr
 		return text;
 	}
 
-	Attr getPreviousSibling() {
-		return prevSibling;
-	}
-
 	@Override
 	public Attr getNextSibling() {
 		return nextSibling;

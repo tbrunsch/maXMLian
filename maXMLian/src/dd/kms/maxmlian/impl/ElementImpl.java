@@ -50,7 +50,7 @@ class ElementImpl extends NodeImpl implements Element
 		int numNamespaces = reader.getNamespaceCount();
 		for (int i = 0; i < numNamespaces; i++) {
 			String uri = reader.getNamespaceURI(i);
-			String prefix = reader.getNamespacePrefix(i);
+			String prefix = ImplUtils.emptyToNull(reader.getNamespacePrefix(i));
 			NamespaceImpl namespace = createNamespace(prefix, uri);
 			namespace.setPrevSibling(prevAttr);
 			attributesByQName.put(namespace.getName(), namespace);

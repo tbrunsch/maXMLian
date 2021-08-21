@@ -1,12 +1,12 @@
 package dd.kms.maxmlian.impl;
 
+import dd.kms.maxmlian.api.Attr;
+import dd.kms.maxmlian.api.Entity;
+import dd.kms.maxmlian.api.Node;
+
+import javax.xml.stream.events.EntityDeclaration;
 import java.util.Collections;
 import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.EntityDeclaration;
-
-import dd.kms.maxmlian.api.*;
 
 class EntityImpl implements Entity
 {

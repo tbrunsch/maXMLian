@@ -1,11 +1,12 @@
 package dd.kms.maxmlian.impl;
 
-import java.util.Collections;
-import java.util.Map;
+import dd.kms.maxmlian.api.Attr;
+import dd.kms.maxmlian.api.Node;
+import dd.kms.maxmlian.api.Notation;
 
 import javax.xml.stream.events.NotationDeclaration;
-
-import dd.kms.maxmlian.api.*;
+import java.util.Collections;
+import java.util.Map;
 
 class NotationImpl implements Notation
 {

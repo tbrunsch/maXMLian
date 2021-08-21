@@ -71,11 +71,12 @@ abstract class AbstractFileParsingTest
 		compareNodes(document, domDocument, 0, true);
 	}
 
-	private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth, boolean recursively) throws XMLStreamException {
+	private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth, boolean calledFromParent) throws XMLStreamException {
 		String name = domNode.getNodeName();
+		String prefix = domNode.getPrefix();
 		Assertions.assertEquals(name, node.getNodeName(), "Wrong node name");
 		Assertions.assertEquals(domNode.getLocalName(), node.getLocalName(), "Wrong local name of node '" + name + "'");
-		Assertions.assertEquals(domNode.getPrefix(), node.getPrefix(), "Wrong prefix of node '" + name + "'");
+		Assertions.assertEquals(prefix, node.getPrefix(), "Wrong prefix of node '" + name + "'");
 		Assertions.assertEquals(domNode.getNamespaceURI(), node.getNamespaceURI(), "Wrong namespace URI of node '" + name + "'");
 
 		Node parent = node.getParentNode();
@@ -129,7 +130,7 @@ abstract class AbstractFileParsingTest
 				throw new UnsupportedOperationException("The test does currently not support node type '" + nodeType + "'");
 		}
 
-		if (!recursively) {
+		if (!calledFromParent) {
 			return;
 		}
 
