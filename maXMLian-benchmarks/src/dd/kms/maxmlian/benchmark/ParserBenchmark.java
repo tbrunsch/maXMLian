@@ -1,6 +1,7 @@
 package dd.kms.maxmlian.benchmark;
 
 import dd.kms.maxmlian.benchmark.parser.*;
+import dd.kms.maxmlian.impl.StAXParserType;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -18,12 +19,15 @@ public class ParserBenchmark
 	static {
 		// Register parsers
 		PARSERS_BY_NAME.put(DUMMY_PARSER_NAME,							new MaXMLianParser(1));
-		PARSERS_BY_NAME.put("StAX parser (Cursor API)",					new StAXParserCursor());
-		PARSERS_BY_NAME.put("StAX parser (Iterator API)",				new StAXParserIterator());
-		PARSERS_BY_NAME.put("Aalto StAX parser (Cursor API)",			new AaltoStAXParserCursor());
-		PARSERS_BY_NAME.put("MaXMLian with immediate instance reuse",	new MaXMLianParser(1));
-		PARSERS_BY_NAME.put("MaXMLian with instance reuse delay 5",		new MaXMLianParser(5));
-		PARSERS_BY_NAME.put("MaXMLian without instance reuse",			new MaXMLianParser(Integer.MAX_VALUE));
+		PARSERS_BY_NAME.put("Xerces parser (Cursor API)",				new StAXParserCursor(StAXParserType.XERCES));
+		PARSERS_BY_NAME.put("Woodstox parser (Cursor API)",				new StAXParserCursor(StAXParserType.WOODSTOX));
+		PARSERS_BY_NAME.put("Aalto XML parser (Cursor API)",			new StAXParserCursor(StAXParserType.AALTO));
+		PARSERS_BY_NAME.put("Xerces parser (Iterator API)",				new StAXParserIterator(StAXParserType.XERCES));
+		PARSERS_BY_NAME.put("Woodstox parser (Iterator API)",			new StAXParserIterator(StAXParserType.WOODSTOX));
+		PARSERS_BY_NAME.put("Aalto XML parser (Iterator API)",			new StAXParserIterator(StAXParserType.AALTO));
+		PARSERS_BY_NAME.put("maXMLian with immediate instance reuse",	new MaXMLianParser(1));
+		PARSERS_BY_NAME.put("maXMLian with instance reuse delay 5",		new MaXMLianParser(5));
+		PARSERS_BY_NAME.put("maXMLian without instance reuse",			new MaXMLianParser(Integer.MAX_VALUE));
 		PARSERS_BY_NAME.put("DOM parser",								new DomParser());
 	}
 
@@ -43,7 +47,7 @@ public class ParserBenchmark
 			boolean isDummyBenchmark = DUMMY_PARSER_NAME.equals(parserName);
 
 			if (isDummyBenchmark) {
-				System.out.println("Initial dummy benchmark to minimize bias due to hardware or virtual machine optimizations...");
+				System.out.println("Initial dummy benchmark to minimize bias caused by hardware or virtual machine optimizations...");
 			} else {
 				System.out.println("Benchmarking " + parserName + "...");
 

@@ -32,5 +32,10 @@
             <artifactId>aalto-xml</artifactId>
             <version>1.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>6.2.6</version>
+        </dependency>
     </dependencies>
 </project>
