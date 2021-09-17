@@ -6,13 +6,18 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.EntityDeclaration;
 import javax.xml.stream.events.NotationDeclaration;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static javax.xml.stream.XMLStreamConstants.*;
 
 class NodeFactory
 {
+	private static final Pattern 	DOCTYPE_PATTERN			= Pattern.compile("^\\s*<!DOCTYPE\\s+.*", Pattern.DOTALL);
+
 	private static final String		PROPERTY_ENTITIES		= "javax.xml.stream.entities";
 	private static final String		PROPERTY_NOTATIONS		= "javax.xml.stream.notations";
 
@@ -113,11 +118,36 @@ class NodeFactory
 	}
 
 	private DocumentType createDocumentType() {
-		DocumentTypeImpl documentType = new DocumentTypeImpl(streamReader, this);
-		String documentTypeDeclaration = reader.getText();
+		String text = reader.getText();
 		List<EntityDeclaration> entityDeclarations = (List<EntityDeclaration>) reader.getProperty(PROPERTY_ENTITIES);
 		List<NotationDeclaration> notationDeclarations = (List<NotationDeclaration>) reader.getProperty(PROPERTY_NOTATIONS);
-		documentType.initialize(documentTypeDeclaration, entityDeclarations, notationDeclarations);
+
+		/*
+		 * According to the StAX specification, the text should only contain the internal subset.
+		 * However, the common StAX parsers Xerces returns the full document type declaration.
+		 * Hence, we have to treat this parser differently.
+		 */
+		boolean containsFullDocTypeDeclaration = DOCTYPE_PATTERN.matcher(text).matches();
+		if (containsFullDocTypeDeclaration) {
+			log(LogLevel.INFO, "Internal StAX parser does not comply with the specification when parsing the document type: It returned the full DTD instead of the internal subset");
+			DocumentTypeFromFullDtdText documentType = new DocumentTypeFromFullDtdText(streamReader, this);
+			String documentTypeDeclaration = text;
+			documentType.initialize(documentTypeDeclaration, entityDeclarations, notationDeclarations);
+			return documentType;
+		}
+
+		String internalSubset = text;
+
+		/*
+		 * The StAX API does not provide a way to obtain the document's root name, the public id,
+		 * and the system id. The FasterXML StAX2 API does, but we do not want to hard-code against
+		 * its classes. Hence, we try to call the methods via reflection.
+		 */
+		String documentTypeName = getStringFromReader("getDTDRootName", "Cannot obtain name of document type declaration");
+		String publicId = getStringFromReader("getDTDPublicId", "Cannot obtain public id of document type declaration");
+		String systemId = getStringFromReader("getDTDSystemId", "Cannot obtain public id of document type declaration");
+		DocumentTypeImpl documentType = new DocumentTypeImpl(streamReader, this);
+		documentType.initialize(documentTypeName, publicId, systemId, internalSubset, entityDeclarations, notationDeclarations);
 		return documentType;
 	}
 
@@ -189,5 +219,37 @@ class NodeFactory
 		AttrImpl attr = objectFactory.createAttribute(depth);
 		attr.initialize(namespaceUri, localName, prefix, value, type);
 		return attr;
+	}
+
+	private String getStringFromReader(String methodName, String errorMessage) {
+		try {
+			Method method = reader.getClass().getMethod(methodName);
+			return (String) method.invoke(reader);
+		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+			log(LogLevel.WARNING, errorMessage);
+			return null;
+		}
+	}
+
+	private void log(LogLevel logLevel, String text) {
+		System.out.println(logLevel + ": " + text);
+	}
+
+	private enum LogLevel
+	{
+		ERROR	("Error"),
+		WARNING	("Warning"),
+		INFO	("Info");
+
+		private final String	text;
+
+		LogLevel(String text) {
+			this.text = text;
+		}
+
+		@Override
+		public String toString() {
+			return text;
+		}
 	}
 }
