@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 class TestUtils
 {
 	private static final Path	LARGE_XML_FILE		= Paths.get(System.getProperty("user.home")).resolve("LargeXmlFile.xml");
-	private static final long	LARGE_XML_FILE_SIZE	= 100 * (1 << 20);	// 100 MB
+	private static final long	LARGE_XML_FILE_SIZE	= 20 * (1 << 20);	// 20 MB
 
 	static Path getLargeXmlFile() throws IOException {
 		if (!Files.exists(LARGE_XML_FILE)) {
