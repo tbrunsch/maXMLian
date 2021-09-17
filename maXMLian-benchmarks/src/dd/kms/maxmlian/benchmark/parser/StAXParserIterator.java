@@ -1,6 +1,6 @@
 package dd.kms.maxmlian.benchmark.parser;
 
-import dd.kms.maxmlian.impl.StAXParserType;
+import dd.kms.maxmlian.impl.XMLInputFactoryProvider;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -12,15 +12,15 @@ import java.util.Iterator;
 
 public class StAXParserIterator extends AbstractParser
 {
-	private final StAXParserType staxParserType;
+	private final XMLInputFactoryProvider	xmlInputFactoryProvider;
 
-	public StAXParserIterator(StAXParserType staxParserType) {
-		this.staxParserType = staxParserType;
+	public StAXParserIterator(XMLInputFactoryProvider xmlInputFactoryProvider) {
+		this.xmlInputFactoryProvider = xmlInputFactoryProvider;
 	}
 
 	@Override
 	void doParseXml(Path xmlFile) throws Exception {
-		XMLInputFactory factory = staxParserType.createXmlInputFactory().get();
+		XMLInputFactory factory = xmlInputFactoryProvider.getXMLInputFactory().get();
 		XMLEventReader eventReader = factory.createXMLEventReader(Files.newInputStream(xmlFile));
 		documentCreationFinished();
 
