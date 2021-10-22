@@ -39,10 +39,13 @@ class ElementImpl extends NodeImpl implements Element
 
 		attributesByQName = createAttributesByQNameMap();
 		AttrImpl prevAttr = null;
-		if (isNamespaceAware()) {
-			prevAttr = addNamespaceAttributes(reader, prevAttr);
-			// TODO: setNamespaceContext(); // see XMLEventAllocatorImpl.getXMLEvent()
-		}
+
+		/*
+		 * The Aalto XML parser always creates namespaces instead of attributes.
+		 * Hence, we must parse namespaces, even if namespace awareness is deactivated.
+		 */
+		addNamespaceAttributes(reader, prevAttr);
+
 		addAttributes(reader, prevAttr);
 	}
 
