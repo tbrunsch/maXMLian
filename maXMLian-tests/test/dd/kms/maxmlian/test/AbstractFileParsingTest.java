@@ -63,6 +63,7 @@ abstract class AbstractFileParsingTest
 
 		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
 		domFactory.setNamespaceAware(namespaceAware);
+		domFactory.setValidating(false);
 		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
 		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
 

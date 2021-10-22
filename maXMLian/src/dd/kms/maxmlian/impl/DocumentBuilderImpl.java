@@ -5,14 +5,16 @@ import dd.kms.maxmlian.api.DocumentBuilder;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.NodeType;
 
-import javax.xml.stream.*;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
 
 class DocumentBuilderImpl implements DocumentBuilder
 {
 	private static final String	PROP_NAMESPACE_AWARE	= "javax.xml.stream.isNamespaceAware";
+	private static final String	PROP_VALIDATING			= "javax.xml.stream.isValidating";
 
 	private final int		reuseDelay;
 	private final boolean	namespaceAware;
@@ -39,6 +41,7 @@ class DocumentBuilderImpl implements DocumentBuilder
 		}
 
 		factory.setProperty(PROP_NAMESPACE_AWARE, namespaceAware);
+		factory.setProperty(PROP_VALIDATING, false);
 		XMLStreamReader reader = factory.createXMLStreamReader(is);
 		ExtendedXmlStreamReader streamReader = new ExtendedXmlStreamReader(reader);
 		NodeFactory nodeFactory = new NodeFactory(streamReader, reuseDelay, namespaceAware);
