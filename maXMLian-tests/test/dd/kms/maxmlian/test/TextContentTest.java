@@ -1,8 +1,11 @@
 package dd.kms.maxmlian.test;
 
 import dd.kms.maxmlian.api.*;
+import dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl;
+import dd.kms.maxmlian.impl.XMLInputFactoryProvider;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -11,15 +14,27 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 public class TextContentTest
 {
 	private static final Path	TEST_FILE										= TestUtils.getResourceDirectory().resolve("mixed_content.xml");
 	private static final String	NAME_OF_ELEMENTS_FOR_TEXT_CONTENT_COMPARISON	= "text";
 
-	@Test
-	public void testGetTextContent() throws IOException, ParserConfigurationException, XMLStreamException, SAXException {
+	static List<Object> getParameters() {
+		return Arrays.asList(
+			XMLInputFactoryProvider.XERCES,
+			XMLInputFactoryProvider.WOODSTOX,
+			XMLInputFactoryProvider.AALTO
+		);
+	}
+
+	@ParameterizedTest(name = "StAX parser: {0}")
+	@MethodSource("getParameters")
+	public void testGetTextContent(XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, XMLStreamException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
 		DocumentBuilder documentBuilder = factory.immediateInstanceReuse().newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(TEST_FILE));
 

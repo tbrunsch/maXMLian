@@ -1,6 +1,8 @@
 package dd.kms.maxmlian.test;
 
 import dd.kms.maxmlian.api.*;
+import dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl;
+import dd.kms.maxmlian.impl.XMLInputFactoryProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,8 +17,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ExtendWith({LargeXmlTestFileDeletionExtension.class})
 abstract class AbstractFileParsingTest
@@ -25,14 +29,17 @@ abstract class AbstractFileParsingTest
 	abstract int getNumberOfChildrenToParse(int depth);
 
 	static List<Object[]> getParameters() throws IOException {
-		List<Object[]> parameters = new ArrayList<>();
 		List<Path> paths = collectXmlFiles();
-		for (boolean namespaceAware : new boolean[]{ false, true }) {
-			for (Path path : paths) {
-				parameters.add(new Object[]{ path, namespaceAware });
-			}
-		}
-		return parameters;
+		List<Boolean> namespaceAwarenessValues = Arrays.asList(false, true);
+		List<XMLInputFactoryProvider> inputFactoryProviders = Arrays.asList(
+			XMLInputFactoryProvider.XERCES,
+			XMLInputFactoryProvider.WOODSTOX,
+			XMLInputFactoryProvider.AALTO
+		);
+		return cartesianProduct(Arrays.asList(paths, namespaceAwarenessValues, inputFactoryProviders))
+			.stream()
+			.map(List::toArray)
+			.collect(Collectors.toList());
 	}
 
 	private static List<Path> collectXmlFiles() throws IOException {
@@ -53,11 +60,30 @@ abstract class AbstractFileParsingTest
 		return file.getFileName().toString().toLowerCase().endsWith(".xml");
 	}
 
-	@ParameterizedTest(name = "{0}, namespace aware: {1}")
+	private static List<List<Object>> cartesianProduct(List<List<?>> lists) {
+		List<List<Object>> result = new ArrayList<>();
+		if (lists.isEmpty()) {
+			result.add(new ArrayList<>());
+			return result;
+		}
+		List<List<Object>> partialResult = cartesianProduct(lists.subList(1, lists.size()));
+		for (Object element : lists.get(0)) {
+			for (List<Object> partialTuple : partialResult) {
+				List<Object> tuple = new ArrayList<>(1 + partialTuple.size());
+				tuple.add(element);
+				tuple.addAll(partialTuple);
+				result.add(tuple);
+			}
+		}
+		return result;
+	}
+
+	@ParameterizedTest(name = "{0}, namespace aware: {1}, StAX parser: {2}")
 	@MethodSource("getParameters")
-	void testParsingFile(Path xmlFile, boolean namespaceAware) throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
+	void testParsingFile(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(namespaceAware);
+		((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
 		DocumentBuilder documentBuilder = factory.immediateInstanceReuse().newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
