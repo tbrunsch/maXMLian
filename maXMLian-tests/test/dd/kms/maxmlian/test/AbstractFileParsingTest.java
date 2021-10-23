@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 @ExtendWith({LargeXmlTestFileDeletionExtension.class})
 abstract class AbstractFileParsingTest
 {
+	private XMLInputFactoryProvider	xmlInputFactoryProvider;
+
 	abstract void prepareTest(org.w3c.dom.Document domDocument);
 	abstract int getNumberOfChildrenToParse(int depth);
 
@@ -78,6 +80,10 @@ abstract class AbstractFileParsingTest
 		return result;
 	}
 
+	private boolean usesAaltoStAXParser() {
+		return xmlInputFactoryProvider == XMLInputFactoryProvider.AALTO;
+	}
+
 	@ParameterizedTest(name = "{0}, namespace aware: {1}, StAX parser: {2}")
 	@MethodSource("getParameters")
 	void testParsingFile(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
@@ -93,18 +99,13 @@ abstract class AbstractFileParsingTest
 		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
 		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
 
+		this.xmlInputFactoryProvider = xmlInputFactoryProvider;
 		prepareTest(domDocument);
 
-		/*
-		 * We must not test entities and notations for the Aalto StAX parser because it does not support them
-		 * (see com.fasterxml.aalto.stax.StreamReaderImpl.getProperty(String)).
-		 */
-		boolean checkEntitiesAndNotations = xmlInputFactoryProvider != XMLInputFactoryProvider.AALTO;
-
-		compareNodes(document, domDocument, 0, true, checkEntitiesAndNotations);
+		compareNodes(document, domDocument, 0, true);
 	}
 
-	private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth, boolean calledFromParent, boolean checkEntitiesAndNotations) throws XMLStreamException {
+	private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth, boolean calledFromParent) throws XMLStreamException {
 		String name = domNode.getNodeName();
 		String prefix = domNode.getPrefix();
 		Assertions.assertEquals(name, node.getNodeName(), "Wrong node name");
@@ -120,7 +121,7 @@ abstract class AbstractFileParsingTest
 			}
 		} else {
 			Assertions.assertNotNull(parent, "Expected parent '" + domParent.getNodeName() + "'");
-			compareNodes(parent, domParent, depth - 1, false, checkEntitiesAndNotations);
+			compareNodes(parent, domParent, depth - 1, false);
 		}
 
 		short domNodeType = domNode.getNodeType();
@@ -154,7 +155,7 @@ abstract class AbstractFileParsingTest
 				compareDocuments((Document) node, (org.w3c.dom.Document) domNode);
 				break;
 			case DOCUMENT_TYPE:
-				compareDocumentTypes((DocumentType) node, (org.w3c.dom.DocumentType) domNode, depth, checkEntitiesAndNotations);
+				compareDocumentTypes((DocumentType) node, (org.w3c.dom.DocumentType) domNode, depth);
 				break;
 			case NOTATION:
 				compareNotations((Notation) node, (org.w3c.dom.Notation) domNode);
@@ -176,7 +177,7 @@ abstract class AbstractFileParsingTest
 			for (Node child : children) {
 				Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + name + "'");
 				org.w3c.dom.Node domChild = domChildren.item(childIndex);
-				compareNodes(child, domChild, depth + 1, true, checkEntitiesAndNotations);
+				compareNodes(child, domChild, depth + 1, true);
 				childIndex++;
 				if (childIndex >= numChildrenToParse) {
 					break;
@@ -203,7 +204,7 @@ abstract class AbstractFileParsingTest
 				Attr attribute = attributesByName.get(attributeName);
 				org.w3c.dom.Node domAttribute = domAttributes.getNamedItem(attributeName);
 				Assertions.assertNotNull(domAttribute, "Wrong attribute name '" + attributeName + "'");
-				compareNodes(attribute, domAttribute, depth + 1, true, false);
+				compareNodes(attribute, domAttribute, depth + 1, true);
 				attributeIndex++;
 				if (attributeIndex >= numChildrenToParse) {
 					break;
@@ -262,13 +263,19 @@ abstract class AbstractFileParsingTest
 		 */
 	}
 
-	private void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType, int depth, boolean checkEntitiesAndNotations) throws XMLStreamException {
+	private void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType, int depth) throws XMLStreamException {
 		String name = domDocType.getName();
 		Assertions.assertEquals(domDocType.getName(), docType.getName(), "Wrong name of document type '" + name + "'");
 		Assertions.assertEquals(domDocType.getPublicId(), docType.getPublicId(), "Wrong public ID of document type '" + name + "'");
 		Assertions.assertEquals(domDocType.getSystemId(), docType.getSystemId(), "Wrong system ID of document type '" + name + "'");
 
 		int numChildrenToParse = getNumberOfChildrenToParse(depth);
+
+		/*
+		 * We must not test entities and notations for the Aalto StAX parser because it does not support them
+		 * (see com.fasterxml.aalto.stax.StreamReaderImpl.getProperty(String)).
+		 */
+		boolean checkEntitiesAndNotations = !usesAaltoStAXParser();
 
 		if (numChildrenToParse > 0 && checkEntitiesAndNotations) {
 			Map<String, Entity> entitiesByName = docType.getEntities();
@@ -279,7 +286,7 @@ abstract class AbstractFileParsingTest
 				Entity entity = entitiesByName.get(entityName);
 				org.w3c.dom.Node domEntity = domEntities.getNamedItem(entityName);
 				Assertions.assertNotNull(domEntity, "Wrong entity name '" + entityName + "'");
-				compareNodes(entity, domEntity, depth + 1, true, false);
+				compareNodes(entity, domEntity, depth + 1, true);
 				entityIndex++;
 				if (entityIndex >= numChildrenToParse) {
 					break;
@@ -296,7 +303,7 @@ abstract class AbstractFileParsingTest
 				Notation notation = notationsByName.get(notationName);
 				org.w3c.dom.Node domNotation = domNotations.getNamedItem(notationName);
 				Assertions.assertNotNull(domNotation, "Wrong notation name '" + notationName + "'");
-				compareNodes(notation, domNotation, depth + 1, true, false);
+				compareNodes(notation, domNotation, depth + 1, true);
 				notationIndex++;
 				if (notationIndex >= numChildrenToParse) {
 					break;
