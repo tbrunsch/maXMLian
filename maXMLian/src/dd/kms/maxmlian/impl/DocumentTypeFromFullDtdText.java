@@ -36,7 +36,8 @@ class DocumentTypeFromFullDtdText extends AbstractDocumentTypeImpl
 	public String getName() {
 		Matcher matcher = DOCTYPE_NAME_PATTERN.matcher(documentTypeDeclaration);
 		if (!matcher.matches() || matcher.groupCount() != 1) {
-			throw new IllegalStateException("Cannot extract name from document type declaration: '" + documentTypeDeclaration + "'");
+			// happens for Xerces when disabling DTD support
+			return null;
 		}
 		return matcher.group(1);
 	}
