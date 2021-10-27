@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 @ExtendWith({LargeXmlTestFileDeletionExtension.class})
 abstract class AbstractFileParsingTest
 {
-	private XMLInputFactoryProvider	xmlInputFactoryProvider;
-
 	abstract void prepareTest(org.w3c.dom.Document domDocument);
 	abstract int getNumberOfChildrenToParse(int depth);
 
@@ -35,8 +33,7 @@ abstract class AbstractFileParsingTest
 		List<Boolean> namespaceAwarenessValues = Arrays.asList(false, true);
 		List<XMLInputFactoryProvider> inputFactoryProviders = Arrays.asList(
 			XMLInputFactoryProvider.XERCES,
-			XMLInputFactoryProvider.WOODSTOX,
-			XMLInputFactoryProvider.AALTO
+			XMLInputFactoryProvider.WOODSTOX
 		);
 		return cartesianProduct(Arrays.asList(paths, namespaceAwarenessValues, inputFactoryProviders))
 			.stream()
@@ -80,10 +77,6 @@ abstract class AbstractFileParsingTest
 		return result;
 	}
 
-	private boolean usesAaltoStAXParser() {
-		return xmlInputFactoryProvider == XMLInputFactoryProvider.AALTO;
-	}
-
 	@ParameterizedTest(name = "{0}, namespace aware: {1}, StAX parser: {2}")
 	@MethodSource("getParameters")
 	void testParsingFile(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
@@ -99,7 +92,6 @@ abstract class AbstractFileParsingTest
 		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
 		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
 
-		this.xmlInputFactoryProvider = xmlInputFactoryProvider;
 		prepareTest(domDocument);
 
 		compareNodes(document, domDocument, 0, true);
@@ -271,13 +263,7 @@ abstract class AbstractFileParsingTest
 
 		int numChildrenToParse = getNumberOfChildrenToParse(depth);
 
-		/*
-		 * We must not test entities and notations for the Aalto StAX parser because it does not support them
-		 * (see com.fasterxml.aalto.stax.StreamReaderImpl.getProperty(String)).
-		 */
-		boolean checkEntitiesAndNotations = !usesAaltoStAXParser();
-
-		if (numChildrenToParse > 0 && checkEntitiesAndNotations) {
+		if (numChildrenToParse > 0) {
 			Map<String, Entity> entitiesByName = docType.getEntities();
 			org.w3c.dom.NamedNodeMap domEntities = domDocType.getEntities();
 			Assertions.assertEquals(domEntities.getLength(), entitiesByName.size(), "Wrong number of entities of document type '" + name + "'");
@@ -294,7 +280,7 @@ abstract class AbstractFileParsingTest
 			}
 		}
 
-		if (numChildrenToParse > 0 && checkEntitiesAndNotations) {
+		if (numChildrenToParse > 0) {
 			Map<String, Notation> notationsByName = docType.getNotations();
 			org.w3c.dom.NamedNodeMap domNotations = domDocType.getNotations();
 			Assertions.assertEquals(domNotations.getLength(), notationsByName.size(), "Wrong number of notations of document type '" + name + "'");

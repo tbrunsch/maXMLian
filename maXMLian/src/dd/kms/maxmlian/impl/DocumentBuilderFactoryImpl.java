@@ -13,7 +13,6 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 	private boolean namespaceAware	= false;
 
 	private List<XMLInputFactoryProvider> xmlInputFactoryProviders	= Arrays.asList(
-		XMLInputFactoryProvider.AALTO,
 		XMLInputFactoryProvider.WOODSTOX,
 		XMLInputFactoryProvider.XERCES,
 		XMLInputFactoryProvider.DEFAULT
