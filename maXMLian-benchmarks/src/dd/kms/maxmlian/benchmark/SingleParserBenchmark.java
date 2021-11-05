@@ -1,8 +1,8 @@
 package dd.kms.maxmlian.benchmark;
 
-import dd.kms.maxmlian.benchmark.monitor.TotalTraversalProgressDeterminationMonitor;
 import dd.kms.maxmlian.benchmark.monitor.MemoryMonitor;
 import dd.kms.maxmlian.benchmark.monitor.RuntimeMonitor;
+import dd.kms.maxmlian.benchmark.monitor.TotalTraversalProgressDeterminationMonitor;
 import dd.kms.maxmlian.benchmark.parser.Parser;
 
 import java.nio.file.Path;

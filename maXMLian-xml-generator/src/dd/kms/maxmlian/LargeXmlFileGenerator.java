@@ -30,8 +30,6 @@ public class LargeXmlFileGenerator extends AbstractXmlFileGenerator
 	private static final String	ELEMENT_NAME_RETURN_TYPE		= "returntype";
 	private static final String	ELEMENT_NAME_EXCEPTION_TYPES	= "exceptiontypes";
 
-	private static final String	INDENT_CHARACTERS				= "  ";
-
 	private final long			targetFileSize;
 	private int					nestedClassElementCounter	= 0;
 

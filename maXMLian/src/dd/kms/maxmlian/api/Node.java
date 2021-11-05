@@ -1,8 +1,7 @@
 package dd.kms.maxmlian.api;
 
-import java.util.Map;
-
 import javax.xml.stream.XMLStreamException;
+import java.util.Map;
 
 public interface Node
 {
