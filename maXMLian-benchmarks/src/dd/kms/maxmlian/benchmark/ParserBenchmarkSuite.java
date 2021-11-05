@@ -8,7 +8,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
 
 public class ParserBenchmarkSuite
 {
@@ -19,14 +18,6 @@ public class ParserBenchmarkSuite
 	private static final double			BYTES_TO_MEGABYTES_FACTOR			= 1.0/(1 << 20);
 
 	private static final DecimalFormat	DECIMAL_FORMAT						= new DecimalFormat("0.00##", new DecimalFormatSymbols(Locale.US));
-
-	private static final Map<String, ToDoubleFunction<LongValueStatistics>>	STATISTICAL_VALUE_EXTRACTORS_BY_NAME	= new LinkedHashMap<>();
-
-	static {
-		STATISTICAL_VALUE_EXTRACTORS_BY_NAME.put("min", LongValueStatistics::getMinValue);
-		STATISTICAL_VALUE_EXTRACTORS_BY_NAME.put("avg", LongValueStatistics::getAverageValue);
-		STATISTICAL_VALUE_EXTRACTORS_BY_NAME.put("max", LongValueStatistics::getMaxValue);
-	}
 
 	/**
 	 * @param args	An array containing the required benchmark parameters.<br/>
@@ -79,7 +70,6 @@ public class ParserBenchmarkSuite
 		List<String> firstLine = new ArrayList<>(3 + parserNames.size());
 		firstLine.add("Parsing Method");
 		firstLine.add("");
-		firstLine.add("");
 		firstLine.addAll(parserNames);
 		lineCollector.addLine(firstLine);
 	}
@@ -115,27 +105,16 @@ public class ParserBenchmarkSuite
 		}
 
 		void writeResults(String col1, String col2, Function<SingleParserBenchmarkResult, LongValueStatistics> statisticsExtractor, double scaleFactor) {
-			boolean firstLine = true;
-			for (String statisticalValueExtractorName : STATISTICAL_VALUE_EXTRACTORS_BY_NAME.keySet()) {
-				List<String> line = new ArrayList<>(3 + results.size());
-				if (firstLine) {
-					line.add(col1);
-					line.add(col2);
-				} else {
-					line.add("");
-					line.add("");
-				}
-				line.add(statisticalValueExtractorName);
-				ToDoubleFunction<LongValueStatistics> statisticalValueExtractor = STATISTICAL_VALUE_EXTRACTORS_BY_NAME.get(statisticalValueExtractorName);
-				for (SingleParserBenchmarkResult result : results) {
-					LongValueStatistics statistics = statisticsExtractor.apply(result);
-					double statisticalValue = statisticalValueExtractor.applyAsDouble(statistics);
-					double value = statisticalValue * scaleFactor;
-					line.add(DECIMAL_FORMAT.format(value));
-				}
-				lineCollector.addLine(line);
-				firstLine = false;
+			List<String> line = new ArrayList<>(3 + results.size());
+			line.add(col1);
+			line.add(col2);
+			for (SingleParserBenchmarkResult result : results) {
+				LongValueStatistics statistics = statisticsExtractor.apply(result);
+				double statisticalValue = statistics.getAverageValue();
+				double value = statisticalValue * scaleFactor;
+				line.add(DECIMAL_FORMAT.format(value));
 			}
+			lineCollector.addLine(line);
 		}
 	}
 
