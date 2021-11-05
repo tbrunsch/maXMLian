@@ -18,17 +18,16 @@ public class ParserBenchmark
 
 	static {
 		// Register parsers
-		PARSERS_BY_NAME.put(DUMMY_PARSER_NAME,							new MaXMLianParser(1));
-		PARSERS_BY_NAME.put("Xerces parser (Cursor API)",				new StAXParserCursor(XMLInputFactoryProvider.XERCES));
-		PARSERS_BY_NAME.put("Woodstox parser (Cursor API)",				new StAXParserCursor(XMLInputFactoryProvider.WOODSTOX));
-		PARSERS_BY_NAME.put("Aalto XML parser (Cursor API)",			new StAXParserCursor(XMLInputFactoryProvider.AALTO));
-		PARSERS_BY_NAME.put("Xerces parser (Iterator API)",				new StAXParserIterator(XMLInputFactoryProvider.XERCES));
-		PARSERS_BY_NAME.put("Woodstox parser (Iterator API)",			new StAXParserIterator(XMLInputFactoryProvider.WOODSTOX));
-		PARSERS_BY_NAME.put("Aalto XML parser (Iterator API)",			new StAXParserIterator(XMLInputFactoryProvider.AALTO));
-		PARSERS_BY_NAME.put("maXMLian with immediate instance reuse",	new MaXMLianParser(1));
-		PARSERS_BY_NAME.put("maXMLian with instance reuse delay 5",		new MaXMLianParser(5));
-		PARSERS_BY_NAME.put("maXMLian without instance reuse",			new MaXMLianParser(Integer.MAX_VALUE));
-		PARSERS_BY_NAME.put("DOM parser",								new DomParser());
+		PARSERS_BY_NAME.put(DUMMY_PARSER_NAME,					new MaXMLianParser(true));
+		PARSERS_BY_NAME.put("Xerces parser (Cursor API)",		new StAXParserCursor(XMLInputFactoryProvider.XERCES));
+		PARSERS_BY_NAME.put("Woodstox parser (Cursor API)",		new StAXParserCursor(XMLInputFactoryProvider.WOODSTOX));
+		PARSERS_BY_NAME.put("Aalto XML parser (Cursor API)",	new StAXParserCursor(XMLInputFactoryProvider.AALTO));
+		PARSERS_BY_NAME.put("Xerces parser (Iterator API)",		new StAXParserIterator(XMLInputFactoryProvider.XERCES));
+		PARSERS_BY_NAME.put("Woodstox parser (Iterator API)",	new StAXParserIterator(XMLInputFactoryProvider.WOODSTOX));
+		PARSERS_BY_NAME.put("Aalto XML parser (Iterator API)",	new StAXParserIterator(XMLInputFactoryProvider.AALTO));
+		PARSERS_BY_NAME.put("maXMLian with instance reuse",		new MaXMLianParser(true));
+		PARSERS_BY_NAME.put("maXMLian without instance reuse",	new MaXMLianParser(false));
+		PARSERS_BY_NAME.put("DOM parser",						new DomParser());
 	}
 
 	private final int	numTrials;

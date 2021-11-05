@@ -15,7 +15,7 @@ import static dd.kms.maxmlian.impl.ImplUtils.set;
  * of the same depth and type are returned. Only the first node with that depth
  * and type will be instantiated.
  */
-class ObjectFactoryImmediateReuse extends DefaultObjectFactory
+class ObjectFactoryWithReuse extends DefaultObjectFactory
 {
 	private final List<ChildIterator>								childIterators			= new ArrayList<>();
 	private final List<ElementImpl>									elements				= new ArrayList<>();
@@ -27,7 +27,7 @@ class ObjectFactoryImmediateReuse extends DefaultObjectFactory
 	private final List<ReusableElementsCollection<NamespaceImpl>>	namespaceCollections	= new ArrayList<>();
 	private final List<ReusableElementsCollection<AttrImpl>>		attributeCollections	= new ArrayList<>();
 
-	ObjectFactoryImmediateReuse(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
+	ObjectFactoryWithReuse(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
 		super(streamReader, nodeFactory);
 	}
 

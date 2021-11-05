@@ -16,13 +16,13 @@ class DocumentBuilderImpl implements DocumentBuilder
 	private static final String	PROP_NAMESPACE_AWARE	= "javax.xml.stream.isNamespaceAware";
 	private static final String	PROP_VALIDATING			= "javax.xml.stream.isValidating";
 
-	private final int		reuseDelay;
+	private final boolean	reuseInstances;
 	private final boolean	namespaceAware;
 
 	private final List<XMLInputFactoryProvider>	xmlInputFactoryProviders;
 
-	DocumentBuilderImpl(int reuseDelay, boolean namespaceAware, List<XMLInputFactoryProvider> xmlInputFactoryProviders) {
-		this.reuseDelay = reuseDelay;
+	DocumentBuilderImpl(boolean reuseInstances, boolean namespaceAware, List<XMLInputFactoryProvider> xmlInputFactoryProviders) {
+		this.reuseInstances = reuseInstances;
 		this.namespaceAware = namespaceAware;
 		this.xmlInputFactoryProviders = xmlInputFactoryProviders;
 	}
@@ -44,7 +44,7 @@ class DocumentBuilderImpl implements DocumentBuilder
 		factory.setProperty(PROP_VALIDATING, false);
 		XMLStreamReader reader = factory.createXMLStreamReader(is);
 		ExtendedXmlStreamReader streamReader = new ExtendedXmlStreamReader(reader);
-		NodeFactory nodeFactory = new NodeFactory(streamReader, reuseDelay, namespaceAware);
+		NodeFactory nodeFactory = new NodeFactory(streamReader, reuseInstances, namespaceAware);
 		Node child = nodeFactory.readFirstChildNode();
 		if (child.getNodeType() == NodeType.DOCUMENT) {
 			return (Document) child;

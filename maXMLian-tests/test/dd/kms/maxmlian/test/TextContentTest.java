@@ -35,7 +35,7 @@ public class TextContentTest
 	public void testGetTextContent(XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, XMLStreamException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
-		DocumentBuilder documentBuilder = factory.immediateInstanceReuse().newDocumentBuilder();
+		DocumentBuilder documentBuilder = factory.reuseInstances(true).newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(TEST_FILE));
 
 		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();

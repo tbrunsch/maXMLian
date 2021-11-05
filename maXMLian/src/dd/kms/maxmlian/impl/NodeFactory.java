@@ -27,13 +27,13 @@ class NodeFactory
 	private final boolean					namespaceAware;
 	private final StringBuilder				additionalCharactersBuilder	= new StringBuilder();
 
-	NodeFactory(ExtendedXmlStreamReader streamReader, int reuseDelay, boolean namespaceAware) {
+	NodeFactory(ExtendedXmlStreamReader streamReader, boolean reuseInstances, boolean namespaceAware) {
 		this.streamReader = streamReader;
 		this.reader = streamReader.getReader();
 		this.namespaceAware = namespaceAware;
-		this.objectFactory =	reuseDelay == ImplUtils.INSTANCE_REUSE_IMMEDIATE	? new ObjectFactoryImmediateReuse(streamReader, this) :
-								reuseDelay == ImplUtils.INSTANCE_REUSE_NONE			? new DefaultObjectFactory(streamReader, this)
-																					: new ObjectFactoryDelayedReuse(streamReader, this, reuseDelay);
+		this.objectFactory = reuseInstances
+				? new ObjectFactoryWithReuse(streamReader, this)
+				: new DefaultObjectFactory(streamReader, this);
 	}
 
 	boolean isNamespaceAware() {

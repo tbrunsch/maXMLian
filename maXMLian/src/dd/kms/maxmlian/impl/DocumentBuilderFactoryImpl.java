@@ -9,7 +9,7 @@ import java.util.List;
 
 public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 {
-	private int		reuseDelay		= ImplUtils.INSTANCE_REUSE_NONE;
+	private boolean	reuseInstances	= false;
 	private boolean namespaceAware	= false;
 
 	private List<XMLInputFactoryProvider> xmlInputFactoryProviders	= Arrays.asList(
@@ -19,23 +19,8 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 	);
 
 	@Override
-	public DocumentBuilderFactory withoutInstanceReuse() {
-		this.reuseDelay = ImplUtils.INSTANCE_REUSE_NONE;
-		return this;
-	}
-
-	@Override
-	public DocumentBuilderFactory delayedInstanceReuse(int reuseDelay) {
-		if (reuseDelay < 1) {
-			throw new IllegalArgumentException("The reuse delay must be at least 1, but is " + reuseDelay);
-		}
-		this.reuseDelay = reuseDelay;
-		return this;
-	}
-
-	@Override
-	public DocumentBuilderFactory immediateInstanceReuse() {
-		this.reuseDelay = ImplUtils.INSTANCE_REUSE_IMMEDIATE;
+	public DocumentBuilderFactory reuseInstances(boolean reuseInstances) {
+		this.reuseInstances = reuseInstances;
 		return this;
 	}
 
@@ -60,6 +45,6 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 
 	@Override
 	public DocumentBuilder newDocumentBuilder() {
-		return new DocumentBuilderImpl(reuseDelay, namespaceAware, xmlInputFactoryProviders);
+		return new DocumentBuilderImpl(reuseInstances, namespaceAware, xmlInputFactoryProviders);
 	}
 }

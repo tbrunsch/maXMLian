@@ -83,7 +83,7 @@ abstract class AbstractFileParsingTest
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(namespaceAware);
 		((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
-		DocumentBuilder documentBuilder = factory.immediateInstanceReuse().newDocumentBuilder();
+		DocumentBuilder documentBuilder = factory.reuseInstances(true).newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
 		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();

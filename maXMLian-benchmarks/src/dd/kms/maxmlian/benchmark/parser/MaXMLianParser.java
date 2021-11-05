@@ -9,16 +9,15 @@ import java.util.Map;
 
 public class MaXMLianParser extends AbstractParser
 {
-	private final int	reuseDelay;
+	private final boolean	reuseInstances;
 
-	public MaXMLianParser(int reuseDelay) {
-		this.reuseDelay = reuseDelay;
+	public MaXMLianParser(boolean reuseInstances) {
+		this.reuseInstances = reuseInstances;
 	}
 
 	@Override
 	void doParseXml(Path xmlFile) throws Exception {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.delayedInstanceReuse(reuseDelay);
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance().reuseInstances(reuseInstances);
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
 
 		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));

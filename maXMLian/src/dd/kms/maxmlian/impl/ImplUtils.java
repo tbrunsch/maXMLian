@@ -4,9 +4,6 @@ import java.util.List;
 
 class ImplUtils
 {
-	static final int	INSTANCE_REUSE_IMMEDIATE	= 1;
-	static final int	INSTANCE_REUSE_NONE			= Integer.MAX_VALUE;
-
 	static String getQualifiedName(String localName, String prefix) {
 		return prefix == null ? localName : prefix + ":" + localName;
 	}
