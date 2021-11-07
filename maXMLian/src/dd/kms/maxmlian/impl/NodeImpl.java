@@ -1,6 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Attr;
+import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.XmlException;
 import dd.kms.maxmlian.api.XmlStateException;
@@ -9,7 +9,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 
 // The class is also an Iterable over its own children
 abstract class NodeImpl implements Node, Iterable<Node>
@@ -94,8 +93,8 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	@Override
-	public Map<String, Attr> getAttributes() {
-		return Collections.emptyMap();
+	public NamedAttributeMap getAttributes() {
+		return EmptyNamedAttributeMap.ATTRIBUTE_MAP;
 	}
 
 	@Override
@@ -124,8 +123,8 @@ abstract class NodeImpl implements Node, Iterable<Node>
 		return nodeFactory.isNamespaceAware();
 	}
 
-	Map<String, Attr> createAttributesByQNameMap() {
-		return nodeFactory.createAttributesByQNameMap(initialDepth);
+	NamedAttributeMapImpl createNamedAttributeMap() {
+		return nodeFactory.createNamedAttributeMap(initialDepth);
 	}
 
 	NamespaceImpl createNamespace(String localName, String value) {

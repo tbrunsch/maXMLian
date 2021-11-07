@@ -5,7 +5,6 @@ import dd.kms.maxmlian.api.*;
 import javax.xml.stream.XMLStreamException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 public class MaXMLianParser extends AbstractParser
 {
@@ -31,8 +30,8 @@ public class MaXMLianParser extends AbstractParser
 
 		NodeType nodeType = node.getNodeType();
 		if (nodeType == NodeType.ELEMENT) {
-			Map<String, Attr> attributes = node.getAttributes();
-			for (Attr attribute : attributes.values()) {
+			NamedAttributeMap attributes = node.getAttributes();
+			for (Attr attribute : attributes) {
 				traverse(attribute);
 			}
 		}

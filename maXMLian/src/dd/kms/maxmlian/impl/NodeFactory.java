@@ -9,7 +9,6 @@ import javax.xml.stream.events.NotationDeclaration;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import static javax.xml.stream.XMLStreamConstants.*;
@@ -205,8 +204,8 @@ class NodeFactory
 		return document;
 	}
 
-	Map<String, Attr> createAttributesByQNameMap(int depth) {
-		return objectFactory.createAttributesByQNameMap(depth);
+	NamedAttributeMapImpl createNamedAttributeMap(int depth) {
+		return objectFactory.createNamedAttributeMap(depth);
 	}
 
 	NamespaceImpl createNamespace(String localName, String value, int depth) {

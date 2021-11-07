@@ -1,10 +1,5 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Attr;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * This object factory creates new instances whenever an instance of a certain
  * type is requested. It does not reuse instances it has created earlier.
@@ -50,8 +45,8 @@ class DefaultObjectFactory implements ObjectFactory
 	}
 
 	@Override
-	public Map<String, Attr> createAttributesByQNameMap(int depth) {
-		return new LinkedHashMap<>(4, 0.75f);
+	public NamedAttributeMapImpl createNamedAttributeMap(int depth) {
+		return new NamedAttributeMapImpl();
 	}
 
 	@Override

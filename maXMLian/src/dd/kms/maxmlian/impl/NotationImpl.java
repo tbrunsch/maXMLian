@@ -1,12 +1,11 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Attr;
+import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.Notation;
 
 import javax.xml.stream.events.NotationDeclaration;
 import java.util.Collections;
-import java.util.Map;
 
 class NotationImpl implements Notation
 {
@@ -49,8 +48,8 @@ class NotationImpl implements Notation
 	}
 
 	@Override
-	public Map<String, Attr> getAttributes() {
-		return null;
+	public NamedAttributeMap getAttributes() {
+		return EmptyNamedAttributeMap.ATTRIBUTE_MAP;
 	}
 
 	@Override

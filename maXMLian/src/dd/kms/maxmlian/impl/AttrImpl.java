@@ -1,10 +1,10 @@
 package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.Attr;
+import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 
 import java.util.Collections;
-import java.util.Map;
 
 class AttrImpl implements Attr
 {
@@ -95,8 +95,8 @@ class AttrImpl implements Attr
 	}
 
 	@Override
-	public Map<String, Attr> getAttributes() {
-		return Collections.emptyMap();
+	public NamedAttributeMap getAttributes() {
+		return EmptyNamedAttributeMap.ATTRIBUTE_MAP;
 	}
 
 	@Override

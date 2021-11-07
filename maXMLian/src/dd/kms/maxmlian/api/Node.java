@@ -1,7 +1,6 @@
 package dd.kms.maxmlian.api;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.Map;
 
 public interface Node
 {
@@ -20,7 +19,7 @@ public interface Node
 	Iterable<Node> getChildNodes() throws XMLStreamException;
 	Node getFirstChild() throws XMLStreamException;
 	Node getNextSibling();
-	Map<String, Attr> getAttributes();
+	NamedAttributeMap getAttributes();
 
 	String getNamespaceURI();
 	String getPrefix();

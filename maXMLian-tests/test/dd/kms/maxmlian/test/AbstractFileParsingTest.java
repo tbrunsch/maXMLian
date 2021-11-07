@@ -188,12 +188,12 @@ abstract class AbstractFileParsingTest
 
 		int numChildrenToParse = getNumberOfChildrenToParse(depth);
 		if (numChildrenToParse > 0) {
-			Map<String, Attr> attributesByName = element.getAttributes();
+			NamedAttributeMap attributes = element.getAttributes();
 			org.w3c.dom.NamedNodeMap domAttributes = domElement.getAttributes();
-			Assertions.assertEquals(domAttributes.getLength(), attributesByName.size(), "Wrong number of attributes of element '" + name + "'");
+			Assertions.assertEquals(domAttributes.getLength(), attributes.size(), "Wrong number of attributes of element '" + name + "'");
 			int attributeIndex = 0;
-			for (String attributeName : attributesByName.keySet()) {
-				Attr attribute = attributesByName.get(attributeName);
+			for (Attr attribute : attributes) {
+				String attributeName = attribute.getName();
 				org.w3c.dom.Node domAttribute = domAttributes.getNamedItem(attributeName);
 				Assertions.assertNotNull(domAttribute, "Wrong attribute name '" + attributeName + "'");
 				compareNodes(attribute, domAttribute, depth + 1, true);

@@ -2,12 +2,11 @@ package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.Element;
+import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
-import java.util.Collections;
-import java.util.Map;
 
 class ElementImpl extends NodeImpl implements Element
 {
@@ -16,7 +15,7 @@ class ElementImpl extends NodeImpl implements Element
 	private String				namespaceUri;
 	private String				localName;
 	private String				prefix;
-	private Map<String, Attr>	attributesByQName;
+	private NamedAttributeMap	attributeMap;
 
 	ElementImpl(ExtendedXmlStreamReader eventReader, NodeFactory nodeFactory) {
 		super(eventReader, nodeFactory);
@@ -27,53 +26,53 @@ class ElementImpl extends NodeImpl implements Element
 		this.namespaceUri = ImplUtils.emptyToNull(namespaceUri);
 		this.localName = localName;
 		this.prefix = ImplUtils.emptyToNull(prefix);
-		this.attributesByQName = null;
+		this.attributeMap = null;
 	}
 
 	private void initializeAttributeMap() {
-		if (attributesByQName != null) {
+		if (attributeMap != null) {
 			return;
 		}
 		resetReaderPosition(PARSE_ATTRIBUTES_ERROR);
 		XMLStreamReader reader = getReader();
 
-		attributesByQName = createAttributesByQNameMap();
-		AttrImpl prevAttr = null;
+		int numNamespaces = reader.getNamespaceCount();
+		int numAttributes = reader.getAttributeCount();
+
+		if (numNamespaces == 0 && numAttributes == 0) {
+			attributeMap = EmptyNamedAttributeMap.ATTRIBUTE_MAP;
+			return;
+		}
+
+		NamedAttributeMapImpl attributeMap = createNamedAttributeMap();
 
 		/*
 		 * The Aalto XML parser always creates namespaces instead of attributes.
 		 * Hence, we must parse namespaces, even if namespace awareness is deactivated.
 		 */
-		addNamespaceAttributes(reader, prevAttr);
+		addNamespaceAttributes(attributeMap, reader, numNamespaces);
+		addAttributes(attributeMap, reader, numAttributes);
 
-		addAttributes(reader, prevAttr);
+		this.attributeMap = attributeMap;
 	}
 
-	private AttrImpl addNamespaceAttributes(XMLStreamReader reader, AttrImpl prevAttr) {
-		int numNamespaces = reader.getNamespaceCount();
+	private void addNamespaceAttributes(NamedAttributeMapImpl attributeMap, XMLStreamReader reader, int numNamespaces) {
 		for (int i = 0; i < numNamespaces; i++) {
 			String uri = reader.getNamespaceURI(i);
 			String prefix = ImplUtils.emptyToNull(reader.getNamespacePrefix(i));
 			NamespaceImpl namespace = createNamespace(prefix, uri);
-			namespace.setPrevSibling(prevAttr);
-			attributesByQName.put(namespace.getName(), namespace);
-			prevAttr = namespace;
+			attributeMap.add(namespace);
 		}
-		return prevAttr;
 	}
 
-	private AttrImpl addAttributes(XMLStreamReader reader, AttrImpl prevAttr) {
-		int numAttributes = reader.getAttributeCount();
+	private void addAttributes(NamedAttributeMapImpl attributeMap, XMLStreamReader reader, int numAttributes) {
 		for (int i = 0; i < numAttributes; i++) {
 			QName name = reader.getAttributeName(i);
 			String value = reader.getAttributeValue(i);
 			String type = reader.getAttributeType(i);
 			AttrImpl attr = createAttribute(name.getNamespaceURI(), name.getLocalPart(), name.getPrefix(), value, type);
-			attr.setPrevSibling(prevAttr);
-			attributesByQName.put(attr.getName(), attr);
-			prevAttr = attr;
+			attributeMap.add(attr);
 		}
-		return prevAttr;
 	}
 
 	@Override
@@ -84,19 +83,21 @@ class ElementImpl extends NodeImpl implements Element
 	@Override
 	public String getAttribute(String qName) {
 		initializeAttributeMap();
-		return attributesByQName.get(qName).getValue();
+		Attr attr = attributeMap.get(qName);
+		return attr != null ? attr.getValue() : null;
 	}
 
 	@Override
 	public boolean hasAttribute(String qName) {
 		initializeAttributeMap();
-		return attributesByQName.containsValue(qName);
+		Attr attr = attributeMap.get(qName);
+		return attr == null;
 	}
 
 	@Override
-	public Map<String, Attr> getAttributes() {
+	public NamedAttributeMap getAttributes() {
 		initializeAttributeMap();
-		return Collections.unmodifiableMap(attributesByQName);
+		return attributeMap;
 	}
 
 	@Override

@@ -1,10 +1,7 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Attr;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static dd.kms.maxmlian.impl.ImplUtils.get;
 import static dd.kms.maxmlian.impl.ImplUtils.set;
@@ -23,7 +20,7 @@ class ObjectFactoryWithReuse extends DefaultObjectFactory
 	private final List<CDATASectionImpl>							cDataSections			= new ArrayList<>();
 	private final List<CommentImpl>									comments				= new ArrayList<>();
 	private final List<ProcessingInstructionImpl>					processingInstructions	= new ArrayList<>();
-	private final List<Map<String, Attr>>							attributesByQNameMaps	= new ArrayList<>();
+	private final List<NamedAttributeMapImpl>						namedAttributeMaps		= new ArrayList<>();
 	private final List<ReusableElementsCollection<NamespaceImpl>>	namespaceCollections	= new ArrayList<>();
 	private final List<ReusableElementsCollection<AttrImpl>>		attributeCollections	= new ArrayList<>();
 
@@ -68,21 +65,21 @@ class ObjectFactoryWithReuse extends DefaultObjectFactory
 	}
 
 	@Override
-	public Map<String, Attr> createAttributesByQNameMap(int depth) {
+	public NamedAttributeMapImpl createNamedAttributeMap(int depth) {
 		makeNamespacesAndElementsReusable(depth);
-		Map<String, Attr> attributesByQNameMap = get(attributesByQNameMaps, depth);
-		if (attributesByQNameMap != null) {
-			attributesByQNameMap.clear();
-			return attributesByQNameMap;
+		NamedAttributeMapImpl attributeMap = get(namedAttributeMaps, depth);
+		if (attributeMap != null) {
+			attributeMap.clear();
+			return attributeMap;
 		}
-		return set(attributesByQNameMaps, depth, super.createAttributesByQNameMap(depth));
+		return set(namedAttributeMaps, depth, super.createNamedAttributeMap(depth));
 	}
 
 	/**
 	 * Namespaces and attributes cannot be reused immediately because an element can have multiple of them
 	 * at the same time. Since namespaces and attributes are stored in an attributesByQNameMap,
 	 * we ensure that an instance is not reused multiple times between two consecutive calls of
-	 * {@link #createAttributesByQNameMap(int)}.
+	 * {@link #createNamedAttributeMap(int)}.
 	 */
 	private void makeNamespacesAndElementsReusable(int depth) {
 		while (depth >= namespaceCollections.size()) {

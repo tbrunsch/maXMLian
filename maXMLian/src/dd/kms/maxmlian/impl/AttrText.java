@@ -1,12 +1,12 @@
 package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.Attr;
+import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.Text;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Collections;
-import java.util.Map;
 
 class AttrText implements Text
 {
@@ -62,8 +62,8 @@ class AttrText implements Text
 	}
 
 	@Override
-	public Map<String, Attr> getAttributes() {
-		return Collections.emptyMap();
+	public NamedAttributeMap getAttributes() {
+		return EmptyNamedAttributeMap.ATTRIBUTE_MAP;
 	}
 
 	@Override
