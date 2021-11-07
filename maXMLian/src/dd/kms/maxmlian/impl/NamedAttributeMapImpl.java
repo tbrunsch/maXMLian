@@ -6,6 +6,7 @@ import dd.kms.maxmlian.api.NamedAttributeMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 class NamedAttributeMapImpl implements NamedAttributeMap
 {
@@ -25,6 +26,13 @@ class NamedAttributeMapImpl implements NamedAttributeMap
 
 	@Override
 	public Attr get(String name) {
+		int numAttributes = attributes.size();
+		for (int i = 0; i < numAttributes; i++) {
+			Attr attr = attributes.get(i);
+			if (Objects.equals(attr.getName(), name)) {
+				return attr;
+			}
+		}
 		return null;
 	}
 
