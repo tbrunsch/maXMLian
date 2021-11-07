@@ -13,6 +13,7 @@ import java.util.Iterator;
 // The class is also an Iterable over its own children
 abstract class NodeImpl implements Node, Iterable<Node>
 {
+	private static final String	PARSE_FIRST_CHILD_ERROR	= "Cannot parse first child when the XML reader has already parsed beyond the start position of that node";
 	private static final String	PARSE_SIBLING_ERROR		= "Cannot parse sibling when the XML reader has already parsed beyond the end of that node";
 
 	private final ExtendedXmlStreamReader	streamReader;
@@ -63,7 +64,7 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	@Override
-	public Iterable<Node> getChildNodes() throws XMLStreamException {
+	public Iterable<Node> getChildNodes() {
 		return Collections.emptyList();
 	}
 
@@ -75,9 +76,17 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	@Override
-	public Node getFirstChild() {
-		Iterator<Node> childIterator = iterator();
-		return childIterator.hasNext() ? childIterator.next() : null;
+	public NodeImpl getFirstChild() {
+		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
+		try {
+			NodeImpl firstChild = nodeFactory.readFirstChildNode();
+			if (firstChild != null) {
+				firstChild.setParentNode(this);
+			}
+			return firstChild;
+		} catch (XMLStreamException e) {
+			throw new XmlException("Cannot read next child from XML: " + e.getMessage(), e);
+		}
 	}
 
 	@Override

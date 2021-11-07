@@ -16,7 +16,7 @@ class DefaultObjectFactory implements ObjectFactory
 
 	@Override
 	public ChildIterator createChildIterator(int depth) {
-		return new ChildIterator(streamReader, nodeFactory);
+		return new ChildIterator(streamReader);
 	}
 
 	@Override
