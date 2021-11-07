@@ -52,7 +52,7 @@ class AttrText implements Text
 	}
 
 	@Override
-	public Node getFirstChild() throws XMLStreamException {
+	public Node getFirstChild() {
 		return null;
 	}
 

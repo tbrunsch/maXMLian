@@ -15,7 +15,7 @@ class ChildIterator implements Iterator<Node>
 
 	private long		initialPosition;
 	private boolean 	retrievedNext;
-	private Node    	next;
+	private NodeImpl   	next;
 	private NodeImpl	parent;
 
 	ChildIterator(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
@@ -63,7 +63,7 @@ class ChildIterator implements Iterator<Node>
 			}
 		}
 		if (next != null) {
-			((NodeImpl) next).setParentNode(parent);
+			next.setParentNode(parent);
 		}
 		retrievedNext = true;
 	}

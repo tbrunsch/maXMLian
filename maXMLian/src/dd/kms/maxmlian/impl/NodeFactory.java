@@ -45,7 +45,7 @@ class NodeFactory
 		return iterator;
 	}
 
-	Node readFirstChildNode() throws XMLStreamException {
+	NodeImpl readFirstChildNode() throws XMLStreamException {
 		int depth = streamReader.getDepth();
 		if (streamReader.getNextDepth() == depth) {
 			return null;
@@ -61,7 +61,7 @@ class NodeFactory
 		return null;
 	}
 
-	Node getNextSibling(int depth) throws XMLStreamException {
+	NodeImpl getNextSibling(int depth) throws XMLStreamException {
 		while (streamReader.hasNext()) {
 			streamReader.next();
 			int currentDepth = streamReader.getDepth();
@@ -69,7 +69,7 @@ class NodeFactory
 				// no next sibling available
 				return null;
 			} else if (currentDepth == depth) {
-				Node nextSibling = createNode();
+				NodeImpl nextSibling = createNode();
 				if (nextSibling != null) {
 					return nextSibling;
 				}
@@ -78,7 +78,7 @@ class NodeFactory
 		return null;
 	}
 
-	private Node createNode() throws XMLStreamException {
+	private NodeImpl createNode() throws XMLStreamException {
 		int eventType = reader.getEventType();
 		switch (eventType) {
 			case START_ELEMENT:
@@ -116,7 +116,7 @@ class NodeFactory
 		}
 	}
 
-	private DocumentType createDocumentType() {
+	private AbstractDocumentTypeImpl createDocumentType() {
 		String text = reader.getText();
 		List<EntityDeclaration> entityDeclarations = (List<EntityDeclaration>) reader.getProperty(PROPERTY_ENTITIES);
 		List<NotationDeclaration> notationDeclarations = (List<NotationDeclaration>) reader.getProperty(PROPERTY_NOTATIONS);
@@ -150,27 +150,27 @@ class NodeFactory
 		return documentType;
 	}
 
-	private Element createElement() {
+	private ElementImpl createElement() {
 		ElementImpl element = objectFactory.createElement(streamReader.getDepth());
 		element.initialize(reader.getNamespaceURI(), reader.getLocalName(), reader.getPrefix());
 		return element;
 	}
 
-	private Text createText(int eventType) throws XMLStreamException {
+	private TextImpl createText(int eventType) throws XMLStreamException {
 		int depth = streamReader.getDepth();
 		TextImpl text = objectFactory.createText(depth);
 		text.initialize(reader.getText(), readAdditionalCharacters(eventType), eventType == SPACE);
 		return text;
 	}
 
-	private Text createCData() throws XMLStreamException {
+	private TextImpl createCData() throws XMLStreamException {
 		int depth = streamReader.getDepth();
 		TextImpl text = objectFactory.createCDataSection(depth);
 		text.initialize(reader.getText(), readAdditionalCharacters(CDATA), false);
 		return text;
 	}
 
-	private Comment createComment() {
+	private CommentImpl createComment() {
 		CommentImpl comment = objectFactory.createComment(streamReader.getDepth());
 		comment.initialize(reader.getText());
 		return comment;
@@ -192,13 +192,13 @@ class NodeFactory
 		return additionalCharactersBuilder;
 	}
 
-	private ProcessingInstruction createProcessingInstruction() {
+	private ProcessingInstructionImpl createProcessingInstruction() {
 		ProcessingInstructionImpl procInstruction = objectFactory.createProcessingInstruction(streamReader.getDepth());
 		procInstruction.initialize(reader.getPITarget(), reader.getPIData());
 		return procInstruction;
 	}
 
-	private Document createDocument() {
+	private DocumentImpl createDocument() {
 		DocumentImpl document = new DocumentImpl(streamReader, this);
 		document.initialize(reader.getCharacterEncodingScheme(), reader.isStandalone(), reader.getVersion());
 		return document;

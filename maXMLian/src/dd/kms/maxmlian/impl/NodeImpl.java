@@ -81,12 +81,16 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	@Override
-	public Node getNextSibling() {
+	public NodeImpl getNextSibling() {
 		if (streamReader.getDepth() < initialDepth || streamReader.getNodeCounter(initialDepth) != initialNodeCounterDepth) {
 			resetReaderPosition(PARSE_SIBLING_ERROR);
 		}
 		try {
-			return nodeFactory.getNextSibling(initialDepth);
+			NodeImpl nextSibling = nodeFactory.getNextSibling(initialDepth);
+			if (nextSibling != null) {
+				nextSibling.setParentNode(parent);
+			}
+			return nextSibling;
 		} catch (XMLStreamException e) {
 			throw new XmlException("Cannot read next sibling from XML: " + e.getMessage(), e);
 		}

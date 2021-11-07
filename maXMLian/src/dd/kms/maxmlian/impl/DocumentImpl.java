@@ -77,7 +77,7 @@ class DocumentImpl extends NodeImpl implements Document
 	}
 
 	@Override
-	public Node getNextSibling() {
+	public NodeImpl getNextSibling() {
 		return null;
 	}
 
