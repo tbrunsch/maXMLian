@@ -6,11 +6,11 @@ import javax.xml.stream.XMLStreamException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class MaXMLianParserIterable extends AbstractParser
+public class MaXMLianParserNonIterable extends AbstractParser
 {
 	private final boolean	reuseInstances;
 
-	public MaXMLianParserIterable(boolean reuseInstances) {
+	public MaXMLianParserNonIterable(boolean reuseInstances) {
 		this.reuseInstances = reuseInstances;
 	}
 
@@ -31,14 +31,17 @@ public class MaXMLianParserIterable extends AbstractParser
 		NodeType nodeType = node.getNodeType();
 		if (nodeType == NodeType.ELEMENT) {
 			NamedAttributeMap attributes = node.getAttributes();
-			for (Attr attribute : attributes) {
+			int numAttributes = attributes.size();
+			for (int i = 0; i < numAttributes; i++) {
+				Attr attribute = attributes.get(i);
 				traverse(attribute);
 			}
 		}
 
-		Iterable<Node> childNodes = node.getChildNodes();
-		for (Node childNode : childNodes) {
+		Node childNode = node.getFirstChild();
+		while (childNode != null) {
 			traverse(childNode);
+			childNode = childNode.getNextSibling();
 		}
 	}
 }
