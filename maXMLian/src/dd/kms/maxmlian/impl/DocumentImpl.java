@@ -1,11 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Document;
-import dd.kms.maxmlian.api.DocumentType;
-import dd.kms.maxmlian.api.Element;
-import dd.kms.maxmlian.api.Node;
-
-import java.util.Iterator;
+import dd.kms.maxmlian.api.*;
 
 class DocumentImpl extends NodeImpl implements Document
 {
@@ -29,7 +24,7 @@ class DocumentImpl extends NodeImpl implements Document
 	}
 
 	@Override
-	public DocumentType getDoctype() {
+	public DocumentType getDoctype() throws XmlException {
 		if (!retrievedChildren) {
 			retrieveDocumentTypeAndDocumentElement();
 		}
@@ -37,18 +32,16 @@ class DocumentImpl extends NodeImpl implements Document
 	}
 
 	@Override
-	public Element getDocumentElement() {
+	public Element getDocumentElement() throws XmlException {
 		if (!retrievedChildren) {
 			retrieveDocumentTypeAndDocumentElement();
 		}
 		return documentElement;
 	}
 
-	private void retrieveDocumentTypeAndDocumentElement() {
+	private void retrieveDocumentTypeAndDocumentElement() throws XmlException {
 		try {
-			Iterator<Node> childIterator = iterator();
-			while (childIterator.hasNext()) {
-				Node child = childIterator.next();
+			for (Node child = getFirstChild(); child != null; child = child.getNextSibling()) {
 				switch (child.getNodeType()) {
 					case DOCUMENT_TYPE:
 						docType = (DocumentType) child;
@@ -69,11 +62,6 @@ class DocumentImpl extends NodeImpl implements Document
 	@Override
 	public Node getParentNode() {
 		return null;
-	}
-
-	@Override
-	public Iterable<Node> getChildNodes() {
-		return this;
 	}
 
 	@Override

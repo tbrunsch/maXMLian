@@ -7,14 +7,6 @@ public interface Node
 	NodeType getNodeType();
 
 	Node getParentNode();
-	/**
-	 * This method returns the child nodes of the current node. It must not be called if the XML file has
-	 * already parsed beyond the opening tag of that element. If so, an exception is thrown.
-	 *
-	 * @return an {@link Iterable} over the child nodes
-	 * @throws XmlStateException if the XML file has already be parsed beyond the
-	 */
-	Iterable<Node> getChildNodes() throws XmlException;
 	Node getFirstChild() throws XmlException;
 	Node getNextSibling() throws XmlException;
 	NamedAttributeMap getAttributes();

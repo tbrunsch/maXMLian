@@ -3,7 +3,6 @@ package dd.kms.maxmlian.impl;
 import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.Element;
 import dd.kms.maxmlian.api.NamedAttributeMap;
-import dd.kms.maxmlian.api.Node;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -123,10 +122,5 @@ class ElementImpl extends NodeImpl implements Element
 	@Override
 	public String getLocalName() {
 		return isNamespaceAware() ? localName : null;
-	}
-
-	@Override
-	public Iterable<Node> getChildNodes() {
-		return this;
 	}
 }

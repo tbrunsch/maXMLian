@@ -18,18 +18,16 @@ public class ParserBenchmark
 
 	static {
 		// Register parsers
-		PARSERS_BY_NAME.put(DUMMY_PARSER_NAME,									new MaXMLianParserNonIterable(true));
-		PARSERS_BY_NAME.put("Xerces (Cursor API)",								new StAXParserCursor(XMLInputFactoryProvider.XERCES));
-		PARSERS_BY_NAME.put("Woodstox (Cursor API)",							new StAXParserCursor(XMLInputFactoryProvider.WOODSTOX));
-		PARSERS_BY_NAME.put("Aalto (Cursor API)",								new StAXParserCursor(XMLInputFactoryProvider.AALTO));
-		PARSERS_BY_NAME.put("Xerces (Iterator API)",							new StAXParserIterator(XMLInputFactoryProvider.XERCES));
-		PARSERS_BY_NAME.put("Woodstox (Iterator API)",							new StAXParserIterator(XMLInputFactoryProvider.WOODSTOX));
-		PARSERS_BY_NAME.put("Aalto (Iterator API)",								new StAXParserIterator(XMLInputFactoryProvider.AALTO));
-		PARSERS_BY_NAME.put("maXMLian with instance reuse",						new MaXMLianParserNonIterable(true));
-		PARSERS_BY_NAME.put("maXMLian without instance reuse",					new MaXMLianParserNonIterable(false));
-		PARSERS_BY_NAME.put("maXMLian with instance reuse (Iterable style)",	new MaXMLianParserIterable(true));
-		PARSERS_BY_NAME.put("maXMLian without instance reuse (Iterable style)",	new MaXMLianParserIterable(false));
-		PARSERS_BY_NAME.put("DOM parser",										new DomParser());
+		PARSERS_BY_NAME.put(DUMMY_PARSER_NAME,					new MaXMLianParser(true));
+		PARSERS_BY_NAME.put("Xerces (Cursor API)",				new StAXParserCursor(XMLInputFactoryProvider.XERCES));
+		PARSERS_BY_NAME.put("Woodstox (Cursor API)",			new StAXParserCursor(XMLInputFactoryProvider.WOODSTOX));
+		PARSERS_BY_NAME.put("Aalto (Cursor API)",				new StAXParserCursor(XMLInputFactoryProvider.AALTO));
+		PARSERS_BY_NAME.put("Xerces (Iterator API)",			new StAXParserIterator(XMLInputFactoryProvider.XERCES));
+		PARSERS_BY_NAME.put("Woodstox (Iterator API)",			new StAXParserIterator(XMLInputFactoryProvider.WOODSTOX));
+		PARSERS_BY_NAME.put("Aalto (Iterator API)",				new StAXParserIterator(XMLInputFactoryProvider.AALTO));
+		PARSERS_BY_NAME.put("maXMLian with instance reuse",		new MaXMLianParser(true));
+		PARSERS_BY_NAME.put("maXMLian without instance reuse",	new MaXMLianParser(false));
+		PARSERS_BY_NAME.put("DOM parser",						new DomParser());
 	}
 
 	private final int	numTrials;

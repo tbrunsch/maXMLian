@@ -100,11 +100,10 @@ public class TextContentTest
 	}
 
 	private void compareChildren(Node node, org.w3c.dom.Node domNode) throws XmlException {
-		Iterable<Node> children = node.getChildNodes();
 		NodeList domChildren = domNode.getChildNodes();
 		int numDomChildren = domChildren.getLength();
 		int childIndex = 0;
-		for (Node child : children) {
+		for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
 			Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + domNode.getNodeName() + "'");
 			org.w3c.dom.Node domChild = domChildren.item(childIndex);
 			compareNodes(child, domChild);

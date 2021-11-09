@@ -5,7 +5,6 @@ import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.Notation;
 
 import javax.xml.stream.events.NotationDeclaration;
-import java.util.Collections;
 
 class NotationImpl implements Notation
 {
@@ -30,11 +29,6 @@ class NotationImpl implements Notation
 	@Override
 	public Node getParentNode() {
 		return null;
-	}
-
-	@Override
-	public Iterable<Node> getChildNodes() {
-		return Collections.emptyList();
 	}
 
 	@Override

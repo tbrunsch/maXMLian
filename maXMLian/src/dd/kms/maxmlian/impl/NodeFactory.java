@@ -37,12 +37,6 @@ class NodeFactory
 		return namespaceAware;
 	}
 
-	ChildIterator createChildIterator() {
-		ChildIterator iterator = objectFactory.createChildIterator(streamReader.getDepth());
-		iterator.initialize();
-		return iterator;
-	}
-
 	NodeImpl readFirstChildNode() throws XMLStreamException {
 		int depth = streamReader.getDepth();
 		if (streamReader.getNextDepth() == depth) {

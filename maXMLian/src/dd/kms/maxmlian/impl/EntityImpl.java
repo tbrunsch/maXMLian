@@ -5,7 +5,6 @@ import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 
 import javax.xml.stream.events.EntityDeclaration;
-import java.util.Collections;
 
 class EntityImpl implements Entity
 {
@@ -45,11 +44,6 @@ class EntityImpl implements Entity
 	@Override
 	public Node getParentNode() {
 		return null;
-	}
-
-	@Override
-	public Iterable<Node> getChildNodes() {
-		return Collections.emptyList();
 	}
 
 	@Override

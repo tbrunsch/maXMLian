@@ -7,11 +7,9 @@ import dd.kms.maxmlian.api.XmlStateException;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.util.Collections;
-import java.util.Iterator;
 
 // The class is also an Iterable over its own children
-abstract class NodeImpl implements Node, Iterable<Node>
+abstract class NodeImpl implements Node
 {
 	private static final String	PARSE_FIRST_CHILD_ERROR	= "Cannot parse first child when the XML reader has already parsed beyond the start position of that node";
 	private static final String	PARSE_SIBLING_ERROR		= "Cannot parse sibling when the XML reader has already parsed beyond the end of that node";
@@ -64,18 +62,6 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	@Override
-	public Iterable<Node> getChildNodes() {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public Iterator<Node> iterator() {
-		ChildIterator childIterator = nodeFactory.createChildIterator();
-		childIterator.setParentNode(this);
-		return childIterator;
-	}
-
-	@Override
 	public NodeImpl getFirstChild() throws XmlException {
 		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
 		try {
@@ -115,7 +101,7 @@ abstract class NodeImpl implements Node, Iterable<Node>
 		stringBuilder.setLength(0);
 		try {
 			appendTextContentTo(stringBuilder);
-		} catch (XMLStreamException e) {
+		} catch (XmlException e) {
 			throw new XmlException("Cannot read text content of node '" + getNodeName() + "': " + e, e);
 		}
 		return stringBuilder.toString();
@@ -152,8 +138,8 @@ abstract class NodeImpl implements Node, Iterable<Node>
 		return nodeFactory.createAttribute(namespaceUri, localName, prefix, value, type, initialDepth);
 	}
 
-	void appendTextContentTo(StringBuilder builder) throws XMLStreamException {
-		for (Node child : getChildNodes()) {
+	void appendTextContentTo(StringBuilder builder) throws XmlException {
+		for (Node child = getFirstChild(); child != null; child = child.getNextSibling()) {
 			((NodeImpl) child).appendTextContentTo(builder);
 		}
 	}

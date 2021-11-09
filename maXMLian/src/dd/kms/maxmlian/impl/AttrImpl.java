@@ -4,8 +4,6 @@ import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 
-import java.util.Collections;
-
 class AttrImpl implements Attr
 {
 	private final boolean	namespaceAware;
@@ -71,12 +69,6 @@ class AttrImpl implements Attr
 	@Override
 	public Node getParentNode() {
 		return null;
-	}
-
-	@Override
-	public Iterable<Node> getChildNodes() {
-		Node child = getFirstChild();
-		return Collections.singletonList(child);
 	}
 
 	@Override

@@ -5,7 +5,6 @@ package dd.kms.maxmlian.impl;
  */
 interface ObjectFactory
 {
-	ChildIterator createChildIterator(int depth);
 	ElementImpl createElement(int depth);
 	TextImpl createText(int depth);
 	CDATASectionImpl createCDataSection(int depth);

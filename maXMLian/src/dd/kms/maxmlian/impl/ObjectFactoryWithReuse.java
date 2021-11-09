@@ -14,7 +14,6 @@ import static dd.kms.maxmlian.impl.ImplUtils.set;
  */
 class ObjectFactoryWithReuse extends DefaultObjectFactory
 {
-	private final List<ChildIterator>								childIterators			= new ArrayList<>();
 	private final List<ElementImpl>									elements				= new ArrayList<>();
 	private final List<TextImpl>									texts					= new ArrayList<>();
 	private final List<CDATASectionImpl>							cDataSections			= new ArrayList<>();
@@ -26,12 +25,6 @@ class ObjectFactoryWithReuse extends DefaultObjectFactory
 
 	ObjectFactoryWithReuse(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
 		super(streamReader, nodeFactory);
-	}
-
-	@Override
-	public ChildIterator createChildIterator(int depth) {
-		ChildIterator childIterator = get(childIterators, depth);
-		return childIterator != null ? childIterator : set(childIterators, depth, super.createChildIterator(depth));
 	}
 
 	@Override

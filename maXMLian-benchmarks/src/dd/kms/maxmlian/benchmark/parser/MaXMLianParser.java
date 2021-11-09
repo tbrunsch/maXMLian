@@ -5,11 +5,11 @@ import dd.kms.maxmlian.api.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class MaXMLianParserNonIterable extends AbstractParser
+public class MaXMLianParser extends AbstractParser
 {
 	private final boolean	reuseInstances;
 
-	public MaXMLianParserNonIterable(boolean reuseInstances) {
+	public MaXMLianParser(boolean reuseInstances) {
 		this.reuseInstances = reuseInstances;
 	}
 

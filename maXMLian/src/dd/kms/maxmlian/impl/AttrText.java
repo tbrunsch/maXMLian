@@ -5,8 +5,6 @@ import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.Text;
 
-import java.util.Collections;
-
 class AttrText implements Text
 {
 	private Attr	parent;
@@ -43,11 +41,6 @@ class AttrText implements Text
 	@Override
 	public Node getParentNode() {
 		return parent;
-	}
-
-	@Override
-	public Iterable<Node> getChildNodes() {
-		return Collections.emptyList();
 	}
 
 	@Override

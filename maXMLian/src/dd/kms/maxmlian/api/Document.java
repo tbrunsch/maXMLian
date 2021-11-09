@@ -7,8 +7,8 @@ public interface Document extends Node
 		return NodeType.DOCUMENT;
 	}
 
-	DocumentType getDoctype();
-	Element getDocumentElement();
+	DocumentType getDoctype() throws XmlException;
+	Element getDocumentElement() throws XmlException;
 	String getXmlEncoding();
 	boolean getXmlStandalone();
 	String getXmlVersion();
