@@ -10,8 +10,9 @@
 	<version>1.0-SNAPSHOT</version>
 	<modules>
 		<module>maXMLian</module>
-		<module>maXMLian-tests</module>
 		<module>maXMLian-benchmarks</module>
+		<module>maXMLian-samples</module>
+		<module>maXMLian-tests</module>
 		<module>maXMLian-xml-generator</module>
     </modules>
 
