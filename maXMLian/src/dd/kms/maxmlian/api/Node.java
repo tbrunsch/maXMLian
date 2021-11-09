@@ -1,7 +1,5 @@
 package dd.kms.maxmlian.api;
 
-import javax.xml.stream.XMLStreamException;
-
 public interface Node
 {
 	String getNodeName();
@@ -16,9 +14,9 @@ public interface Node
 	 * @return an {@link Iterable} over the child nodes
 	 * @throws XmlStateException if the XML file has already be parsed beyond the
 	 */
-	Iterable<Node> getChildNodes() throws XMLStreamException;
-	Node getFirstChild() throws XMLStreamException;
-	Node getNextSibling();
+	Iterable<Node> getChildNodes() throws XmlException;
+	Node getFirstChild() throws XmlException;
+	Node getNextSibling() throws XmlException;
 	NamedAttributeMap getAttributes();
 
 	String getNamespaceURI();
@@ -29,5 +27,5 @@ public interface Node
 	 * @return the concatenation of the texts of all text nodes in the tree rooted
 	 * at this node, including this node. The tree is traversed in preorder.
 	 */
-	String getTextContent() throws XMLStreamException;
+	String getTextContent() throws XmlException;
 }

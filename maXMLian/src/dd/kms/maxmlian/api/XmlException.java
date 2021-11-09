@@ -1,10 +1,14 @@
 package dd.kms.maxmlian.api;
 
 /**
- * This class is used to wrap checked exceptions where no checked exception is allowed to be used
+ * This class is used to report errors when parsing the XML file.
  */
-public class XmlException extends RuntimeException
+public class XmlException extends Exception
 {
+	public XmlException(String message) {
+		super(message);
+	}
+
 	public XmlException(String message, Throwable cause) {
 		super(message, cause);
 	}

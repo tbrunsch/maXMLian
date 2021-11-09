@@ -76,7 +76,7 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	@Override
-	public NodeImpl getFirstChild() {
+	public NodeImpl getFirstChild() throws XmlException {
 		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
 		try {
 			NodeImpl firstChild = nodeFactory.readFirstChildNode();
@@ -85,12 +85,12 @@ abstract class NodeImpl implements Node, Iterable<Node>
 			}
 			return firstChild;
 		} catch (XMLStreamException e) {
-			throw new XmlException("Cannot read next child from XML: " + e.getMessage(), e);
+			throw new XmlException("Cannot read first child of node '" + getNodeName() + "': " + e, e);
 		}
 	}
 
 	@Override
-	public NodeImpl getNextSibling() {
+	public NodeImpl getNextSibling() throws XmlException {
 		if (streamReader.getDepth() < initialDepth || streamReader.getNodeCounter(initialDepth) != initialNodeCounterDepth) {
 			resetReaderPosition(PARSE_SIBLING_ERROR);
 		}
@@ -101,7 +101,7 @@ abstract class NodeImpl implements Node, Iterable<Node>
 			}
 			return nextSibling;
 		} catch (XMLStreamException e) {
-			throw new XmlException("Cannot read next sibling from XML: " + e.getMessage(), e);
+			throw new XmlException("Cannot read next sibling of node '" + getNodeName() + "': " + e, e);
 		}
 	}
 
@@ -111,9 +111,13 @@ abstract class NodeImpl implements Node, Iterable<Node>
 	}
 
 	@Override
-	public String getTextContent() throws XMLStreamException {
+	public String getTextContent() throws XmlException {
 		stringBuilder.setLength(0);
-		appendTextContentTo(stringBuilder);
+		try {
+			appendTextContentTo(stringBuilder);
+		} catch (XMLStreamException e) {
+			throw new XmlException("Cannot read text content of node '" + getNodeName() + "': " + e, e);
+		}
 		return stringBuilder.toString();
 	}
 

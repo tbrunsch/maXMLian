@@ -11,7 +11,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -80,7 +79,7 @@ abstract class AbstractFileParsingTest
 
 	@ParameterizedTest(name = "{0}, namespace aware: {1}, StAX parser: {2}, iterable style: {3}")
 	@MethodSource("getParameters")
-	void testParsingFile(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider, boolean useIterableStyle) throws IOException, XMLStreamException, ParserConfigurationException, SAXException {
+	void testParsingFile(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider, boolean useIterableStyle) throws IOException, ParserConfigurationException, SAXException, XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(namespaceAware);
 		((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
@@ -98,7 +97,7 @@ abstract class AbstractFileParsingTest
 		compareNodes(document, domDocument, useIterableStyle, 0, true);
 	}
 
-	private void compareNodes(Node node, org.w3c.dom.Node domNode, boolean useIterableStyle, int depth, boolean calledFromParent) throws XMLStreamException {
+	private void compareNodes(Node node, org.w3c.dom.Node domNode, boolean useIterableStyle, int depth, boolean calledFromParent) throws XmlException {
 		String name = domNode.getNodeName();
 		String prefix = domNode.getPrefix();
 		Assertions.assertEquals(name, node.getNodeName(), "Wrong node name");
@@ -197,7 +196,7 @@ abstract class AbstractFileParsingTest
 		}
 	}
 
-	private void compareElements(Element element, org.w3c.dom.Element domElement, boolean useIterableStyle, int depth) throws XMLStreamException {
+	private void compareElements(Element element, org.w3c.dom.Element domElement, boolean useIterableStyle, int depth) throws XmlException {
 		String name = element.getNodeName();
 		Assertions.assertEquals(element.getTagName(), domElement.getTagName(), "Wrong tag name of element '" + name + "'");
 
@@ -283,7 +282,7 @@ abstract class AbstractFileParsingTest
 		 */
 	}
 
-	private void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType, boolean useIterableStyle, int depth) throws XMLStreamException {
+	private void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType, boolean useIterableStyle, int depth) throws XmlException {
 		String name = domDocType.getName();
 		Assertions.assertEquals(domDocType.getName(), docType.getName(), "Wrong name of document type '" + name + "'");
 		Assertions.assertEquals(domDocType.getPublicId(), docType.getPublicId(), "Wrong public ID of document type '" + name + "'");

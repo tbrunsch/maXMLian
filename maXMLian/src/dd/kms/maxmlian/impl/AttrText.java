@@ -5,7 +5,6 @@ import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.Text;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Collections;
 
 class AttrText implements Text

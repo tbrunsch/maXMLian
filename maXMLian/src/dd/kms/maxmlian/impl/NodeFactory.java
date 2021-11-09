@@ -108,9 +108,7 @@ class NodeFactory
 				return createDocumentType();
 
 			default:
-			{
 				throw new XMLStreamException("Unsupported XML event type: " + eventType);
-			}
 		}
 	}
 

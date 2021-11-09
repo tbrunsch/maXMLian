@@ -1,9 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Document;
-import dd.kms.maxmlian.api.DocumentBuilder;
-import dd.kms.maxmlian.api.Node;
-import dd.kms.maxmlian.api.NodeType;
+import dd.kms.maxmlian.api.*;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -28,7 +25,7 @@ class DocumentBuilderImpl implements DocumentBuilder
 	}
 
 	@Override
-	public Document parse(InputStream is) throws XMLStreamException {
+	public Document parse(InputStream is) throws XmlException {
 		XMLInputFactory factory = null;
 		for (XMLInputFactoryProvider xmlInputFactoryProvider : xmlInputFactoryProviders) {
 			factory = xmlInputFactoryProvider.getXMLInputFactory().orElse(null);
@@ -42,13 +39,23 @@ class DocumentBuilderImpl implements DocumentBuilder
 
 		factory.setProperty(PROP_NAMESPACE_AWARE, namespaceAware);
 		factory.setProperty(PROP_VALIDATING, false);
-		XMLStreamReader reader = factory.createXMLStreamReader(is);
+		XMLStreamReader reader;
+		try {
+			reader = factory.createXMLStreamReader(is);
+		} catch (XMLStreamException e) {
+			throw new XmlException("Creating XML stream reader failed: " + e, e);
+		}
 		ExtendedXmlStreamReader streamReader = new ExtendedXmlStreamReader(reader);
 		NodeFactory nodeFactory = new NodeFactory(streamReader, reuseInstances, namespaceAware);
-		Node child = nodeFactory.readFirstChildNode();
+		Node child;
+		try {
+			child = nodeFactory.readFirstChildNode();
+		} catch (XMLStreamException e) {
+			throw new XmlException("Cannot read first XML node: " + e, e);
+		}
 		if (child.getNodeType() == NodeType.DOCUMENT) {
 			return (Document) child;
 		}
-		throw new XMLStreamException("Unable to find document node in XML stream");
+		throw new XmlException("Unable to find document node in XML stream");
 	}
 }

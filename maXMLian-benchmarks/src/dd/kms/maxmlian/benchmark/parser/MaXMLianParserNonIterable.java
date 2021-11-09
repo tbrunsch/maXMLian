@@ -2,7 +2,6 @@ package dd.kms.maxmlian.benchmark.parser;
 
 import dd.kms.maxmlian.api.*;
 
-import javax.xml.stream.XMLStreamException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -25,7 +24,7 @@ public class MaXMLianParserNonIterable extends AbstractParser
 		traverse(document.getDocumentElement());
 	}
 
-	private void traverse(Node node) throws XMLStreamException {
+	private void traverse(Node node) throws XmlException {
 		traversalProgress();
 
 		NodeType nodeType = node.getNodeType();

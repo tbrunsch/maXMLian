@@ -10,7 +10,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +31,7 @@ public class TextContentTest
 
 	@ParameterizedTest(name = "StAX parser: {0}")
 	@MethodSource("getParameters")
-	public void testGetTextContent(XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, XMLStreamException, SAXException {
+	public void testGetTextContent(XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, SAXException, ParserConfigurationException, XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
 		DocumentBuilder documentBuilder = factory.reuseInstances(true).newDocumentBuilder();
@@ -46,7 +45,7 @@ public class TextContentTest
 		compareNodes(document, domDocument);
 	}
 
-	private void compareNodes(Node node, org.w3c.dom.Node domNode) throws XMLStreamException {
+	private void compareNodes(Node node, org.w3c.dom.Node domNode) throws XmlException {
 		String name = domNode.getNodeName();
 		Assertions.assertEquals(name, node.getNodeName(), "Wrong node name");
 
@@ -72,7 +71,7 @@ public class TextContentTest
 		compareChildren(node, domNode);
 	}
 
-	private void compareElements(Element element, org.w3c.dom.Element domElement) throws XMLStreamException {
+	private void compareElements(Element element, org.w3c.dom.Element domElement) throws XmlException {
 		String name = element.getNodeName();
 		Assertions.assertEquals(element.getTagName(), domElement.getTagName(), "Wrong tag name of element '" + name + "'");
 
@@ -100,7 +99,7 @@ public class TextContentTest
 		Assertions.assertEquals(domComment.getData(), comment.getData(), "Wrong data of comment '" + name + "'");
 	}
 
-	private void compareChildren(Node node, org.w3c.dom.Node domNode) throws XMLStreamException {
+	private void compareChildren(Node node, org.w3c.dom.Node domNode) throws XmlException {
 		Iterable<Node> children = node.getChildNodes();
 		NodeList domChildren = domNode.getChildNodes();
 		int numDomChildren = domChildren.getLength();
