@@ -1,7 +1,5 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.*;
-
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.EntityDeclaration;
@@ -128,7 +126,6 @@ class NodeFactory
 		 */
 		boolean containsFullDocTypeDeclaration = DOCTYPE_PATTERN.matcher(text).matches();
 		if (containsFullDocTypeDeclaration) {
-			log(LogLevel.INFO, "Internal StAX parser does not comply with the specification when parsing the document type: It returned the full DTD instead of the internal subset");
 			DocumentTypeFromFullDtdText documentType = new DocumentTypeFromFullDtdText(streamReader, this);
 			String documentTypeDeclaration = text;
 			documentType.initialize(documentTypeDeclaration, entityDeclarations, notationDeclarations);
@@ -225,30 +222,7 @@ class NodeFactory
 			Method method = reader.getClass().getMethod(methodName);
 			return (String) method.invoke(reader);
 		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-			log(LogLevel.WARNING, errorMessage);
 			return null;
-		}
-	}
-
-	private void log(LogLevel logLevel, String text) {
-		System.out.println(logLevel + ": " + text);
-	}
-
-	private enum LogLevel
-	{
-		ERROR	("Error"),
-		WARNING	("Warning"),
-		INFO	("Info");
-
-		private final String	text;
-
-		LogLevel(String text) {
-			this.text = text;
-		}
-
-		@Override
-		public String toString() {
-			return text;
 		}
 	}
 }
