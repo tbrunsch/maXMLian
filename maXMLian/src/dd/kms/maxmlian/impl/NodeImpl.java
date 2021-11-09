@@ -8,7 +8,6 @@ import dd.kms.maxmlian.api.XmlStateException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-// The class is also an Iterable over its own children
 abstract class NodeImpl implements Node
 {
 	private static final String	PARSE_FIRST_CHILD_ERROR	= "Cannot parse first child when the XML reader has already parsed beyond the start position of that node";

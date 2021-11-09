@@ -76,7 +76,7 @@ abstract class AbstractFileParsingTest
 		return result;
 	}
 
-	@ParameterizedTest(name = "{0}, namespace aware: {1}, StAX parser: {2}, iterable style: {3}")
+	@ParameterizedTest(name = "{0}, namespace aware: {1}, StAX parser: {2}")
 	@MethodSource("getParameters")
 	void testParsingFile(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, SAXException, XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
