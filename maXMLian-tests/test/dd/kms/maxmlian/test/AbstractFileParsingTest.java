@@ -79,226 +79,245 @@ abstract class AbstractFileParsingTest
 	@ParameterizedTest(name = "{0}, namespace aware: {1}, StAX parser: {2}")
 	@MethodSource("getParameters")
 	void testParsingFile(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, SAXException, XmlException {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setNamespaceAware(namespaceAware);
-		((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
-		DocumentBuilder documentBuilder = factory.reuseInstances(true).newDocumentBuilder();
-		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
-
-		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-		domFactory.setNamespaceAware(namespaceAware);
-		domFactory.setValidating(false);
-		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
-		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
-
-		prepareTest(domDocument);
-
-		compareNodes(document, domDocument, 0, true);
+		ParameterizedFileParsingTest parameterizedFileParsingTest = new ParameterizedFileParsingTest(xmlFile, namespaceAware, xmlInputFactoryProvider);
+		parameterizedFileParsingTest.compareXmlStructure();
 	}
 
-	private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth, boolean calledFromParent) throws XmlException {
-		String name = domNode.getNodeName();
-		String prefix = domNode.getPrefix();
-		Assertions.assertEquals(name, node.getNodeName(), "Wrong node name");
-		Assertions.assertEquals(domNode.getLocalName(), node.getLocalName(), "Wrong local name of node '" + name + "'");
-		Assertions.assertEquals(prefix, node.getPrefix(), "Wrong prefix of node '" + name + "'");
-		Assertions.assertEquals(domNode.getNamespaceURI(), node.getNamespaceURI(), "Wrong namespace URI of node '" + name + "'");
+	private class ParameterizedFileParsingTest
+	{
+		private final Path						xmlFile;
+		private final boolean					namespaceAware;
+		private final XMLInputFactoryProvider	xmlInputFactoryProvider;
 
-		Node parent = node.getParentNode();
-		org.w3c.dom.Node domParent = domNode.getParentNode();
-		if (domParent == null) {
-			if (parent != null) {
-				Assertions.fail("Unexpected parent '" + parent.getNodeName() + "'");
-			}
-		} else {
-			Assertions.assertNotNull(parent, "Expected parent '" + domParent.getNodeName() + "'");
-			compareNodes(parent, domParent, depth - 1, false);
+		ParameterizedFileParsingTest(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider) {
+			this.xmlFile = xmlFile;
+			this.namespaceAware = namespaceAware;
+			this.xmlInputFactoryProvider = xmlInputFactoryProvider;
 		}
 
-		short domNodeType = domNode.getNodeType();
-		NodeType expectedNodeType = TestUtils.getNodeType(domNodeType);
-		NodeType nodeType = node.getNodeType();
-		Assertions.assertEquals(expectedNodeType, nodeType, "Wrong type of node '" + name + "'");
+		void compareXmlStructure() throws ParserConfigurationException, IOException, XmlException, SAXException {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(namespaceAware);
+			((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
+			DocumentBuilder documentBuilder = factory.reuseInstances(true).newDocumentBuilder();
+			Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
-		switch (nodeType) {
-			case ELEMENT:
-				compareElements((Element) node, (org.w3c.dom.Element) domNode, depth);
-				break;
-			case ATTRIBUTE:
-				compareAttributes((Attr) node, (org.w3c.dom.Attr) domNode);
-				break;
-			case TEXT:
-				compareTexts((Text) node, (org.w3c.dom.Text) domNode);
-				break;
-			case CDATA_SECTION:
-				compareCDataSections((CDATASection) node, (org.w3c.dom.CDATASection) domNode);
-				break;
-			case ENTITY:
-				compareEntities((Entity) node, (org.w3c.dom.Entity) domNode);
-				break;
-			case PROCESSING_INSTRUCTION:
-				compareProcessingInstructions((ProcessingInstruction) node, (org.w3c.dom.ProcessingInstruction) domNode);
-				break;
-			case COMMENT:
-				compareComments((Comment) node, (org.w3c.dom.Comment) domNode);
-				break;
-			case DOCUMENT:
-				compareDocuments((Document) node, (org.w3c.dom.Document) domNode);
-				break;
-			case DOCUMENT_TYPE:
-				compareDocumentTypes((DocumentType) node, (org.w3c.dom.DocumentType) domNode, depth);
-				break;
-			case NOTATION:
-				compareNotations((Notation) node, (org.w3c.dom.Notation) domNode);
-				break;
-			default:
-				throw new UnsupportedOperationException("The test does currently not support node type '" + nodeType + "'");
+			javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+			domFactory.setNamespaceAware(namespaceAware);
+			domFactory.setValidating(false);
+
+			javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
+			org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
+
+			prepareTest(domDocument);
+
+			compareNodes(document, domDocument, 0, true);
 		}
 
-		if (!calledFromParent) {
-			return;
-		}
+		private void compareNodes(Node node, org.w3c.dom.Node domNode, int depth, boolean calledFromParent) throws XmlException {
+			String name = domNode.getNodeName();
+			String prefix = domNode.getPrefix();
+			Assertions.assertEquals(name, node.getNodeName(), "Wrong node name");
+			Assertions.assertEquals(domNode.getLocalName(), node.getLocalName(), "Wrong local name of node '" + name + "'");
+			Assertions.assertEquals(prefix, node.getPrefix(), "Wrong prefix of node '" + name + "'");
+			Assertions.assertEquals(domNode.getNamespaceURI(), node.getNamespaceURI(), "Wrong namespace URI of node '" + name + "'");
 
-		int numChildrenToParse = getNumberOfChildrenToParse(depth);
-		if (numChildrenToParse > 0) {
-			NodeList domChildren = domNode.getChildNodes();
-			int numDomChildren = domChildren.getLength();
-			int childIndex = 0;
-			for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
-				Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + name + "'");
-				org.w3c.dom.Node domChild = domChildren.item(childIndex);
-				compareNodes(child, domChild, depth + 1, true);
-				childIndex++;
-				if (childIndex >= numChildrenToParse) {
-					break;
+			Node parent = node.getParentNode();
+			org.w3c.dom.Node domParent = domNode.getParentNode();
+			if (domParent == null) {
+				if (parent != null) {
+					Assertions.fail("Unexpected parent '" + parent.getNodeName() + "'");
 				}
+			} else {
+				Assertions.assertNotNull(parent, "Expected parent '" + domParent.getNodeName() + "'");
+				compareNodes(parent, domParent, depth - 1, false);
 			}
-			if (childIndex < numChildrenToParse) {
-				// this check must only be evaluated if the number of children has not been limited
-				Assertions.assertEquals(numDomChildren, childIndex, "Wrong number of children of node '" + name + "'");
-			}
-		}
-	}
 
-	private void compareElements(Element element, org.w3c.dom.Element domElement, int depth) throws XmlException {
-		String name = element.getNodeName();
-		Assertions.assertEquals(element.getTagName(), domElement.getTagName(), "Wrong tag name of element '" + name + "'");
+			short domNodeType = domNode.getNodeType();
+			NodeType expectedNodeType = TestUtils.getNodeType(domNodeType);
+			NodeType nodeType = node.getNodeType();
+			Assertions.assertEquals(expectedNodeType, nodeType, "Wrong type of node '" + name + "'");
 
-		int numChildrenToParse = getNumberOfChildrenToParse(depth);
-		if (numChildrenToParse > 0) {
-			NamedAttributeMap attributes = element.getAttributes();
-			org.w3c.dom.NamedNodeMap domAttributes = domElement.getAttributes();
-			int numAttributes = attributes.size();
-			Assertions.assertEquals(domAttributes.getLength(), numAttributes, "Wrong number of attributes of element '" + name + "'");
-			for (int attributeIndex = 0; attributeIndex < Math.min(numAttributes, numChildrenToParse); attributeIndex++) {
-				Attr attribute = attributes.get(attributeIndex);
-				String attributeName = attribute.getName();
-				Assertions.assertEquals(attribute, attributes.get(attributeName), "Querying attribute '" + attributeName + "' by name failed");
-				org.w3c.dom.Node domAttribute = domAttributes.getNamedItem(attributeName);
-				Assertions.assertNotNull(domAttribute, "Wrong attribute name '" + attributeName + "'");
-				compareNodes(attribute, domAttribute, depth + 1, true);
-			}
-		}
-	}
-
-	private void compareAttributes(Attr attribute, org.w3c.dom.Attr domAttribute) {
-		String name = domAttribute.getName();
-		Assertions.assertEquals(name, attribute.getName(), "Wrong name of an attribute");
-		Assertions.assertEquals(domAttribute.getValue(), attribute.getValue(), "Wrong value of attribute '" + name + "'");
-		Assertions.assertEquals(domAttribute.isId(), attribute.isId(), "Wrong value of isId() of attribute '" + name + "'");
-	}
-
-	private void compareTexts(Text text, org.w3c.dom.Text domText) {
-		String name = domText.getNodeName();
-		Assertions.assertEquals(domText.getData(), text.getData(), "Wrong data of text node '" + name + "'");
-		Assertions.assertEquals(domText.isElementContentWhitespace(), text.isElementContentWhitespace(), "Wrong value of isElementContextWhiteSpace() of text node '" + name + "'");
-	}
-
-	private void compareCDataSections(CDATASection cDataSection, org.w3c.dom.CDATASection domCDataSection) {
-		String name = domCDataSection.getNodeName();
-		Assertions.assertEquals(domCDataSection.getData(), cDataSection.getData(), "Wrong data of CDATA section node '" + name + "'");
-		Assertions.assertEquals(domCDataSection.isElementContentWhitespace(), cDataSection.isElementContentWhitespace(), "Wrong value of isElementContextWhiteSpace() of CDATA section node '" + name + "'");
-	}
-
-	private void compareEntities(Entity entity, org.w3c.dom.Entity domEntity) {
-		String name = entity.getNodeName();
-		Assertions.assertEquals(domEntity.getPublicId(), entity.getPublicId(), "Wrong public ID of entity '" + name + "'");
-		Assertions.assertEquals(domEntity.getSystemId(), entity.getSystemId(), "Wrong system ID of entity '" + name + "'");
-		Assertions.assertEquals(domEntity.getNotationName(), entity.getNotationName(), "Wrong notation name of entity '" + name + "'");
-	}
-
-	private void compareProcessingInstructions(ProcessingInstruction processingInstruction, org.w3c.dom.ProcessingInstruction domProcessingInstruction) {
-		String name = domProcessingInstruction.getNodeName();
-		Assertions.assertEquals(domProcessingInstruction.getData(), processingInstruction.getData(), "Wrong data of processing instruction '" + name + "'");
-		Assertions.assertEquals(domProcessingInstruction.getTarget(), processingInstruction.getTarget(), "Wrong target of processing instruction '" + name + "'");
-	}
-
-	private void compareComments(Comment comment, org.w3c.dom.Comment domComment) {
-		String name = domComment.getNodeName();
-		Assertions.assertEquals(domComment.getData(), comment.getData(), "Wrong data of comment '" + name + "'");
-	}
-
-	private void compareDocuments(Document document, org.w3c.dom.Document domDocument) {
-		String name = domDocument.getNodeName();
-		Assertions.assertEquals(domDocument.getXmlEncoding(), document.getXmlEncoding(), "Wrong XML encoding of document '" + name + "'");
-		Assertions.assertEquals(domDocument.getXmlStandalone(), document.getXmlStandalone(), "Wrong value of getXmlStandalone() of document '" + name + "'");
-		Assertions.assertEquals(domDocument.getXmlVersion(), document.getXmlVersion(), "Wrong XML version of document '" + name + "'");
-
-		/*
-		 * Do not test getDocumentElement() and getDoctype() because this will make document.getChildren()
-		 * throw an exception because of streamed parsing. The document element and the document type will
-		 * be compared nevertheless because they are part of the DOM tree.
-		 */
-	}
-
-	private void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType, int depth) throws XmlException {
-		String name = domDocType.getName();
-		Assertions.assertEquals(domDocType.getName(), docType.getName(), "Wrong name of document type '" + name + "'");
-		Assertions.assertEquals(domDocType.getPublicId(), docType.getPublicId(), "Wrong public ID of document type '" + name + "'");
-		Assertions.assertEquals(domDocType.getSystemId(), docType.getSystemId(), "Wrong system ID of document type '" + name + "'");
-
-		int numChildrenToParse = getNumberOfChildrenToParse(depth);
-
-		if (numChildrenToParse > 0) {
-			Map<String, Entity> entitiesByName = docType.getEntities();
-			org.w3c.dom.NamedNodeMap domEntities = domDocType.getEntities();
-			Assertions.assertEquals(domEntities.getLength(), entitiesByName.size(), "Wrong number of entities of document type '" + name + "'");
-			int entityIndex = 0;
-			for (String entityName : entitiesByName.keySet()) {
-				Entity entity = entitiesByName.get(entityName);
-				org.w3c.dom.Node domEntity = domEntities.getNamedItem(entityName);
-				Assertions.assertNotNull(domEntity, "Wrong entity name '" + entityName + "'");
-				compareNodes(entity, domEntity, depth + 1, true);
-				entityIndex++;
-				if (entityIndex >= numChildrenToParse) {
+			switch (nodeType) {
+				case ELEMENT:
+					compareElements((Element) node, (org.w3c.dom.Element) domNode, depth);
 					break;
+				case ATTRIBUTE:
+					compareAttributes((Attr) node, (org.w3c.dom.Attr) domNode);
+					break;
+				case TEXT:
+					compareTexts((Text) node, (org.w3c.dom.Text) domNode);
+					break;
+				case CDATA_SECTION:
+					compareCDataSections((CDATASection) node, (org.w3c.dom.CDATASection) domNode);
+					break;
+				case ENTITY:
+					compareEntities((Entity) node, (org.w3c.dom.Entity) domNode);
+					break;
+				case PROCESSING_INSTRUCTION:
+					compareProcessingInstructions((ProcessingInstruction) node, (org.w3c.dom.ProcessingInstruction) domNode);
+					break;
+				case COMMENT:
+					compareComments((Comment) node, (org.w3c.dom.Comment) domNode);
+					break;
+				case DOCUMENT:
+					compareDocuments((Document) node, (org.w3c.dom.Document) domNode);
+					break;
+				case DOCUMENT_TYPE:
+					compareDocumentTypes((DocumentType) node, (org.w3c.dom.DocumentType) domNode, depth);
+					break;
+				case NOTATION:
+					compareNotations((Notation) node, (org.w3c.dom.Notation) domNode);
+					break;
+				default:
+					throw new UnsupportedOperationException("The test does currently not support node type '" + nodeType + "'");
+			}
+
+			if (!calledFromParent) {
+				return;
+			}
+
+			int numChildrenToParse = getNumberOfChildrenToParse(depth);
+			if (numChildrenToParse > 0) {
+				NodeList domChildren = domNode.getChildNodes();
+				int numDomChildren = domChildren.getLength();
+				int childIndex = 0;
+				for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+					Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + name + "'");
+					org.w3c.dom.Node domChild = domChildren.item(childIndex);
+					compareNodes(child, domChild, depth + 1, true);
+					childIndex++;
+					if (childIndex >= numChildrenToParse) {
+						break;
+					}
+				}
+				if (childIndex < numChildrenToParse) {
+					// this check must only be evaluated if the number of children has not been limited
+					Assertions.assertEquals(numDomChildren, childIndex, "Wrong number of children of node '" + name + "'");
 				}
 			}
 		}
 
-		if (numChildrenToParse > 0) {
-			Map<String, Notation> notationsByName = docType.getNotations();
-			org.w3c.dom.NamedNodeMap domNotations = domDocType.getNotations();
-			Assertions.assertEquals(domNotations.getLength(), notationsByName.size(), "Wrong number of notations of document type '" + name + "'");
-			int notationIndex = 0;
-			for (String notationName : notationsByName.keySet()) {
-				Notation notation = notationsByName.get(notationName);
-				org.w3c.dom.Node domNotation = domNotations.getNamedItem(notationName);
-				Assertions.assertNotNull(domNotation, "Wrong notation name '" + notationName + "'");
-				compareNodes(notation, domNotation, depth + 1, true);
-				notationIndex++;
-				if (notationIndex >= numChildrenToParse) {
-					break;
+		private void compareElements(Element element, org.w3c.dom.Element domElement, int depth) throws XmlException {
+			String name = element.getNodeName();
+			Assertions.assertEquals(element.getTagName(), domElement.getTagName(), "Wrong tag name of element '" + name + "'");
+
+			int numChildrenToParse = getNumberOfChildrenToParse(depth);
+			if (numChildrenToParse > 0) {
+				NamedAttributeMap attributes = element.getAttributes();
+				org.w3c.dom.NamedNodeMap domAttributes = domElement.getAttributes();
+				int numAttributes = attributes.size();
+				Assertions.assertEquals(domAttributes.getLength(), numAttributes, "Wrong number of attributes of element '" + name + "'");
+				for (int attributeIndex = 0; attributeIndex < Math.min(numAttributes, numChildrenToParse); attributeIndex++) {
+					Attr attribute = attributes.get(attributeIndex);
+					String attributeName = attribute.getName();
+					Assertions.assertEquals(attribute, attributes.get(attributeName), "Querying attribute '" + attributeName + "' by name failed");
+					org.w3c.dom.Node domAttribute = domAttributes.getNamedItem(attributeName);
+					Assertions.assertNotNull(domAttribute, "Wrong attribute name '" + attributeName + "'");
+					compareNodes(attribute, domAttribute, depth + 1, true);
 				}
 			}
 		}
 
-		// Do not test getInternalSubset() because DOM does some formatting to the raw internal subset that we do not want to replicate
-	}
+		private void compareAttributes(Attr attribute, org.w3c.dom.Attr domAttribute) {
+			String name = domAttribute.getName();
+			Assertions.assertEquals(name, attribute.getName(), "Wrong name of an attribute");
+			Assertions.assertEquals(domAttribute.getValue(), attribute.getValue(), "Wrong value of attribute '" + name + "'");
+			Assertions.assertEquals(domAttribute.isId(), attribute.isId(), "Wrong value of isId() of attribute '" + name + "'");
+		}
 
-	private void compareNotations(Notation notation, org.w3c.dom.Notation domNotation) {
-		String name = domNotation.getNodeName();
-		Assertions.assertEquals(domNotation.getPublicId(), notation.getPublicId(), "Wrong public ID of notation '" + name + "'");
-		Assertions.assertEquals(domNotation.getSystemId(), notation.getSystemId(), "Wrong system ID of notation '" + name + "'");
+		private void compareTexts(Text text, org.w3c.dom.Text domText) {
+			String name = domText.getNodeName();
+			Assertions.assertEquals(domText.getData(), text.getData(), "Wrong data of text node '" + name + "'");
+			Assertions.assertEquals(domText.isElementContentWhitespace(), text.isElementContentWhitespace(), "Wrong value of isElementContextWhiteSpace() of text node '" + name + "'");
+		}
+
+		private void compareCDataSections(CDATASection cDataSection, org.w3c.dom.CDATASection domCDataSection) {
+			String name = domCDataSection.getNodeName();
+			Assertions.assertEquals(domCDataSection.getData(), cDataSection.getData(), "Wrong data of CDATA section node '" + name + "'");
+			Assertions.assertEquals(domCDataSection.isElementContentWhitespace(), cDataSection.isElementContentWhitespace(), "Wrong value of isElementContextWhiteSpace() of CDATA section node '" + name + "'");
+		}
+
+		private void compareEntities(Entity entity, org.w3c.dom.Entity domEntity) {
+			String name = entity.getNodeName();
+			Assertions.assertEquals(domEntity.getPublicId(), entity.getPublicId(), "Wrong public ID of entity '" + name + "'");
+			Assertions.assertEquals(domEntity.getSystemId(), entity.getSystemId(), "Wrong system ID of entity '" + name + "'");
+			Assertions.assertEquals(domEntity.getNotationName(), entity.getNotationName(), "Wrong notation name of entity '" + name + "'");
+		}
+
+		private void compareProcessingInstructions(ProcessingInstruction processingInstruction, org.w3c.dom.ProcessingInstruction domProcessingInstruction) {
+			String name = domProcessingInstruction.getNodeName();
+			Assertions.assertEquals(domProcessingInstruction.getData(), processingInstruction.getData(), "Wrong data of processing instruction '" + name + "'");
+			Assertions.assertEquals(domProcessingInstruction.getTarget(), processingInstruction.getTarget(), "Wrong target of processing instruction '" + name + "'");
+		}
+
+		private void compareComments(Comment comment, org.w3c.dom.Comment domComment) {
+			String name = domComment.getNodeName();
+			Assertions.assertEquals(domComment.getData(), comment.getData(), "Wrong data of comment '" + name + "'");
+		}
+
+		private void compareDocuments(Document document, org.w3c.dom.Document domDocument) {
+			String name = domDocument.getNodeName();
+			Assertions.assertEquals(domDocument.getXmlEncoding(), document.getXmlEncoding(), "Wrong XML encoding of document '" + name + "'");
+			Assertions.assertEquals(domDocument.getXmlStandalone(), document.getXmlStandalone(), "Wrong value of getXmlStandalone() of document '" + name + "'");
+			Assertions.assertEquals(domDocument.getXmlVersion(), document.getXmlVersion(), "Wrong XML version of document '" + name + "'");
+
+			/*
+			 * Do not test getDocumentElement() and getDoctype() because this will make document.getChildren()
+			 * throw an exception because of streamed parsing. The document element and the document type will
+			 * be compared nevertheless because they are part of the DOM tree.
+			 */
+		}
+
+		private void compareDocumentTypes(DocumentType docType, org.w3c.dom.DocumentType domDocType, int depth) throws XmlException {
+			String name = domDocType.getName();
+			Assertions.assertEquals(domDocType.getName(), docType.getName(), "Wrong name of document type '" + name + "'");
+			Assertions.assertEquals(domDocType.getPublicId(), docType.getPublicId(), "Wrong public ID of document type '" + name + "'");
+			Assertions.assertEquals(domDocType.getSystemId(), docType.getSystemId(), "Wrong system ID of document type '" + name + "'");
+
+			int numChildrenToParse = getNumberOfChildrenToParse(depth);
+
+			if (numChildrenToParse > 0) {
+				Map<String, Entity> entitiesByName = docType.getEntities();
+				org.w3c.dom.NamedNodeMap domEntities = domDocType.getEntities();
+				Assertions.assertEquals(domEntities.getLength(), entitiesByName.size(), "Wrong number of entities of document type '" + name + "'");
+				int entityIndex = 0;
+				for (String entityName : entitiesByName.keySet()) {
+					Entity entity = entitiesByName.get(entityName);
+					org.w3c.dom.Node domEntity = domEntities.getNamedItem(entityName);
+					Assertions.assertNotNull(domEntity, "Wrong entity name '" + entityName + "'");
+					compareNodes(entity, domEntity, depth + 1, true);
+					entityIndex++;
+					if (entityIndex >= numChildrenToParse) {
+						break;
+					}
+				}
+			}
+
+			if (numChildrenToParse > 0) {
+				Map<String, Notation> notationsByName = docType.getNotations();
+				org.w3c.dom.NamedNodeMap domNotations = domDocType.getNotations();
+				Assertions.assertEquals(domNotations.getLength(), notationsByName.size(), "Wrong number of notations of document type '" + name + "'");
+				int notationIndex = 0;
+				for (String notationName : notationsByName.keySet()) {
+					Notation notation = notationsByName.get(notationName);
+					org.w3c.dom.Node domNotation = domNotations.getNamedItem(notationName);
+					Assertions.assertNotNull(domNotation, "Wrong notation name '" + notationName + "'");
+					compareNodes(notation, domNotation, depth + 1, true);
+					notationIndex++;
+					if (notationIndex >= numChildrenToParse) {
+						break;
+					}
+				}
+			}
+
+			// Do not test getInternalSubset() because DOM does some formatting to the raw internal subset that we do not want to replicate
+		}
+
+		private void compareNotations(Notation notation, org.w3c.dom.Notation domNotation) {
+			String name = domNotation.getNodeName();
+			Assertions.assertEquals(domNotation.getPublicId(), notation.getPublicId(), "Wrong public ID of notation '" + name + "'");
+			Assertions.assertEquals(domNotation.getSystemId(), notation.getSystemId(), "Wrong system ID of notation '" + name + "'");
+		}
 	}
 }
