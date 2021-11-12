@@ -2,7 +2,6 @@ package dd.kms.maxmlian.samples;
 
 import dd.kms.maxmlian.api.*;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 
 public class AttributesSample

@@ -37,10 +37,8 @@ public class MaXMLianParser extends AbstractParser
 			}
 		}
 
-		Node childNode = node.getFirstChild();
-		while (childNode != null) {
+		for (Node childNode = node.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
 			traverse(childNode);
-			childNode = childNode.getNextSibling();
 		}
 	}
 }

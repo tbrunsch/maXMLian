@@ -34,8 +34,8 @@ public class IncorrectApiUsageDetectionSample
 		Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()));
 
 		Element sample = document.getDocumentElement();
-		Element element1 = (Element) sample.getFirstChild();
-		Element element2 = (Element) element1.getNextSibling();
+		Element element1 = sample.getFirstChildElement();
+		Element element2 = element1.getNextSiblingElement();
 
 		if (element2 == element1) {
 			System.out.println("Element instance has been reused");
@@ -47,11 +47,9 @@ public class IncorrectApiUsageDetectionSample
 		 */
 		try {
 			System.out.println("Subelements of element 1:");
-			for (Node child = element1.getFirstChild(); child != null; child = child.getNextSibling()) {
-				if (child.getNodeType() == NodeType.ELEMENT) {
-					Attr nameAttribute = child.getAttributes().get("name");
-					System.out.println(nameAttribute.getValue());
-				}
+			for (Element child = element1.getFirstChildElement(); child != null; child = child.getNextSiblingElement()) {
+				Attr nameAttribute = child.getAttributes().get("name");
+				System.out.println(nameAttribute.getValue());
 			}
 		} catch (XmlStateException e) {
 			System.out.println("Caught XmlStateException: " + e.getMessage());

@@ -9,6 +9,8 @@ public interface Node
 	Node getParentNode();
 	Node getFirstChild() throws XmlException;
 	Node getNextSibling() throws XmlException;
+	Element getFirstChildElement() throws XmlException;
+	Element getNextSiblingElement() throws XmlException;
 	NamedAttributeMap getAttributes();
 
 	String getNamespaceURI();

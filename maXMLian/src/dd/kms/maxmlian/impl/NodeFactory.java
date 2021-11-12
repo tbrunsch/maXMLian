@@ -37,37 +37,65 @@ class NodeFactory
 		return namespaceAware;
 	}
 
-	NodeImpl readFirstChildNode() throws XMLStreamException {
+	NodeImpl readFirstChild() throws XMLStreamException {
+		return readUntilFirstChild() ? createNode() : null;
+	}
+
+	NodeImpl getNextSibling(int depth) throws XMLStreamException {
+		return readUntilNextSibling(depth) ? createNode() : null;
+	}
+
+	ElementImpl readFirstChildElement() throws XMLStreamException {
+		if (!readUntilFirstChild()) {
+			return null;
+		}
+		if (reader.getEventType() == START_ELEMENT) {
+			return createElement();
+		}
+		int childDepth = streamReader.getDepth();
+		return getNextSiblingElement(childDepth);
+	}
+
+	ElementImpl getNextSiblingElement(int depth) throws XMLStreamException {
+		while (readUntilNextSibling(depth)) {
+			if (reader.getEventType() == START_ELEMENT) {
+				return createElement();
+			}
+		}
+		return null;
+	}
+
+	private boolean readUntilFirstChild() throws XMLStreamException {
 		int depth = streamReader.getDepth();
 		if (streamReader.getNextDepth() == depth) {
-			return null;
+			return false;
 		}
 		if (streamReader.hasNext()) {
 			streamReader.next();
 			if (streamReader.getDepth() <= depth) {
 				// parent node closed => no children
-				return null;
+				return false;
 			}
-			return createNode();
+			return true;
 		}
-		return null;
+		return false;
 	}
 
-	NodeImpl getNextSibling(int depth) throws XMLStreamException {
+	private boolean readUntilNextSibling(int depth) throws XMLStreamException {
 		while (streamReader.hasNext()) {
 			streamReader.next();
 			int currentDepth = streamReader.getDepth();
 			if (currentDepth < depth) {
 				// no next sibling available
-				return null;
+				return false;
 			} else if (currentDepth == depth) {
-				NodeImpl nextSibling = createNode();
-				if (nextSibling != null) {
-					return nextSibling;
+				int eventType = reader.getEventType();
+				if (eventType != END_ELEMENT && eventType != END_DOCUMENT) {
+					return true;
 				}
 			}
 		}
-		return null;
+		return false;
 	}
 
 	private NodeImpl createNode() throws XMLStreamException {

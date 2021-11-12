@@ -16,7 +16,7 @@ public class ParseWithLimitedDepthTest extends AbstractFileParsingTest
 	private int maxDepthToConsider;
 
 	@Override
-	void prepareTest(Document domDocument) {
+	void prepareTest(Document domDocument, boolean considerOnlyChildElements) {
 		int maxDepth = determineMaxDepth(domDocument);
 		maxDepthToConsider = maxDepth / 2;
 	}

@@ -65,6 +65,18 @@ void printBoldTexts(Node node) throws XMLStreamException {
 
 The complete code can be found in ```XhtmlAnalysisSample.java```.
 
+## Iterating Child Elements
+
+We have already seen how to iterate the children of a node. An important use case is just to consider the child elements. Of course this can be done by considering only the children for which ```child.getNodeType() == NodeType.ELEMENT```. However, the interface ```Node``` provides methods to accomplish this task:
+
+```
+for (Element childElement = node.getFirstChildElement(); childElement != null; childElement = childElement.getNextSiblingElement()) {
+    ...
+}
+```
+
+This approach spares you from filtering and casting children, but there is another advantage: Since maXMLian knows that only elements have to be considered, it does not create and initialize instances for other nodes. According to the benchmark ```NextSiblingElementBenchmark``` this reduced the traversal time for a 2 GB XML file from 12.09 to 10.86 seconds.  
+
 ## Iterating Attributes
 
 The following code prints the attributes of a node. Note that, unlike other nodes, attributes can be accessed by index.
@@ -154,8 +166,8 @@ Since you cannot do much with a node after the parser has parsed beyond it, it m
 maXMLian has a mechanism to detect when a node is accessed when it shouldn't anymore. In this case, maXMLian throws an ```XmlStateException```. This helps avoiding incorrect usages of the API. When reusing instances, this mechanism does not work reliably. Consider the following example, which is an extract of ```IncorrectApiUsageDetectionSample.java```:
 
 ```
-Element element1 = (Element) sample.getFirstChild();
-Element element2 = (Element) element1.getNextSibling();
+Element element1 = sample.getFirstChildElement();
+Element element2 = element1.getNextSiblingElement();
 for (Node child : element1.getChildNodes()) {
     // do something with child
     ...

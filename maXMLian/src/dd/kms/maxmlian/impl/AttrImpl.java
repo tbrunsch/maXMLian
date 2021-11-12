@@ -1,8 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Attr;
-import dd.kms.maxmlian.api.NamedAttributeMap;
-import dd.kms.maxmlian.api.Node;
+import dd.kms.maxmlian.api.*;
 
 class AttrImpl implements Attr
 {
@@ -84,6 +82,16 @@ class AttrImpl implements Attr
 	@Override
 	public Attr getNextSibling() {
 		return nextSibling;
+	}
+
+	@Override
+	public Element getFirstChildElement() {
+		return null;
+	}
+
+	@Override
+	public Element getNextSiblingElement() {
+		return null;
 	}
 
 	@Override

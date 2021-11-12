@@ -1,9 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Attr;
-import dd.kms.maxmlian.api.NamedAttributeMap;
-import dd.kms.maxmlian.api.Node;
-import dd.kms.maxmlian.api.Text;
+import dd.kms.maxmlian.api.*;
 
 class AttrText implements Text
 {
@@ -50,6 +47,16 @@ class AttrText implements Text
 
 	@Override
 	public Node getNextSibling() {
+		return null;
+	}
+
+	@Override
+	public Element getFirstChildElement() {
+		return null;
+	}
+
+	@Override
+	public Element getNextSiblingElement() {
 		return null;
 	}
 

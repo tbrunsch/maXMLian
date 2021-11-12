@@ -11,7 +11,7 @@ import org.w3c.dom.Document;
 class ParseWholeFileTest extends AbstractFileParsingTest
 {
 	@Override
-	void prepareTest(Document domDocument) {
+	void prepareTest(Document domDocument, boolean considerOnlyChildElements) {
 		// nothing to do
 	}
 

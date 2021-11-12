@@ -4,6 +4,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This test parses all XML files in the test resource folder with maXMLian and
  * with a DOM parser and compares the resulting trees. For all nodes, only a
@@ -14,27 +17,40 @@ import org.w3c.dom.NodeList;
  */
 class ParseWithLimitedChildNumberTest extends AbstractFileParsingTest
 {
-	private int maxNumberOfChildrenToParse;
+	private Map<Integer, Integer>	maxNumberOfChildrenPerDepth	= new HashMap<>();
 
 	@Override
-	void prepareTest(Document domDocument) {
-		int maxNumberOfChildren = determineMaximumNumberOfChildren(domDocument);
-		maxNumberOfChildrenToParse = Math.max(0, maxNumberOfChildren - 2);
+	void prepareTest(Document domDocument, boolean considerOnlyChildElements) {
+		determineMaximumNumberOfChildren(domDocument, 0, considerOnlyChildElements);
 	}
 
 	@Override
 	int getNumberOfChildrenToParse(int depth) {
-		return maxNumberOfChildrenToParse - 2;
+		return Math.max(maxNumberOfChildrenPerDepth.getOrDefault(depth, 0) - 2, 1);
 	}
 
-	private static int determineMaximumNumberOfChildren(Node domNode) {
+	private void determineMaximumNumberOfChildren(Node domNode, int depth, boolean considerOnlyChildElements) {
 		NodeList children = domNode.getChildNodes();
 		int numChildren = children.getLength();
-		int maxNumberOfChildren = numChildren;
+		int numConsideredChildren = 0;
 		for (int i = 0; i < numChildren; i++) {
 			Node domChild = children.item(i);
-			maxNumberOfChildren = Math.max(maxNumberOfChildren, determineMaximumNumberOfChildren(domChild));
+			boolean considerChild = !considerOnlyChildElements || domChild.getNodeType() == Node.ELEMENT_NODE;
+			if (considerChild) {
+				determineMaximumNumberOfChildren(domChild, depth + 1, considerOnlyChildElements);
+				numConsideredChildren++;
+			}
 		}
-		return maxNumberOfChildren;
+		updateMaxNumberOfChildren(depth, numConsideredChildren);
+	}
+
+	private void updateMaxNumberOfChildren(int depth, int numChildren) {
+		if (numChildren == 0) {
+			return;
+		}
+		Integer maxNumChildren = maxNumberOfChildrenPerDepth.get(depth);
+		if (maxNumChildren == null || maxNumChildren < numChildren) {
+			maxNumberOfChildrenPerDepth.put(depth, numChildren);
+		}
 	}
 }

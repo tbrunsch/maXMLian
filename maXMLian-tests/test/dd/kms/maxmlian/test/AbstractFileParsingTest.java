@@ -20,21 +20,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @ExtendWith({LargeXmlTestFileDeletionExtension.class})
 abstract class AbstractFileParsingTest
 {
-	abstract void prepareTest(org.w3c.dom.Document domDocument);
+	abstract void prepareTest(org.w3c.dom.Document domDocument, boolean considerOnlyChildElements);
 	abstract int getNumberOfChildrenToParse(int depth);
 
 	static List<Object[]> getParameters() throws IOException {
 		List<Path> paths = collectXmlFiles();
 		List<Boolean> namespaceAwarenessValues = Arrays.asList(false, true);
+		List<Boolean> considerOnlyChildElementsValues = Arrays.asList(false, true);
 		List<XMLInputFactoryProvider> inputFactoryProviders = Arrays.asList(
 			XMLInputFactoryProvider.XERCES,
 			XMLInputFactoryProvider.WOODSTOX
 		);
-		return cartesianProduct(Arrays.asList(paths, namespaceAwarenessValues, inputFactoryProviders))
+		return cartesianProduct(Arrays.asList(paths, namespaceAwarenessValues, considerOnlyChildElementsValues, inputFactoryProviders))
 			.stream()
 			.map(List::toArray)
 			.collect(Collectors.toList());
@@ -76,10 +78,10 @@ abstract class AbstractFileParsingTest
 		return result;
 	}
 
-	@ParameterizedTest(name = "{0}, namespace aware: {1}, StAX parser: {2}")
+	@ParameterizedTest(name = "{0}, namespace aware: {1}, consider only child elements: {2}, StAX parser: {3}")
 	@MethodSource("getParameters")
-	void testParsingFile(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, SAXException, XmlException {
-		ParameterizedFileParsingTest parameterizedFileParsingTest = new ParameterizedFileParsingTest(xmlFile, namespaceAware, xmlInputFactoryProvider);
+	void testParsingFile(Path xmlFile, boolean namespaceAware, boolean considerOnlyChildElements, XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, SAXException, XmlException {
+		ParameterizedFileParsingTest parameterizedFileParsingTest = new ParameterizedFileParsingTest(xmlFile, namespaceAware, considerOnlyChildElements, xmlInputFactoryProvider);
 		parameterizedFileParsingTest.compareXmlStructure();
 	}
 
@@ -87,11 +89,13 @@ abstract class AbstractFileParsingTest
 	{
 		private final Path						xmlFile;
 		private final boolean					namespaceAware;
+		private final boolean					considerOnlyChildElements;
 		private final XMLInputFactoryProvider	xmlInputFactoryProvider;
 
-		ParameterizedFileParsingTest(Path xmlFile, boolean namespaceAware, XMLInputFactoryProvider xmlInputFactoryProvider) {
+		ParameterizedFileParsingTest(Path xmlFile, boolean namespaceAware, boolean considerOnlyChildElements, XMLInputFactoryProvider xmlInputFactoryProvider) {
 			this.xmlFile = xmlFile;
 			this.namespaceAware = namespaceAware;
+			this.considerOnlyChildElements = considerOnlyChildElements;
 			this.xmlInputFactoryProvider = xmlInputFactoryProvider;
 		}
 
@@ -109,7 +113,7 @@ abstract class AbstractFileParsingTest
 			javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
 			org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
 
-			prepareTest(domDocument);
+			prepareTest(domDocument, considerOnlyChildElements);
 
 			compareNodesRecursively(document, domDocument, 0);
 		}
@@ -122,20 +126,42 @@ abstract class AbstractFileParsingTest
 			int numChildrenToParse = getNumberOfChildrenToParse(depth);
 			if (numChildrenToParse > 0) {
 				NodeList domChildren = domNode.getChildNodes();
-				int numDomChildren = domChildren.getLength();
-				int childIndex = 0;
-				for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
-					Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + name + "'");
-					org.w3c.dom.Node domChild = domChildren.item(childIndex);
-					compareNodesRecursively(child, domChild, depth + 1);
-					childIndex++;
-					if (childIndex >= numChildrenToParse) {
-						break;
+				if (considerOnlyChildElements) {
+					List<org.w3c.dom.Node> domElements = IntStream.range(0, domChildren.getLength())
+						.mapToObj(domChildren::item)
+						.filter(child -> child.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE)
+						.collect(Collectors.toList());
+					int numDomElements = domElements.size();
+					int childElementIndex = 0;
+					for (Element childElement = node.getFirstChildElement(); childElement != null; childElement = childElement.getNextSiblingElement()) {
+						Assertions.assertTrue(childElementIndex < numDomElements, "Wrong number of child elements of node '" + name + "'");
+						org.w3c.dom.Node domChildElement = domElements.get(childElementIndex);
+						compareNodesRecursively(childElement, domChildElement, depth + 1);
+						childElementIndex++;
+						if (childElementIndex >= numChildrenToParse) {
+							break;
+						}
 					}
-				}
-				if (childIndex < numChildrenToParse) {
-					// this check must only be evaluated if the number of children has not been limited
-					Assertions.assertEquals(numDomChildren, childIndex, "Wrong number of children of node '" + name + "'");
+					if (childElementIndex < numChildrenToParse) {
+						// this check must only be evaluated if the number of children has not been limited
+						Assertions.assertEquals(numDomElements, childElementIndex, "Wrong number of child elements of node '" + name + "'");
+					}
+				} else {
+					int numDomChildren = domChildren.getLength();
+					int childIndex = 0;
+					for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+						Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + name + "'");
+						org.w3c.dom.Node domChild = domChildren.item(childIndex);
+						compareNodesRecursively(child, domChild, depth + 1);
+						childIndex++;
+						if (childIndex >= numChildrenToParse) {
+							break;
+						}
+					}
+					if (childIndex < numChildrenToParse) {
+						// this check must only be evaluated if the number of children has not been limited
+						Assertions.assertEquals(numDomChildren, childIndex, "Wrong number of children of node '" + name + "'");
+					}
 				}
 			}
 		}

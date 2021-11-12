@@ -49,7 +49,7 @@ class DocumentBuilderImpl implements DocumentBuilder
 		NodeFactory nodeFactory = new NodeFactory(streamReader, reuseInstances, namespaceAware);
 		Node child;
 		try {
-			child = nodeFactory.readFirstChildNode();
+			child = nodeFactory.readFirstChild();
 		} catch (XMLStreamException e) {
 			throw new XmlException("Cannot read first XML node: " + e, e);
 		}

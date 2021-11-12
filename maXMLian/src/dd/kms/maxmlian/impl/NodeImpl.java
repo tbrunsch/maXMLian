@@ -1,9 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.NamedAttributeMap;
-import dd.kms.maxmlian.api.Node;
-import dd.kms.maxmlian.api.XmlException;
-import dd.kms.maxmlian.api.XmlStateException;
+import dd.kms.maxmlian.api.*;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -64,7 +61,7 @@ abstract class NodeImpl implements Node
 	public NodeImpl getFirstChild() throws XmlException {
 		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
 		try {
-			NodeImpl firstChild = nodeFactory.readFirstChildNode();
+			NodeImpl firstChild = nodeFactory.readFirstChild();
 			if (firstChild != null) {
 				firstChild.setParentNode(this);
 			}
@@ -89,6 +86,38 @@ abstract class NodeImpl implements Node
 			return nextSibling;
 		} catch (XMLStreamException e) {
 			throw new XmlException("Cannot read next sibling of node '" + getNodeName() + "': " + e, e);
+		}
+	}
+
+	@Override
+	public Element getFirstChildElement() throws XmlException {
+		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
+		try {
+			ElementImpl firstChildElement = nodeFactory.readFirstChildElement();
+			if (firstChildElement != null) {
+				firstChildElement.setParentNode(this);
+			}
+			return firstChildElement;
+		} catch (XMLStreamException e) {
+			throw new XmlException("Cannot read first child element of node '" + getNodeName() + "': " + e, e);
+		}
+	}
+
+	@Override
+	public Element getNextSiblingElement() throws XmlException {
+		if (streamReader.getDepth() < initialDepth || streamReader.getNodeCounter(initialDepth) != initialNodeCounterDepth) {
+			resetReaderPosition(PARSE_SIBLING_ERROR);
+		}
+		try {
+			// store parent reference because it will be cleared if this node is reused
+			Node parent = this.parent;
+			ElementImpl nextSiblingElement = nodeFactory.getNextSiblingElement(initialDepth);
+			if (nextSiblingElement != null) {
+				nextSiblingElement.setParentNode(parent);
+			}
+			return nextSiblingElement;
+		} catch (XMLStreamException e) {
+			throw new XmlException("Cannot read next sibling element of node '" + getNodeName() + "': " + e, e);
 		}
 	}
 

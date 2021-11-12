@@ -26,7 +26,7 @@ public class ParserBenchmarkSuite
 	 */
 	public static void main(String[] args) throws Exception {
 		if (args.length != 2) {
-			throw new IllegalArgumentException("There must be exactly 2 arguments: the full path of the benchmark XML file (does not need to exist) and the full path of the benchmark result file (must not exist)");
+			throw new IllegalArgumentException("There must be exactly 2 arguments: the full path of the benchmark XML file and the full path of the benchmark result file (must not exist)");
 		}
 		String benchmarkResultFilePath = args[1];
 		Path benchmarkResultFile = Paths.get(benchmarkResultFilePath);

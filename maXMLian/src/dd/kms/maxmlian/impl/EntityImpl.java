@@ -1,8 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Entity;
-import dd.kms.maxmlian.api.NamedAttributeMap;
-import dd.kms.maxmlian.api.Node;
+import dd.kms.maxmlian.api.*;
 
 import javax.xml.stream.events.EntityDeclaration;
 
@@ -54,6 +52,16 @@ class EntityImpl implements Entity
 	@Override
 	public Entity getNextSibling() {
 		return nextSibling;
+	}
+
+	@Override
+	public Element getFirstChildElement() {
+		return null;
+	}
+
+	@Override
+	public Element getNextSiblingElement() {
+		return null;
 	}
 
 	@Override

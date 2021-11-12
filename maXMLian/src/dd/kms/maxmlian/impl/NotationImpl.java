@@ -1,5 +1,6 @@
 package dd.kms.maxmlian.impl;
 
+import dd.kms.maxmlian.api.Element;
 import dd.kms.maxmlian.api.NamedAttributeMap;
 import dd.kms.maxmlian.api.Node;
 import dd.kms.maxmlian.api.Notation;
@@ -39,6 +40,16 @@ class NotationImpl implements Notation
 	@Override
 	public Node getNextSibling() {
 		return nextSibling;
+	}
+
+	@Override
+	public Element getFirstChildElement() {
+		return null;
+	}
+
+	@Override
+	public Element getNextSiblingElement() {
+		return null;
 	}
 
 	@Override
