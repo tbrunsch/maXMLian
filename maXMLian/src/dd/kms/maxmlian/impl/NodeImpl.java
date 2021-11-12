@@ -80,6 +80,8 @@ abstract class NodeImpl implements Node
 			resetReaderPosition(PARSE_SIBLING_ERROR);
 		}
 		try {
+			// store parent reference because it will be cleared if this node is reused
+			Node parent = this.parent;
 			NodeImpl nextSibling = nodeFactory.getNextSibling(initialDepth);
 			if (nextSibling != null) {
 				nextSibling.setParentNode(parent);
