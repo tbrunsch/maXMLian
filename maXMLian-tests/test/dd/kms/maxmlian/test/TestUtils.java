@@ -1,5 +1,6 @@
 package dd.kms.maxmlian.test;
 
+import dd.kms.maxmlian.LargeTextNodeXmlFileGenerator;
 import dd.kms.maxmlian.LargeXmlFileGenerator;
 import dd.kms.maxmlian.api.NodeType;
 
@@ -10,23 +11,44 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 class TestUtils
 {
-	private static final Path	LARGE_XML_FILE		= Paths.get(System.getProperty("user.home")).resolve("LargeXmlFile.xml");
-	private static final long	LARGE_XML_FILE_SIZE	= 20 * (1 << 20);	// 20 MB
+	private static final Path	LARGE_XML_FILE				= Paths.get(System.getProperty("user.home")).resolve("LargeXmlFile.xml");
+	private static final Path	LARGE_TEXT_NODE_XML_FILE	= Paths.get(System.getProperty("user.home")).resolve("LargeTextNodeXmlFile.xml");
+	private static final long	LARGE_FILE_SIZE				= 20 * (1 << 20);	// 20 MB
 
-	static Path getLargeXmlFile() throws IOException {
+	static List<Path> getTemporaryXmlFiles() throws IOException {
+		return Arrays.asList(
+			getLargeXmlFile(),
+			getLargeTextNodeXmlFile()
+		);
+	}
+
+	private static Path getLargeXmlFile() throws IOException {
 		if (!Files.exists(LARGE_XML_FILE)) {
-			LargeXmlFileGenerator generator = new LargeXmlFileGenerator(LARGE_XML_FILE_SIZE);
+			LargeXmlFileGenerator generator = new LargeXmlFileGenerator(LARGE_FILE_SIZE);
 			generator.generate(LARGE_XML_FILE);
 		}
 		return LARGE_XML_FILE;
 	}
 
-	static void deleteLargeXmlFile() throws IOException {
+	private static Path getLargeTextNodeXmlFile() throws IOException {
+		if (!Files.exists(LARGE_TEXT_NODE_XML_FILE)) {
+			LargeTextNodeXmlFileGenerator generator = new LargeTextNodeXmlFileGenerator(LARGE_FILE_SIZE);
+			generator.generate(LARGE_TEXT_NODE_XML_FILE);
+		}
+		return LARGE_TEXT_NODE_XML_FILE;
+	}
+
+	static void deleteTemporaryXmlFiles() throws IOException {
 		if (Files.exists(LARGE_XML_FILE)) {
 			Files.delete(LARGE_XML_FILE);
+		}
+		if (Files.exists(LARGE_TEXT_NODE_XML_FILE)) {
+			Files.delete(LARGE_TEXT_NODE_XML_FILE);
 		}
 	}
 

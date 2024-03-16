@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@ExtendWith({LargeXmlTestFileDeletionExtension.class})
+@ExtendWith({TemporaryXmlTestFileDeletionExtension.class})
 abstract class AbstractFileParsingTest
 {
 	abstract void prepareTest(org.w3c.dom.Document domDocument, boolean considerOnlyChildElements);
@@ -52,7 +52,7 @@ abstract class AbstractFileParsingTest
 				}
 			}
 		}
-		xmlFiles.add(TestUtils.getLargeXmlFile());
+		xmlFiles.addAll(TestUtils.getTemporaryXmlFiles());
 		return xmlFiles;
 	}
 
