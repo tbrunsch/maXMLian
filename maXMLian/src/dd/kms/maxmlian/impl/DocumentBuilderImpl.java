@@ -16,12 +16,14 @@ class DocumentBuilderImpl implements DocumentBuilder
 
 	private final boolean	reuseInstances;
 	private final boolean	namespaceAware;
+	private final boolean	normalize;
 
 	private final List<XMLInputFactoryProvider>	xmlInputFactoryProviders;
 
-	DocumentBuilderImpl(boolean reuseInstances, boolean namespaceAware, List<XMLInputFactoryProvider> xmlInputFactoryProviders) {
+	DocumentBuilderImpl(boolean reuseInstances, boolean namespaceAware, boolean normalize, List<XMLInputFactoryProvider> xmlInputFactoryProviders) {
 		this.reuseInstances = reuseInstances;
 		this.namespaceAware = namespaceAware;
+		this.normalize = normalize;
 		this.xmlInputFactoryProviders = xmlInputFactoryProviders;
 	}
 
@@ -40,7 +42,7 @@ class DocumentBuilderImpl implements DocumentBuilder
 
 		factory.setProperty(PROP_NAMESPACE_AWARE, namespaceAware);
 		factory.setProperty(PROP_VALIDATING, false);
-		factory.setProperty(PROP_IS_COALESCING, true);
+		factory.setProperty(PROP_IS_COALESCING, normalize);
 		XMLStreamReader reader;
 		try {
 			reader = factory.createXMLStreamReader(is);

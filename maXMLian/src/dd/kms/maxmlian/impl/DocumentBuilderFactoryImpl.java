@@ -11,6 +11,7 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 {
 	private boolean	reuseInstances	= false;
 	private boolean namespaceAware	= false;
+	private boolean normalize		= true;
 
 	private List<XMLInputFactoryProvider> xmlInputFactoryProviders	= Arrays.asList(
 		XMLInputFactoryProvider.WOODSTOX,
@@ -30,6 +31,12 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 		return this;
 	}
 
+	@Override
+	public DocumentBuilderFactory normalize(boolean normalize) {
+		this.normalize = normalize;
+		return this;
+	}
+
 	/**
 	 * This method is not part of the API since the internal StAX parser is not meant
 	 * to be configurable by the user. However, this method is internally used for
@@ -45,6 +52,6 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 
 	@Override
 	public DocumentBuilder newDocumentBuilder() {
-		return new DocumentBuilderImpl(reuseInstances, namespaceAware, xmlInputFactoryProviders);
+		return new DocumentBuilderImpl(reuseInstances, namespaceAware, normalize, xmlInputFactoryProviders);
 	}
 }

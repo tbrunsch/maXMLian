@@ -29,5 +29,7 @@ public interface DocumentBuilderFactory
 
 	DocumentBuilderFactory namespaceAware(boolean namespaceAware);
 
+	DocumentBuilderFactory normalize(boolean normalize);
+
 	DocumentBuilder newDocumentBuilder();
 }
