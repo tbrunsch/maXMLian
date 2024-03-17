@@ -25,7 +25,7 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 	}
 
 	@Override
-	public DocumentBuilderFactory setNamespaceAware(boolean namespaceAware) {
+	public DocumentBuilderFactory namespaceAware(boolean namespaceAware) {
 		this.namespaceAware = namespaceAware;
 		return this;
 	}

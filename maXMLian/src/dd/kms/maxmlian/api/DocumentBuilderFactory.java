@@ -27,7 +27,7 @@ public interface DocumentBuilderFactory
 	 */
 	DocumentBuilderFactory reuseInstances(boolean reuseInstances);
 
-	DocumentBuilderFactory setNamespaceAware(boolean namespaceAware);
+	DocumentBuilderFactory namespaceAware(boolean namespaceAware);
 
 	DocumentBuilder newDocumentBuilder();
 }

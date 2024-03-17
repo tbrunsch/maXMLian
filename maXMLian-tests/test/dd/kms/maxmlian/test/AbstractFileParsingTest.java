@@ -101,7 +101,7 @@ abstract class AbstractFileParsingTest
 
 		void compareXmlStructure() throws ParserConfigurationException, IOException, XmlException, SAXException {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setNamespaceAware(namespaceAware);
+			factory.namespaceAware(namespaceAware);
 			((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
 			DocumentBuilder documentBuilder = factory.reuseInstances(true).newDocumentBuilder();
 			Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
