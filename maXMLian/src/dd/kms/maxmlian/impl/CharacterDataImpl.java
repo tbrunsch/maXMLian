@@ -10,7 +10,8 @@ abstract class CharacterDataImpl extends NodeImpl implements CharacterData
 		super(eventReader, nodeFactory);
 	}
 
-	void setData(String data) {
+	void initialize(String data) {
+		super.initialize();
 		this.data = data;
 	}
 

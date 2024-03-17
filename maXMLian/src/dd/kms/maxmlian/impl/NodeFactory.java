@@ -22,7 +22,6 @@ class NodeFactory
 	private final XMLStreamReader			reader;
 	private final ObjectFactory				objectFactory;
 	private final boolean					namespaceAware;
-	private final StringBuilder				additionalCharactersBuilder	= new StringBuilder();
 
 	NodeFactory(ExtendedXmlStreamReader streamReader, boolean reuseInstances, boolean namespaceAware) {
 		this.streamReader = streamReader;
@@ -176,14 +175,14 @@ class NodeFactory
 	private TextImpl createText(int eventType) throws XMLStreamException {
 		int depth = streamReader.getDepth();
 		TextImpl text = objectFactory.createText(depth);
-		text.initialize(reader.getText(), readAdditionalCharacters(eventType), eventType == SPACE);
+		text.initialize(reader.getText(), eventType == SPACE);
 		return text;
 	}
 
 	private TextImpl createCData() throws XMLStreamException {
 		int depth = streamReader.getDepth();
 		TextImpl text = objectFactory.createCDataSection(depth);
-		text.initialize(reader.getText(), readAdditionalCharacters(CDATA), false);
+		text.initialize(reader.getText(), false);
 		return text;
 	}
 
@@ -191,22 +190,6 @@ class NodeFactory
 		CommentImpl comment = objectFactory.createComment(streamReader.getDepth());
 		comment.initialize(reader.getText());
 		return comment;
-	}
-
-	/**
-	 * @return the concatenated text of all successive events of type {@code charactersEventType}.
-	 */
-	private StringBuilder readAdditionalCharacters(int charactersEventType) throws XMLStreamException {
-		additionalCharactersBuilder.setLength(0);
-		while (streamReader.hasNext()) {
-			streamReader.peek();
-			if (reader.getEventType() != charactersEventType) {
-				break;
-			}
-			additionalCharactersBuilder.append(reader.getText());
-			streamReader.next();
-		}
-		return additionalCharactersBuilder;
 	}
 
 	private ProcessingInstructionImpl createProcessingInstruction() {

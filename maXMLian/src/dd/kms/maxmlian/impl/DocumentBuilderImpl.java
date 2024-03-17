@@ -12,6 +12,7 @@ class DocumentBuilderImpl implements DocumentBuilder
 {
 	private static final String	PROP_NAMESPACE_AWARE	= "javax.xml.stream.isNamespaceAware";
 	private static final String	PROP_VALIDATING			= "javax.xml.stream.isValidating";
+	private static final String	PROP_IS_COALESCING		= "javax.xml.stream.isCoalescing";
 
 	private final boolean	reuseInstances;
 	private final boolean	namespaceAware;
@@ -39,6 +40,7 @@ class DocumentBuilderImpl implements DocumentBuilder
 
 		factory.setProperty(PROP_NAMESPACE_AWARE, namespaceAware);
 		factory.setProperty(PROP_VALIDATING, false);
+		factory.setProperty(PROP_IS_COALESCING, true);
 		XMLStreamReader reader;
 		try {
 			reader = factory.createXMLStreamReader(is);

@@ -10,9 +10,8 @@ class TextImpl extends CharacterDataImpl implements Text
 		super(eventReader, nodeFactory);
 	}
 
-	void initialize(String data, StringBuilder additionalDataBuilder, boolean isElementContentWhitespace) {
-		super.initialize();
-		setData(additionalDataBuilder.length() == 0 ? data : data + additionalDataBuilder.toString());
+	void initialize(String data, boolean isElementContentWhitespace) {
+		super.initialize(data);
 		this.isElementContentWhitespace = isElementContentWhitespace;
 	}
 

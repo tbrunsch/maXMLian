@@ -8,11 +8,6 @@ class CommentImpl extends CharacterDataImpl implements Comment
 		super(eventReader, nodeFactory);
 	}
 
-	void initialize(String text) {
-		super.initialize();
-		setData(text);
-	}
-
 	@Override
 	public String getNodeName() {
 		return "#comment";
