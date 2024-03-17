@@ -1,17 +1,17 @@
-package dd.kms.maxmlian.impl;
+package dd.kms.maxmlian.api;
 
 import javax.xml.stream.XMLInputFactory;
 import java.util.Optional;
 
 @FunctionalInterface
-public interface XMLInputFactoryProvider
+public interface XmlInputFactoryProvider
 {
 	Optional<XMLInputFactory> getXMLInputFactory();
 
-	XMLInputFactoryProvider	XERCES		= fromClass("com.sun.xml.internal.stream.XMLInputFactoryImpl",	"Xerces");
-	XMLInputFactoryProvider	WOODSTOX	= fromClass("com.ctc.wstx.stax.WstxInputFactory",				"Woodstox");
-	XMLInputFactoryProvider	AALTO		= fromClass("com.fasterxml.aalto.stax.InputFactoryImpl",		"Aalto");
-	XMLInputFactoryProvider	DEFAULT		= new XMLInputFactoryProvider()
+	XmlInputFactoryProvider XERCES		= fromClass("com.sun.xml.internal.stream.XMLInputFactoryImpl",	"Xerces");
+	XmlInputFactoryProvider WOODSTOX	= fromClass("com.ctc.wstx.stax.WstxInputFactory",				"Woodstox");
+	XmlInputFactoryProvider AALTO		= fromClass("com.fasterxml.aalto.stax.InputFactoryImpl",		"Aalto");
+	XmlInputFactoryProvider DEFAULT		= new XmlInputFactoryProvider()
 	{
 		@Override
 		public Optional<XMLInputFactory> getXMLInputFactory() {
@@ -24,8 +24,8 @@ public interface XMLInputFactoryProvider
 		}
 	};
 
-	static XMLInputFactoryProvider fromClass(String factoryClassName, String description) {
-		return new XMLInputFactoryProvider()
+	static XmlInputFactoryProvider fromClass(String factoryClassName, String description) {
+		return new XmlInputFactoryProvider()
 		{
 			@Override
 			public Optional<XMLInputFactory> getXMLInputFactory() {

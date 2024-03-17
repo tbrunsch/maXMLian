@@ -1,6 +1,9 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.*;
+import dd.kms.maxmlian.api.Attr;
+import dd.kms.maxmlian.api.Element;
+import dd.kms.maxmlian.api.NamedAttributeMap;
+import dd.kms.maxmlian.api.Node;
 
 class AttrImpl implements Attr
 {

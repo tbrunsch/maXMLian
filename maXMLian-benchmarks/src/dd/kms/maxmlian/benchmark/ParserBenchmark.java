@@ -1,7 +1,7 @@
 package dd.kms.maxmlian.benchmark;
 
 import dd.kms.maxmlian.benchmark.parser.*;
-import dd.kms.maxmlian.impl.XMLInputFactoryProvider;
+import dd.kms.maxmlian.api.XmlInputFactoryProvider;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -19,12 +19,12 @@ public class ParserBenchmark
 	static {
 		// Register parsers
 		PARSERS_BY_NAME.put(DUMMY_PARSER_NAME,					new MaXMLianParser(true));
-		PARSERS_BY_NAME.put("Xerces (Cursor API)",				new StAXParserCursor(XMLInputFactoryProvider.XERCES));
-		PARSERS_BY_NAME.put("Woodstox (Cursor API)",			new StAXParserCursor(XMLInputFactoryProvider.WOODSTOX));
-		PARSERS_BY_NAME.put("Aalto (Cursor API)",				new StAXParserCursor(XMLInputFactoryProvider.AALTO));
-		PARSERS_BY_NAME.put("Xerces (Iterator API)",			new StAXParserIterator(XMLInputFactoryProvider.XERCES));
-		PARSERS_BY_NAME.put("Woodstox (Iterator API)",			new StAXParserIterator(XMLInputFactoryProvider.WOODSTOX));
-		PARSERS_BY_NAME.put("Aalto (Iterator API)",				new StAXParserIterator(XMLInputFactoryProvider.AALTO));
+		PARSERS_BY_NAME.put("Xerces (Cursor API)",				new StAXParserCursor(XmlInputFactoryProvider.XERCES));
+		PARSERS_BY_NAME.put("Woodstox (Cursor API)",			new StAXParserCursor(XmlInputFactoryProvider.WOODSTOX));
+		PARSERS_BY_NAME.put("Aalto (Cursor API)",				new StAXParserCursor(XmlInputFactoryProvider.AALTO));
+		PARSERS_BY_NAME.put("Xerces (Iterator API)",			new StAXParserIterator(XmlInputFactoryProvider.XERCES));
+		PARSERS_BY_NAME.put("Woodstox (Iterator API)",			new StAXParserIterator(XmlInputFactoryProvider.WOODSTOX));
+		PARSERS_BY_NAME.put("Aalto (Iterator API)",				new StAXParserIterator(XmlInputFactoryProvider.AALTO));
 		PARSERS_BY_NAME.put("maXMLian with instance reuse",		new MaXMLianParser(true));
 		PARSERS_BY_NAME.put("maXMLian without instance reuse",	new MaXMLianParser(false));
 		PARSERS_BY_NAME.put("DOM parser",						new DomParser());

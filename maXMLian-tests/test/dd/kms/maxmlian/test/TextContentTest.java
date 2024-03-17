@@ -1,8 +1,6 @@
 package dd.kms.maxmlian.test;
 
 import dd.kms.maxmlian.api.*;
-import dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl;
-import dd.kms.maxmlian.impl.XMLInputFactoryProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,18 +21,20 @@ public class TextContentTest
 
 	static List<Object> getParameters() {
 		return Arrays.asList(
-			XMLInputFactoryProvider.XERCES,
-			XMLInputFactoryProvider.WOODSTOX,
-			XMLInputFactoryProvider.AALTO
+			XmlInputFactoryProvider.XERCES,
+			XmlInputFactoryProvider.WOODSTOX,
+			XmlInputFactoryProvider.AALTO
 		);
 	}
 
 	@ParameterizedTest(name = "StAX parser: {0}")
 	@MethodSource("getParameters")
-	public void testGetTextContent(XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, SAXException, ParserConfigurationException, XmlException {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
-		DocumentBuilder documentBuilder = factory.reuseInstances(true).newDocumentBuilder();
+	public void testGetTextContent(XmlInputFactoryProvider xmlInputFactoryProvider) throws IOException, SAXException, ParserConfigurationException, XmlException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactoryProvider);
+		DocumentBuilder documentBuilder = factory
+			.reuseInstances(true)
+			.normalize(true)
+			.newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(TEST_FILE));
 
 		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();

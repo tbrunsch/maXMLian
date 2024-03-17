@@ -17,8 +17,22 @@ package dd.kms.maxmlian.api;
  */
 public interface DocumentBuilderFactory
 {
-	static DocumentBuilderFactory newInstance() {
-		return new dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl();
+	/**
+	 * Creates an instance of {@link DocumentBuilderFactory}. It will use the StAX parser
+	 * of the first {@link javax.xml.stream.XMLInputFactory} provided by the specified
+	 * {@code xmlInputFactoryProviders}. If no such providers are specified, then an
+	 * internal prioritized list of {@link XmlInputFactoryProvider}s is used.
+	 *
+	 * @throws IllegalStateException	if no {@code XMLInputFactory} can be created
+	 */
+	static DocumentBuilderFactory newInstance(XmlInputFactoryProvider... xmlInputFactoryProviders) throws IllegalStateException {
+		return xmlInputFactoryProviders.length > 0
+				? new dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl(xmlInputFactoryProviders)
+				: new dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl(
+					XmlInputFactoryProvider.WOODSTOX,
+					XmlInputFactoryProvider.XERCES,
+					XmlInputFactoryProvider.DEFAULT
+				);
 	}
 
 	/**
@@ -27,8 +41,19 @@ public interface DocumentBuilderFactory
 	 */
 	DocumentBuilderFactory reuseInstances(boolean reuseInstances);
 
-	DocumentBuilderFactory namespaceAware(boolean namespaceAware);
+	/**
+	 * Specify whether namespaces should be considered (default) or not. If this option
+	 * is disabled, then namespaces are considered part of the local names.
+	 *
+	 * @throws IllegalStateException	if the underlying StAX parser does not support it
+	 */
+	DocumentBuilderFactory namespaceAware(boolean namespaceAware) throws IllegalStateException;
 
+	/**
+	 * Specify whether adjacent text nodes should be joined or not (default). While
+	 * normalization is convenient, it can potentially create large text nodes,
+	 * undermining the streaming approach of maXMLian.
+	 */
 	DocumentBuilderFactory normalize(boolean normalize);
 
 	DocumentBuilder newDocumentBuilder();

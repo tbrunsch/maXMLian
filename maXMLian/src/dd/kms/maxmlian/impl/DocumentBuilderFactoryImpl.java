@@ -2,22 +2,19 @@ package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.DocumentBuilder;
 import dd.kms.maxmlian.api.DocumentBuilderFactory;
+import dd.kms.maxmlian.api.XmlInputFactoryProvider;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import javax.xml.stream.XMLInputFactory;
 
 public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 {
+	private final XMLInputFactory	factory;
 	private boolean	reuseInstances	= false;
-	private boolean namespaceAware	= false;
-	private boolean normalize		= true;
 
-	private List<XMLInputFactoryProvider> xmlInputFactoryProviders	= Arrays.asList(
-		XMLInputFactoryProvider.WOODSTOX,
-		XMLInputFactoryProvider.XERCES,
-		XMLInputFactoryProvider.DEFAULT
-	);
+	public DocumentBuilderFactoryImpl(XmlInputFactoryProvider... xmlInputFactoryProviders) throws IllegalStateException {
+		this.factory = getFirstXmlInputFactory(xmlInputFactoryProviders);
+		factory.setProperty(XMLInputFactory.IS_VALIDATING, false);
+	}
 
 	@Override
 	public DocumentBuilderFactory reuseInstances(boolean reuseInstances) {
@@ -26,32 +23,38 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 	}
 
 	@Override
-	public DocumentBuilderFactory namespaceAware(boolean namespaceAware) {
-		this.namespaceAware = namespaceAware;
-		return this;
-	}
-
-	@Override
-	public DocumentBuilderFactory normalize(boolean normalize) {
-		this.normalize = normalize;
-		return this;
-	}
-
-	/**
-	 * This method is not part of the API since the internal StAX parser is not meant
-	 * to be configurable by the user. However, this method is internally used for
-	 * testing maXMLian with different StAX parsers.
-	 */
-	public DocumentBuilderFactory setXMLInputFactoryProviders(XMLInputFactoryProvider... xmlInputFactoryProviders) {
-		this.xmlInputFactoryProviders = new ArrayList<>();
-		for (XMLInputFactoryProvider xmlInputFactoryProvider : xmlInputFactoryProviders) {
-			this.xmlInputFactoryProviders.add(xmlInputFactoryProvider);
+	public DocumentBuilderFactory namespaceAware(boolean namespaceAware) throws IllegalStateException {
+		try {
+			factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, namespaceAware);
+		} catch (IllegalStateException e) {
+			String action = namespaceAware ? "enable" : "disable";
+			throw new IllegalStateException("Cannot " + action + " namespace awareness because the internal StAX parser does not support it.");
 		}
 		return this;
 	}
 
 	@Override
+	public DocumentBuilderFactory normalize(boolean normalize) {
+		factory.setProperty(XMLInputFactory.IS_COALESCING, normalize);
+		return this;
+	}
+
+	@Override
 	public DocumentBuilder newDocumentBuilder() {
-		return new DocumentBuilderImpl(reuseInstances, namespaceAware, normalize, xmlInputFactoryProviders);
+		return new DocumentBuilderImpl(factory, reuseInstances);
+	}
+
+	private static XMLInputFactory getFirstXmlInputFactory(XmlInputFactoryProvider... xmlInputFactoryProviders) throws IllegalStateException {
+		XMLInputFactory factory = null;
+		for (XmlInputFactoryProvider xmlInputFactoryProvider : xmlInputFactoryProviders) {
+			factory = xmlInputFactoryProvider.getXMLInputFactory().orElse(null);
+			if (factory != null) {
+				break;
+			}
+		}
+		if (factory == null) {
+			throw new IllegalStateException("Cannot instantiate an XMLInputFactory");
+		}
+		return factory;
 	}
 }
