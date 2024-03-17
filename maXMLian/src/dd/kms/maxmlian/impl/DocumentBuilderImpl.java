@@ -10,10 +10,6 @@ import java.util.List;
 
 class DocumentBuilderImpl implements DocumentBuilder
 {
-	private static final String	PROP_NAMESPACE_AWARE	= "javax.xml.stream.isNamespaceAware";
-	private static final String	PROP_VALIDATING			= "javax.xml.stream.isValidating";
-	private static final String	PROP_IS_COALESCING		= "javax.xml.stream.isCoalescing";
-
 	private final boolean	reuseInstances;
 	private final boolean	namespaceAware;
 	private final boolean	normalize;
@@ -40,9 +36,9 @@ class DocumentBuilderImpl implements DocumentBuilder
 			throw new IllegalStateException("Cannot instantiate an XMLInputFactory");
 		}
 
-		factory.setProperty(PROP_NAMESPACE_AWARE, namespaceAware);
-		factory.setProperty(PROP_VALIDATING, false);
-		factory.setProperty(PROP_IS_COALESCING, normalize);
+		factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, namespaceAware);
+		factory.setProperty(XMLInputFactory.IS_VALIDATING, false);
+		factory.setProperty(XMLInputFactory.IS_COALESCING, normalize);
 		XMLStreamReader reader;
 		try {
 			reader = factory.createXMLStreamReader(is);
