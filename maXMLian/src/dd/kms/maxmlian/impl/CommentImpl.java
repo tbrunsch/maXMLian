@@ -12,14 +12,4 @@ class CommentImpl extends CharacterDataImpl implements Comment
 	public String getNodeName() {
 		return "#comment";
 	}
-
-	@Override
-	public String getTextContent() {
-		return getNodeValue();
-	}
-
-	@Override
-	void appendTextContentTo(StringBuilder builder) {
-		builder.append(getNodeValue());
-	}
 }

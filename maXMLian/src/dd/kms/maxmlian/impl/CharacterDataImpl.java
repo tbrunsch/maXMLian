@@ -24,4 +24,15 @@ abstract class CharacterDataImpl extends NodeImpl implements CharacterData
 	public String getNodeValue() {
 		return data;
 	}
+
+	@Override
+	public String getTextContent() {
+		return data;
+	}
+
+	@Override
+	void appendTextContentTo(StringBuilder builder) {
+		builder.append(data);
+	}
+
 }

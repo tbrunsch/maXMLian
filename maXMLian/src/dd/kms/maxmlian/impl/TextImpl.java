@@ -24,14 +24,4 @@ class TextImpl extends CharacterDataImpl implements Text
 	public boolean isElementContentWhitespace() {
 		return isElementContentWhitespace;
 	}
-
-	@Override
-	public String getTextContent() {
-		return getNodeValue();
-	}
-
-	@Override
-	void appendTextContentTo(StringBuilder builder) {
-		builder.append(getNodeValue());
-	}
 }
