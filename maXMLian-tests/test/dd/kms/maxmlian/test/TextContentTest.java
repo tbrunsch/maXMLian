@@ -13,39 +13,47 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TextContentTest
 {
 	private static final Path	TEST_FILE										= TestUtils.getResourceDirectory().resolve("mixed_content.xml");
-	private static final String	NAME_OF_ELEMENTS_FOR_TEXT_CONTENT_COMPARISON	= "text";
 
-	static List<Object> getParameters() {
-		return Arrays.asList(
+	static List<Object> getParameters() throws IOException {
+		List<Path> paths = Arrays.asList(TEST_FILE, TestUtils.getLargeTextNodeXmlFile());
+		List<Boolean> normalizeValues = Arrays.asList(false, true);
+		List<Boolean> useTextContentStreamValues = Arrays.asList(false, true);
+		List<Integer> subtreeHeightValues = Arrays.asList(0, 1, 2);
+		List<XmlInputFactoryProvider> inputFactoryProviders = Arrays.asList(
 			XmlInputFactoryProvider.XERCES,
 			XmlInputFactoryProvider.WOODSTOX,
 			XmlInputFactoryProvider.AALTO
 		);
+		return TestUtils.cartesianProduct(Arrays.asList(paths, normalizeValues, useTextContentStreamValues, subtreeHeightValues, inputFactoryProviders))
+			.stream()
+			.map(List::toArray)
+			.collect(Collectors.toList());
 	}
 
-	@ParameterizedTest(name = "StAX parser: {0}")
+	@ParameterizedTest(name = "{0}, normalize: {1}, streamed text content: {2}, subtree height: {3}, StAX parser: {4}")
 	@MethodSource("getParameters")
-	public void testGetTextContent(XmlInputFactoryProvider xmlInputFactoryProvider) throws IOException, SAXException, ParserConfigurationException, XmlException {
+	public void testGetTextContent(Path xmlFile, boolean normalize, boolean useTextContentStream, int subtreeHeightToEvaluate, XmlInputFactoryProvider xmlInputFactoryProvider) throws IOException, SAXException, ParserConfigurationException, XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactoryProvider);
 		DocumentBuilder documentBuilder = factory
 			.reuseInstances(true)
-			.normalize(true)
+			.normalize(normalize)
 			.newDocumentBuilder();
-		Document document = documentBuilder.parse(Files.newInputStream(TEST_FILE));
+		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
 		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
 		domFactory.setNamespaceAware(true);
 		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
-		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(TEST_FILE));
+		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
 
-		compareNodes(document, domDocument);
+		compareNodes(document, domDocument, useTextContentStream, subtreeHeightToEvaluate);
 	}
 
-	private void compareNodes(Node node, org.w3c.dom.Node domNode) throws XmlException {
+	private void compareNodes(Node node, org.w3c.dom.Node domNode, boolean useTextContentStream, int subtreeHeightToEvaluate) throws XmlException {
 		String name = domNode.getNodeName();
 		Assertions.assertEquals(name, node.getNodeName(), "Wrong node name");
 
@@ -54,29 +62,21 @@ public class TextContentTest
 		NodeType nodeType = node.getNodeType();
 		Assertions.assertEquals(expectedNodeType, nodeType, "Wrong type of node '" + name + "'");
 
-		switch (nodeType) {
-			case ELEMENT:
-				compareElements((Element) node, (org.w3c.dom.Element) domNode);
-				// element comparison individually controls whether to compare children or not
-				return;
-			case TEXT:
-				compareTexts((Text) node, (org.w3c.dom.Text) domNode);
-				break;
-			case COMMENT:
-				compareComments((Comment) node, (org.w3c.dom.Comment) domNode);
-				break;
-			default:
-				break;
+		if (nodeType == NodeType.ELEMENT) {
+			compareElements((Element) node, (org.w3c.dom.Element) domNode, useTextContentStream, subtreeHeightToEvaluate);
+		} else {
+			compareChildren(node, domNode, useTextContentStream, subtreeHeightToEvaluate);
 		}
-		compareChildren(node, domNode);
 	}
 
-	private void compareElements(Element element, org.w3c.dom.Element domElement) throws XmlException {
+	private void compareElements(Element element, org.w3c.dom.Element domElement, boolean useTextContentStream, int subtreeHeightToEvaluate) throws XmlException {
 		String name = element.getNodeName();
 		Assertions.assertEquals(element.getTagName(), domElement.getTagName(), "Wrong tag name of element '" + name + "'");
 
-		if (NAME_OF_ELEMENTS_FOR_TEXT_CONTENT_COMPARISON.equals(name)) {
-			String textContent = element.getTextContent();
+		int subtreeHeight = getTreeHeight(domElement);
+
+		if (subtreeHeight == subtreeHeightToEvaluate) {
+			String textContent = getTextContent(element, useTextContentStream);
 			String expectedTextContent = domElement.getTextContent();
 			Assertions.assertEquals(expectedTextContent, textContent, "Wrong text content of element '" + name + "'");
 		} else {
@@ -84,30 +84,63 @@ public class TextContentTest
 			 * Only compare children if the element's text content has not been evaluated because
 			 * the children have already been parsed otherwise.
 			 */
-			compareChildren(element, domElement);
+			compareChildren(element, domElement, useTextContentStream, subtreeHeightToEvaluate);
 		}
 	}
 
-	private void compareTexts(Text text, org.w3c.dom.Text domText) {
-		String name = domText.getNodeName();
-		Assertions.assertEquals(domText.getData(), text.getData(), "Wrong data of text node '" + name + "'");
-		Assertions.assertEquals(domText.isElementContentWhitespace(), text.isElementContentWhitespace(), "Wrong value of isElementContextWhiteSpace() of text node '" + name + "'");
-	}
-
-	private void compareComments(Comment comment, org.w3c.dom.Comment domComment) {
-		String name = domComment.getNodeName();
-		Assertions.assertEquals(domComment.getData(), comment.getData(), "Wrong data of comment '" + name + "'");
-	}
-
-	private void compareChildren(Node node, org.w3c.dom.Node domNode) throws XmlException {
+	private void compareChildren(Node node, org.w3c.dom.Node domNode, boolean useTextContentStream, int subtreeHeightToEvaluate) throws XmlException {
 		NodeList domChildren = domNode.getChildNodes();
 		int numDomChildren = domChildren.getLength();
 		int childIndex = 0;
 		for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
-			Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + domNode.getNodeName() + "'");
-			org.w3c.dom.Node domChild = domChildren.item(childIndex);
-			compareNodes(child, domChild);
+			switch (child.getNodeType()) {
+				case TEXT:
+				case CDATA_SECTION:
+				case COMMENT:
+					/*
+					 * Don't compare text nodes because without normalization it is not
+					 * specified how many adjacent text nodes we will get.
+					 */
+					continue;
+				default:
+					break;
+			}
+			org.w3c.dom.Node domChild;
+			do {
+				Assertions.assertTrue(childIndex < numDomChildren, "Wrong number of children of node '" + domNode.getNodeName() + "'");
+				domChild = domChildren.item(childIndex);
+				childIndex++;
+			} while (domChild instanceof org.w3c.dom.CharacterData);
+			compareNodes(child, domChild, useTextContentStream, subtreeHeightToEvaluate);
 			childIndex++;
 		}
+	}
+
+	private String getTextContent(Node node, boolean useStream) throws XmlException {
+		if (!useStream) {
+			return node.getTextContent();
+		}
+		StringStream textContentStream = node.getTextContentStream();
+		StringBuilder builder = new StringBuilder();
+		String nextTextContentPart;
+		while ((nextTextContentPart = textContentStream.next()) != null) {
+			System.out.println(nextTextContentPart.length());
+			builder.append(nextTextContentPart);
+		}
+		return builder.toString();
+	}
+
+	private int getTreeHeight(org.w3c.dom.Element root) {
+		NodeList children = root.getChildNodes();
+		int numChildren = children.getLength();
+		int height = 0;
+		for (int i = 0; i < numChildren; i++) {
+			org.w3c.dom.Node child = children.item(i);
+			if (child.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+				int subtreeHeight = getTreeHeight((org.w3c.dom.Element) child);
+				height = Math.max(height, 1 + subtreeHeight);
+			}
+		}
+		return height;
 	}
 }

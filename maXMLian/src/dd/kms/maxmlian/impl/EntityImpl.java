@@ -1,9 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Element;
-import dd.kms.maxmlian.api.Entity;
-import dd.kms.maxmlian.api.NamedAttributeMap;
-import dd.kms.maxmlian.api.Node;
+import dd.kms.maxmlian.api.*;
 
 import javax.xml.stream.events.EntityDeclaration;
 
@@ -90,5 +87,10 @@ class EntityImpl implements Entity
 	@Override
 	public String getTextContent() {
 		return null;
+	}
+
+	@Override
+	public StringStream getTextContentStream() {
+		return EmptyStringStream.STRING_STREAM;
 	}
 }

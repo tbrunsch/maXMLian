@@ -1,9 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Element;
-import dd.kms.maxmlian.api.NamedAttributeMap;
-import dd.kms.maxmlian.api.Node;
-import dd.kms.maxmlian.api.Notation;
+import dd.kms.maxmlian.api.*;
 
 import javax.xml.stream.events.NotationDeclaration;
 
@@ -75,6 +72,11 @@ class NotationImpl implements Notation
 	@Override
 	public String getTextContent() {
 		return null;
+	}
+
+	@Override
+	public StringStream getTextContentStream() {
+		return EmptyStringStream.STRING_STREAM;
 	}
 
 	@Override

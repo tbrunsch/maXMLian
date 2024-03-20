@@ -19,7 +19,13 @@ public interface Node
 
 	/**
 	 * @return the concatenation of the texts of all text nodes in the tree rooted
-	 * at this node, including this node. The tree is traversed in preorder.
+	 * at this node, including this node.
 	 */
 	String getTextContent() throws XmlException;
+
+	/**
+	 * @return a stream of the texts of all text nodes in the tree rooted
+	 * at this node, including this node.
+	 */
+	StringStream getTextContentStream();
 }

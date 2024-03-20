@@ -1,9 +1,6 @@
 package dd.kms.maxmlian.impl;
 
-import dd.kms.maxmlian.api.Attr;
-import dd.kms.maxmlian.api.Element;
-import dd.kms.maxmlian.api.NamedAttributeMap;
-import dd.kms.maxmlian.api.Node;
+import dd.kms.maxmlian.api.*;
 
 class AttrImpl implements Attr
 {
@@ -120,5 +117,10 @@ class AttrImpl implements Attr
 	@Override
 	public String getTextContent() {
 		return null;
+	}
+
+	@Override
+	public StringStream getTextContentStream() {
+		return EmptyStringStream.STRING_STREAM;
 	}
 }

@@ -13,15 +13,17 @@ import static javax.xml.stream.XMLStreamConstants.*;
 
 class NodeFactory
 {
-	private static final Pattern 	DOCTYPE_PATTERN			= Pattern.compile("^\\s*<!DOCTYPE\\s+.*", Pattern.DOTALL);
+	private static final Pattern 	DOCTYPE_PATTERN						= Pattern.compile("^\\s*<!DOCTYPE\\s+.*", Pattern.DOTALL);
 
-	private static final String		PROPERTY_ENTITIES		= "javax.xml.stream.entities";
-	private static final String		PROPERTY_NOTATIONS		= "javax.xml.stream.notations";
+	private static final String		PROPERTY_ENTITIES					= "javax.xml.stream.entities";
+	private static final String		PROPERTY_NOTATIONS					= "javax.xml.stream.notations";
+	private static final String		PARSE_NEXT_TEXT_CONTENT_PART_ERROR	= "Cannot parse next part of text content when the XML reader has already parsed beyond the position of that part";
 
 	private final ExtendedXmlStreamReader	streamReader;
 	private final XMLStreamReader			reader;
 	private final ObjectFactory				objectFactory;
 	private final boolean					namespaceAware;
+	private final StringBuilder				stringBuilder	= new StringBuilder();
 
 	NodeFactory(ExtendedXmlStreamReader streamReader, boolean reuseInstances, boolean namespaceAware) {
 		this.streamReader = streamReader;
@@ -59,6 +61,44 @@ class NodeFactory
 		while (readUntilNextSibling(depth)) {
 			if (reader.getEventType() == START_ELEMENT) {
 				return createElement();
+			}
+		}
+		return null;
+	}
+
+	String getTextContent(NodeImpl node) throws XMLStreamException {
+		long expectedPosition = node.getInitialPosition();
+		stringBuilder.setLength(0);
+		String textContentPart;
+		while ((textContentPart = getNextTextContentPart(node, expectedPosition)) != null) {
+			stringBuilder.append(textContentPart);
+			expectedPosition = streamReader.position();
+		}
+		return stringBuilder.toString();
+	}
+
+	String getNextTextContentPart(NodeImpl node, long expectedPosition) throws XMLStreamException {
+		if (!streamReader.position(expectedPosition)) {
+			throw node.createStateException(PARSE_NEXT_TEXT_CONTENT_PART_ERROR);
+		}
+		int nodeDepth = node.getInitialDepth();
+		while (streamReader.hasNext()) {
+			streamReader.next();
+			int currentDepth = streamReader.getDepth();
+			if (currentDepth <= nodeDepth) {
+				// reached end of node
+				return null;
+			}
+			int eventType = reader.getEventType();
+			switch (eventType) {
+				case CHARACTERS:
+				case SPACE:
+				case CDATA:
+				case COMMENT:
+					return reader.getText();
+				default:
+					// other events can be ignored for determining the text content
+					break;
 			}
 		}
 		return null;

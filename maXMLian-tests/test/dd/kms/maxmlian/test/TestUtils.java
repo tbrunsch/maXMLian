@@ -11,6 +11,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,7 +36,7 @@ class TestUtils
 		return LARGE_XML_FILE;
 	}
 
-	private static Path getLargeTextNodeXmlFile() throws IOException {
+	static Path getLargeTextNodeXmlFile() throws IOException {
 		if (!Files.exists(LARGE_TEXT_NODE_XML_FILE)) {
 			LargeTextNodeXmlFileGenerator generator = new LargeTextNodeXmlFileGenerator(LARGE_FILE_SIZE);
 			generator.generate(LARGE_TEXT_NODE_XML_FILE);
@@ -88,5 +89,23 @@ class TestUtils
 			default:
 				throw new UnsupportedOperationException("DOM node type " + domNodeType + " is currently not supported");
 		}
+	}
+
+	static List<List<Object>> cartesianProduct(List<List<?>> lists) {
+		List<List<Object>> result = new ArrayList<>();
+		if (lists.isEmpty()) {
+			result.add(new ArrayList<>());
+			return result;
+		}
+		List<List<Object>> partialResult = cartesianProduct(lists.subList(1, lists.size()));
+		for (Object element : lists.get(0)) {
+			for (List<Object> partialTuple : partialResult) {
+				List<Object> tuple = new ArrayList<>(1 + partialTuple.size());
+				tuple.add(element);
+				tuple.addAll(partialTuple);
+				result.add(tuple);
+			}
+		}
+		return result;
 	}
 }

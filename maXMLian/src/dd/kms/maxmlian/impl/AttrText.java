@@ -84,4 +84,9 @@ class AttrText implements Text
 	public String getTextContent() {
 		return data;
 	}
+
+	@Override
+	public StringStream getTextContentStream() {
+		return new SingleStringStream(data);
+	}
 }

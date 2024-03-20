@@ -35,7 +35,7 @@ abstract class AbstractFileParsingTest
 			XmlInputFactoryProvider.XERCES,
 			XmlInputFactoryProvider.WOODSTOX
 		);
-		return cartesianProduct(Arrays.asList(paths, namespaceAwarenessValues, considerOnlyChildElementsValues, inputFactoryProviders))
+		return TestUtils.cartesianProduct(Arrays.asList(paths, namespaceAwarenessValues, considerOnlyChildElementsValues, inputFactoryProviders))
 			.stream()
 			.map(List::toArray)
 			.collect(Collectors.toList());
@@ -57,24 +57,6 @@ abstract class AbstractFileParsingTest
 
 	private static boolean isXmlFile(Path file) {
 		return file.getFileName().toString().toLowerCase().endsWith(".xml");
-	}
-
-	private static List<List<Object>> cartesianProduct(List<List<?>> lists) {
-		List<List<Object>> result = new ArrayList<>();
-		if (lists.isEmpty()) {
-			result.add(new ArrayList<>());
-			return result;
-		}
-		List<List<Object>> partialResult = cartesianProduct(lists.subList(1, lists.size()));
-		for (Object element : lists.get(0)) {
-			for (List<Object> partialTuple : partialResult) {
-				List<Object> tuple = new ArrayList<>(1 + partialTuple.size());
-				tuple.add(element);
-				tuple.addAll(partialTuple);
-				result.add(tuple);
-			}
-		}
-		return result;
 	}
 
 	@ParameterizedTest(name = "{0}, namespace aware: {1}, consider only child elements: {2}, StAX parser: {3}")
