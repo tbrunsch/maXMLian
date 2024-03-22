@@ -1,5 +1,7 @@
 package dd.kms.maxmlian.test;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import dd.kms.maxmlian.LargeTextNodeXmlFileGenerator;
 import dd.kms.maxmlian.LargeXmlFileGenerator;
 import dd.kms.maxmlian.api.NodeType;
@@ -8,19 +10,17 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 class TestUtils
 {
-	private static final Path	LARGE_XML_FILE				= Paths.get(System.getProperty("user.home")).resolve("LargeXmlFile.xml");
-	private static final Path	LARGE_TEXT_NODE_XML_FILE	= Paths.get(System.getProperty("user.home")).resolve("LargeTextNodeXmlFile.xml");
-	private static final long	LARGE_FILE_SIZE				= 20 * (1 << 20);	// 20 MB
+	private static final FileSystem	TEST_FILE_SYSTEM			= Jimfs.newFileSystem(Configuration.unix());
+	private static final Path		LARGE_XML_FILE				= TEST_FILE_SYSTEM.getPath("/LargeXmlFile.xml");
+	private static final Path		LARGE_TEXT_NODE_XML_FILE	= TEST_FILE_SYSTEM.getPath("/LargeTextNodeXmlFile.xml");
+	private static final long		LARGE_FILE_SIZE				= 20 * (1 << 20);	// 20 MB
 
 	static List<Path> getTestFiles() throws IOException {
 		Path resourceDirectory = getResourceDirectory();

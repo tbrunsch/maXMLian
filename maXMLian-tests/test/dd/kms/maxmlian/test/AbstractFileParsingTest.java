@@ -2,7 +2,6 @@ package dd.kms.maxmlian.test;
 
 import dd.kms.maxmlian.api.*;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.w3c.dom.NodeList;
@@ -18,7 +17,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@ExtendWith({TemporaryXmlTestFileDeletionExtension.class})
 abstract class AbstractFileParsingTest
 {
 	abstract void prepareTest(org.w3c.dom.Document domDocument, boolean considerOnlyChildElements);

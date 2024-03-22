@@ -221,7 +221,8 @@ Theoretically it is possible for maXMLian to support random access when the XML 
 
 # Open Source License Acknowledgement
 
-maXMLian itself does not depend on any third-party library, but the benchmark and unit test modules depend on the following libraries:
+maXMLian itself does not depend on any third-party library, but the benchmark and/or unit test modules depend on the following libraries:
 
 * [Aalto XML](https://github.com/FasterXML/aalto-xml) ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0))
 * [Woodstox](https://github.com/FasterXML/woodstox) ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0))
+* [Jimfs](https://github.com/google/jimfs) ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0))
