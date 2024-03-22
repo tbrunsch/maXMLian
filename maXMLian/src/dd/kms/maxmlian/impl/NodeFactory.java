@@ -171,7 +171,7 @@ class NodeFactory
 		}
 	}
 
-	private AbstractDocumentTypeImpl createDocumentType() {
+	private AbstractDocumentTypeImpl createDocumentType() throws XMLStreamException {
 		String text = reader.getText();
 		List<EntityDeclaration> entityDeclarations = (List<EntityDeclaration>) reader.getProperty(PROPERTY_ENTITIES);
 		List<NotationDeclaration> notationDeclarations = (List<NotationDeclaration>) reader.getProperty(PROPERTY_NOTATIONS);
@@ -210,14 +210,14 @@ class NodeFactory
 		return element;
 	}
 
-	private TextImpl createText(int eventType) throws XMLStreamException {
+	private TextImpl createText(int eventType) {
 		int depth = streamReader.getDepth();
 		TextImpl text = objectFactory.createText(depth);
 		text.initialize(reader.getText(), eventType == SPACE);
 		return text;
 	}
 
-	private TextImpl createCData() throws XMLStreamException {
+	private TextImpl createCData() {
 		int depth = streamReader.getDepth();
 		TextImpl text = objectFactory.createCDataSection(depth);
 		text.initialize(reader.getText(), false);
@@ -258,12 +258,12 @@ class NodeFactory
 		return attr;
 	}
 
-	private String getStringFromReader(String methodName, String errorMessage) {
+	private String getStringFromReader(String methodName, String errorMessage) throws XMLStreamException {
 		try {
 			Method method = reader.getClass().getMethod(methodName);
 			return (String) method.invoke(reader);
 		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-			return null;
+			throw new XMLStreamException(errorMessage);
 		}
 	}
 }
