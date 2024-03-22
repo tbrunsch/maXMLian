@@ -112,7 +112,6 @@ public class TextContentTest
 				childIndex++;
 			} while (domChild instanceof org.w3c.dom.CharacterData);
 			compareNodes(child, domChild, useTextContentStream, subtreeHeightToEvaluate);
-			childIndex++;
 		}
 	}
 
