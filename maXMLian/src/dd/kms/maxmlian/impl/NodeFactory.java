@@ -92,9 +92,7 @@ class NodeFactory
 			int eventType = reader.getEventType();
 			switch (eventType) {
 				case CHARACTERS:
-				case SPACE:
 				case CDATA:
-				case COMMENT:
 					return reader.getText();
 				default:
 					// other events can be ignored for determining the text content
