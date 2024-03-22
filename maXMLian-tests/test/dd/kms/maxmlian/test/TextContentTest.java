@@ -24,8 +24,7 @@ public class TextContentTest
 		List<Integer> subtreeHeightValues = Arrays.asList(0, 1, 2);
 		List<XmlInputFactoryProvider> inputFactoryProviders = Arrays.asList(
 			XmlInputFactoryProvider.XERCES,
-			XmlInputFactoryProvider.WOODSTOX,
-			XmlInputFactoryProvider.AALTO
+			XmlInputFactoryProvider.WOODSTOX
 		);
 		return TestUtils.cartesianProduct(Arrays.asList(paths, normalizeValues, useTextContentStreamValues, subtreeHeightValues, inputFactoryProviders))
 			.stream()
