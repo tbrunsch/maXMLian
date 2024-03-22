@@ -17,15 +17,11 @@ public interface Node
 	String getPrefix();
 	String getLocalName();
 
-	/**
-	 * @return the concatenation of the texts of all text nodes in the tree rooted
-	 * at this node, including this node.
-	 */
 	String getTextContent() throws XmlException;
 
 	/**
-	 * @return a stream of the texts of all text nodes in the tree rooted
-	 * at this node, including this node.
+	 * This method essentially returns the same as {@link #getTextContent()}, but
+	 * as a {@link StringStream}, i.e., one can query the text content junk wise.
 	 */
 	StringStream getTextContentStream();
 }
