@@ -18,6 +18,7 @@ This sample file contains elements with mixed content and is particularly used t
 		<element>
 			B3
 			<text/>
+			<!-- This is a comment -->
 		</element>
 		<text>
 			<text>

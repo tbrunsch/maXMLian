@@ -17,10 +17,8 @@ import java.util.stream.Collectors;
 
 public class TextContentTest
 {
-	private static final Path	TEST_FILE										= TestUtils.getResourceDirectory().resolve("mixed_content.xml");
-
 	static List<Object> getParameters() throws IOException {
-		List<Path> paths = Arrays.asList(TEST_FILE, TestUtils.getLargeTextNodeXmlFile());
+		List<Path> paths = TestUtils.getTestFiles();
 		List<Boolean> normalizeValues = Arrays.asList(false, true);
 		List<Boolean> useTextContentStreamValues = Arrays.asList(false, true);
 		List<Integer> subtreeHeightValues = Arrays.asList(0, 1, 2);

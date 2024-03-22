@@ -1,7 +1,6 @@
 package dd.kms.maxmlian.test;
 
 import dd.kms.maxmlian.api.*;
-import dd.kms.maxmlian.api.XmlInputFactoryProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,10 +10,8 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +25,7 @@ abstract class AbstractFileParsingTest
 	abstract int getNumberOfChildrenToParse(int depth);
 
 	static List<Object[]> getParameters() throws IOException {
-		List<Path> paths = collectXmlFiles();
+		List<Path> paths = TestUtils.getTestFiles();
 		List<Boolean> namespaceAwarenessValues = Arrays.asList(false, true);
 		List<Boolean> considerOnlyChildElementsValues = Arrays.asList(false, true);
 		List<XmlInputFactoryProvider> inputFactoryProviders = Arrays.asList(
@@ -39,24 +36,6 @@ abstract class AbstractFileParsingTest
 			.stream()
 			.map(List::toArray)
 			.collect(Collectors.toList());
-	}
-
-	private static List<Path> collectXmlFiles() throws IOException {
-		Path resourceDirectory = TestUtils.getResourceDirectory();
-		List<Path> xmlFiles = new ArrayList<>();
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourceDirectory)) {
-			for (Path resourcePath : stream) {
-				if (Files.isRegularFile(resourcePath) && isXmlFile(resourcePath)) {
-					xmlFiles.add(resourcePath);
-				}
-			}
-		}
-		xmlFiles.addAll(TestUtils.getTemporaryXmlFiles());
-		return xmlFiles;
-	}
-
-	private static boolean isXmlFile(Path file) {
-		return file.getFileName().toString().toLowerCase().endsWith(".xml");
 	}
 
 	@ParameterizedTest(name = "{0}, namespace aware: {1}, consider only child elements: {2}, StAX parser: {3}")

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +22,25 @@ class TestUtils
 	private static final Path	LARGE_TEXT_NODE_XML_FILE	= Paths.get(System.getProperty("user.home")).resolve("LargeTextNodeXmlFile.xml");
 	private static final long	LARGE_FILE_SIZE				= 20 * (1 << 20);	// 20 MB
 
-	static List<Path> getTemporaryXmlFiles() throws IOException {
+	static List<Path> getTestFiles() throws IOException {
+		Path resourceDirectory = getResourceDirectory();
+		List<Path> xmlFiles = new ArrayList<>();
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourceDirectory)) {
+			for (Path resourcePath : stream) {
+				if (Files.isRegularFile(resourcePath) && isXmlFile(resourcePath)) {
+					xmlFiles.add(resourcePath);
+				}
+			}
+		}
+		xmlFiles.addAll(getTemporaryXmlFiles());
+		return xmlFiles;
+	}
+
+	private static boolean isXmlFile(Path file) {
+		return file.getFileName().toString().toLowerCase().endsWith(".xml");
+	}
+
+	private static List<Path> getTemporaryXmlFiles() throws IOException {
 		return Arrays.asList(
 			getLargeXmlFile(),
 			getLargeTextNodeXmlFile()
@@ -36,7 +55,7 @@ class TestUtils
 		return LARGE_XML_FILE;
 	}
 
-	static Path getLargeTextNodeXmlFile() throws IOException {
+	private static Path getLargeTextNodeXmlFile() throws IOException {
 		if (!Files.exists(LARGE_TEXT_NODE_XML_FILE)) {
 			LargeTextNodeXmlFileGenerator generator = new LargeTextNodeXmlFileGenerator(LARGE_FILE_SIZE);
 			generator.generate(LARGE_TEXT_NODE_XML_FILE);
@@ -53,7 +72,7 @@ class TestUtils
 		}
 	}
 
-	static Path getResourceDirectory() {
+	private static Path getResourceDirectory() {
 		URL resourceDirectoryUrl = TestUtils.class.getResource("/");
 		URI resourceDirectoryUri = null;
 		try {
