@@ -46,6 +46,9 @@ public class TextContentTest
 		domFactory.setNamespaceAware(true);
 		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
 		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
+		if (normalize) {
+			domDocument.normalize();
+		}
 
 		compareNodes(document, domDocument, useTextContentStream, subtreeHeightToEvaluate);
 	}
@@ -121,7 +124,6 @@ public class TextContentTest
 		StringBuilder builder = new StringBuilder();
 		String nextTextContentPart;
 		while ((nextTextContentPart = textContentStream.next()) != null) {
-			System.out.println(nextTextContentPart.length());
 			builder.append(nextTextContentPart);
 		}
 		return builder.toString();
