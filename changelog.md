@@ -5,6 +5,7 @@
 API changes:
 * `DocumentBuilderFactory.newInstance()` now allows specifying a prioritized list of `XMLInputFactory`s that is considered when selecting the underlying StAX parser.
 * Added method `DocumentBuilderFactory.normalize()` to specify whether adjacent text nodes should be joined or not.
+* Added method `Node.getTextContentStream()` to obtain the text content of a node as a stream. This can be helpful if the text content is large and stream reading it is sufficient.
 * Renamed method `DocumentBuilderFactory.setNamespaceAware()` to `namespaceAware()`.
 
 Behavioral changes:
