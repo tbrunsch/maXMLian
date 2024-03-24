@@ -27,23 +27,24 @@ abstract class AbstractXmlFileGenerator
 	}
 
 	private void openElement(String elementName) throws IOException {
-		write(indent + "<" + elementName + ">");
+		write("<" + elementName + ">");
 		indent += INDENT_CHARACTERS;
 	}
 
 	private void openElement(String elementName, String attributeDefinitions) throws IOException {
-		write(indent + "<" + elementName + " " + attributeDefinitions + ">");
+		write("<" + elementName + " " + attributeDefinitions + ">");
 		indent += INDENT_CHARACTERS;
 	}
 
 	private void closeElement(String elementName) throws IOException {
 		indent = indent.substring(0, indent.length() - INDENT_CHARACTERS.length());
-		write(indent + "</" + elementName + ">");
+		write("</" + elementName + ">");
 	}
 
 	void write(String s) throws IOException {
-		numWrittenBytes += s.length();
-		writer.write(s + System.lineSeparator());
+		String line = indent + s;
+		numWrittenBytes += line.length();
+		writer.write(line + System.lineSeparator());
 	}
 
 	static class Attributes

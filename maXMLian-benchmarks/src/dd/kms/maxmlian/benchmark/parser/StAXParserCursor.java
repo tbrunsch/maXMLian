@@ -1,6 +1,6 @@
 package dd.kms.maxmlian.benchmark.parser;
 
-import dd.kms.maxmlian.impl.XMLInputFactoryProvider;
+import dd.kms.maxmlian.api.XmlInputFactoryProvider;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -10,9 +10,9 @@ import java.nio.file.Path;
 
 public class StAXParserCursor extends AbstractParser
 {
-	private final XMLInputFactoryProvider	xmlInputFactoryProvider;
+	private final XmlInputFactoryProvider xmlInputFactoryProvider;
 
-	public StAXParserCursor(XMLInputFactoryProvider xmlInputFactoryProvider) {
+	public StAXParserCursor(XmlInputFactoryProvider xmlInputFactoryProvider) {
 		this.xmlInputFactoryProvider = xmlInputFactoryProvider;
 	}
 

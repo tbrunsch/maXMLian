@@ -19,7 +19,6 @@ abstract class NodeImpl implements Node
 	private long                          	initialNodeCounterDepth;
 
 	private Node							parent;
-	private final StringBuilder				stringBuilder				= new StringBuilder();
 
 	NodeImpl(ExtendedXmlStreamReader streamReader, NodeFactory nodeFactory) {
 		this.streamReader = streamReader;
@@ -41,7 +40,7 @@ abstract class NodeImpl implements Node
 		return streamReader.getReader();
 	}
 
-	void resetReaderPosition(String errorMessage) {
+	void resetReaderPosition(String errorMessage) throws XmlStateException {
 		if (!streamReader.position(initialPosition)) {
 			throw createStateException(errorMessage);
 		}
@@ -58,7 +57,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public NodeImpl getFirstChild() throws XmlException {
+	public NodeImpl getFirstChild() throws XmlException, XmlStateException {
 		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
 		try {
 			NodeImpl firstChild = nodeFactory.readFirstChild();
@@ -72,7 +71,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public NodeImpl getNextSibling() throws XmlException {
+	public NodeImpl getNextSibling() throws XmlException, XmlStateException {
 		if (streamReader.getDepth() < initialDepth || streamReader.getNodeCounter(initialDepth) != initialNodeCounterDepth) {
 			resetReaderPosition(PARSE_SIBLING_ERROR);
 		}
@@ -90,7 +89,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public Element getFirstChildElement() throws XmlException {
+	public Element getFirstChildElement() throws XmlException, XmlStateException {
 		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
 		try {
 			ElementImpl firstChildElement = nodeFactory.readFirstChildElement();
@@ -104,7 +103,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public Element getNextSiblingElement() throws XmlException {
+	public Element getNextSiblingElement() throws XmlException, XmlStateException {
 		if (streamReader.getDepth() < initialDepth || streamReader.getNodeCounter(initialDepth) != initialNodeCounterDepth) {
 			resetReaderPosition(PARSE_SIBLING_ERROR);
 		}
@@ -127,14 +126,17 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public String getTextContent() throws XmlException {
-		stringBuilder.setLength(0);
+	public String getTextContent() throws XmlException, XmlStateException {
 		try {
-			appendTextContentTo(stringBuilder);
-		} catch (XmlException e) {
+			return nodeFactory.getTextContent(this);
+		} catch (XMLStreamException e) {
 			throw new XmlException("Cannot read text content of node '" + getNodeName() + "': " + e, e);
 		}
-		return stringBuilder.toString();
+	}
+
+	@Override
+	public StringStream getTextContentStream() {
+		return new NodeTextContentStream();
 	}
 
 	@Override
@@ -150,6 +152,14 @@ abstract class NodeImpl implements Node
 	@Override
 	public String getLocalName() {
 		return null;
+	}
+
+	long getInitialPosition() {
+		return initialPosition;
+	}
+
+	int getInitialDepth() {
+		return initialDepth;
 	}
 
 	boolean isNamespaceAware() {
@@ -168,13 +178,27 @@ abstract class NodeImpl implements Node
 		return nodeFactory.createAttribute(namespaceUri, localName, prefix, value, type, initialDepth);
 	}
 
-	void appendTextContentTo(StringBuilder builder) throws XmlException {
-		for (Node child = getFirstChild(); child != null; child = child.getNextSibling()) {
-			((NodeImpl) child).appendTextContentTo(builder);
-		}
+	XmlStateException createStateException(String message) {
+		return new XmlStateException(getClass() + " '" + getNodeName() + "': " + message);
 	}
 
-	private XmlStateException createStateException(String message) {
-		return new XmlStateException(getClass() + " '" + getNodeName() + "': " + message);
+	private class NodeTextContentStream implements StringStream
+	{
+		private long expectedPosition;
+
+		NodeTextContentStream() {
+			this.expectedPosition = getInitialPosition();
+		}
+
+		@Override
+		public String next() throws XmlException, XmlStateException {
+			try {
+				String nextTextContentPart = nodeFactory.getNextTextContentPart(NodeImpl.this, expectedPosition);
+				expectedPosition = streamReader.position();
+				return nextTextContentPart;
+			} catch (XMLStreamException e) {
+				throw new XmlException("Cannot read next text content part of node '" + getNodeName() + "': " + e, e);
+			}
+		}
 	}
 }

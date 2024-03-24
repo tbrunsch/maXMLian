@@ -1,109 +1,70 @@
 package dd.kms.maxmlian.test;
 
 import dd.kms.maxmlian.api.*;
-import dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl;
-import dd.kms.maxmlian.impl.XMLInputFactoryProvider;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@ExtendWith({LargeXmlTestFileDeletionExtension.class})
 abstract class AbstractFileParsingTest
 {
 	abstract void prepareTest(org.w3c.dom.Document domDocument, boolean considerOnlyChildElements);
 	abstract int getNumberOfChildrenToParse(int depth);
 
 	static List<Object[]> getParameters() throws IOException {
-		List<Path> paths = collectXmlFiles();
+		List<Path> paths = TestUtils.getTestFiles();
 		List<Boolean> namespaceAwarenessValues = Arrays.asList(false, true);
 		List<Boolean> considerOnlyChildElementsValues = Arrays.asList(false, true);
-		List<XMLInputFactoryProvider> inputFactoryProviders = Arrays.asList(
-			XMLInputFactoryProvider.XERCES,
-			XMLInputFactoryProvider.WOODSTOX
+		List<XmlInputFactoryProvider> inputFactoryProviders = Arrays.asList(
+			XmlInputFactoryProvider.XERCES,
+			XmlInputFactoryProvider.WOODSTOX
 		);
-		return cartesianProduct(Arrays.asList(paths, namespaceAwarenessValues, considerOnlyChildElementsValues, inputFactoryProviders))
+		return TestUtils.cartesianProduct(Arrays.asList(paths, namespaceAwarenessValues, considerOnlyChildElementsValues, inputFactoryProviders))
 			.stream()
 			.map(List::toArray)
 			.collect(Collectors.toList());
 	}
 
-	private static List<Path> collectXmlFiles() throws IOException {
-		Path resourceDirectory = TestUtils.getResourceDirectory();
-		List<Path> xmlFiles = new ArrayList<>();
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourceDirectory)) {
-			for (Path resourcePath : stream) {
-				if (Files.isRegularFile(resourcePath) && isXmlFile(resourcePath)) {
-					xmlFiles.add(resourcePath);
-				}
-			}
-		}
-		xmlFiles.add(TestUtils.getLargeXmlFile());
-		return xmlFiles;
-	}
-
-	private static boolean isXmlFile(Path file) {
-		return file.getFileName().toString().toLowerCase().endsWith(".xml");
-	}
-
-	private static List<List<Object>> cartesianProduct(List<List<?>> lists) {
-		List<List<Object>> result = new ArrayList<>();
-		if (lists.isEmpty()) {
-			result.add(new ArrayList<>());
-			return result;
-		}
-		List<List<Object>> partialResult = cartesianProduct(lists.subList(1, lists.size()));
-		for (Object element : lists.get(0)) {
-			for (List<Object> partialTuple : partialResult) {
-				List<Object> tuple = new ArrayList<>(1 + partialTuple.size());
-				tuple.add(element);
-				tuple.addAll(partialTuple);
-				result.add(tuple);
-			}
-		}
-		return result;
-	}
-
 	@ParameterizedTest(name = "{0}, namespace aware: {1}, consider only child elements: {2}, StAX parser: {3}")
 	@MethodSource("getParameters")
-	void testParsingFile(Path xmlFile, boolean namespaceAware, boolean considerOnlyChildElements, XMLInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, SAXException, XmlException {
+	void testParsingFile(Path xmlFile, boolean namespaceAware, boolean considerOnlyChildElements, XmlInputFactoryProvider xmlInputFactoryProvider) throws IOException, ParserConfigurationException, SAXException, XmlException {
 		ParameterizedFileParsingTest parameterizedFileParsingTest = new ParameterizedFileParsingTest(xmlFile, namespaceAware, considerOnlyChildElements, xmlInputFactoryProvider);
 		parameterizedFileParsingTest.compareXmlStructure();
 	}
 
 	private class ParameterizedFileParsingTest
 	{
-		private final Path						xmlFile;
-		private final boolean					namespaceAware;
-		private final boolean					considerOnlyChildElements;
-		private final XMLInputFactoryProvider	xmlInputFactoryProvider;
+		private final Path				xmlFile;
+		private final boolean			namespaceAware;
+		private final boolean			considerOnlyChildElements;
+		private final XMLInputFactory	xmlInputFactory;
 
-		ParameterizedFileParsingTest(Path xmlFile, boolean namespaceAware, boolean considerOnlyChildElements, XMLInputFactoryProvider xmlInputFactoryProvider) {
+		ParameterizedFileParsingTest(Path xmlFile, boolean namespaceAware, boolean considerOnlyChildElements, XmlInputFactoryProvider xmlInputFactoryProvider) {
 			this.xmlFile = xmlFile;
 			this.namespaceAware = namespaceAware;
 			this.considerOnlyChildElements = considerOnlyChildElements;
-			this.xmlInputFactoryProvider = xmlInputFactoryProvider;
+			this.xmlInputFactory = xmlInputFactoryProvider.getXMLInputFactory().get();
 		}
 
 		void compareXmlStructure() throws ParserConfigurationException, IOException, XmlException, SAXException {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setNamespaceAware(namespaceAware);
-			((DocumentBuilderFactoryImpl) factory).setXMLInputFactoryProviders(xmlInputFactoryProvider);
-			DocumentBuilder documentBuilder = factory.reuseInstances(true).newDocumentBuilder();
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactory);
+			DocumentBuilder documentBuilder = factory
+				.reuseInstances(true)
+				.namespaceAware(namespaceAware)
+				.normalize(true)
+				.newDocumentBuilder();
 			Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
 			javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();

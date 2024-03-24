@@ -88,4 +88,9 @@ class EntityImpl implements Entity
 	public String getTextContent() {
 		return null;
 	}
+
+	@Override
+	public StringStream getTextContentStream() {
+		return EmptyStringStream.STRING_STREAM;
+	}
 }

@@ -34,7 +34,11 @@ maXMLian can be considered a high-level stream-based pull parser: In contrast to
 
 # API
 
-The maXMLian API resembles the DOM API in many aspects with similar interfaces and methods. This makes the API more convenient than the low-level SAX or StAX API. However, one has to keep in mind to use the API in a stream-based fashion. It is, for instance, not possible to iterate the children of a node twice although the API does not prevent that. With the default settings, however, you will get an exception when the parser has already parsed beyond a node that you are trying to access (see Section [Instance Reuse](#instance-reuse) for details).  
+The maXMLian API resembles the DOM API in many aspects with similar interfaces and methods. This makes the API more convenient than the low-level SAX or StAX API. However, one has to keep in mind to use the API in a stream-based fashion. It is, for instance, not possible to iterate the children of a node twice although the API does not prevent that. With the default settings, however, you will get an exception when the parser has already parsed beyond a node that you are trying to access (see Section [Instance Reuse](#instance-reuse) for details).
+
+Rule of thumb: Whenever a method declares to throw an `XmlStateException`, then this method will most likely load the relevant data on demand. Calling this method later when the internal parser has continued parsing the XML file will probably result in an `XmlStateException`.
+
+Having said that, there is one important exception where calling such a method does not necessarily cause an exception: You can always request to go to the next sibling node or the next sibling element (even when the parser is not at the beginning of the current node anymore) as long as the parser is still inside the current node.
 
 ## Document Creation
 
@@ -91,6 +95,23 @@ for (int i = 0; i < numAttributes; i++) {
 ```
 
 The complete code can be found int `AttributesSample.java`.
+
+## Text Handling
+
+Text of an element can be represented by a single or multiple text nodes. It is undefined how many text nodes are used. By calling `DocumentBuilderFactory.normalize(true)` you can enforce that adjacent text nodes are joined to a single text node. While this is convenient, this can decrease performance if the joined text is large and if it would suffice to stream read it.
+
+If you know that an element may only contain text, but no other elements, then you can call `Element.getTextContent()` on that element to obtain the joined text without having to parse and evaluate the child nodes of that element. This approach has the same disadvantage as `DocumentBuilderFactory.normalize(true)` (see above).
+
+If the text content of an element is large and it suffices to parse it stream-based, then you can use the method `Element.getTextContentStream()` to obtain the element's text content as `StringStream`. The following example is an excerpt of `TextContentStreamSample.java` and shows how to use the text content stream for an `Element` called `sample`:
+
+```
+StringStream textContentStream = sample.getTextContentStream();
+int i = 1;
+String textContentPart;
+while ((textContentPart = textContentStream.next()) != null) {
+    System.out.println("Junk " + i++ + ": " + textContentPart);
+}
+```
 
 # Performance
 
@@ -211,7 +232,8 @@ As a consequence, Woodstox has become the first choice for the internally used S
 During our tests we have detected several inconsistencies between the StAX parsers:
 
 * Document type: Aalto does not provide notations and entities at all. Xerces returns the full text of the DTD instead of the internal subset as specified in the specification. Woodstox implements the StAX 2 API, which allows querying the document type name, the public id, and the system id, which cannot be queried via the StAX API.
-* Character events: StAX distinguishes between character, space, and CDATA events. The return value of `Text.isElementContentWhitespace()` depends on the type of the character event. We have observed cases where Aalto signals a different type of character event than Xerces and Woodstox do.  
+* Character events: StAX distinguishes between character, space, and CDATA events. The return value of `Text.isElementContentWhitespace()` depends on the type of the character event. We have observed cases where Aalto signals a different type of character event than Xerces and Woodstox do.
+* Coalescing: Aalto seems to coalesce adjacent character data independent of how you set the option `javax.xml.stream.isCoalescing`. In many cases this will be no problem. However, in cases where the amount of data in adjacent text blocks is large this can be problematic and undermines the streaming approach.  
 
 We have implemented some workarounds to deal with these parser inconsistencies and our unit tests ensure that maXMLian behaves like the Xerces DOM parser for all our test files. Nevertheless, you should particularly be careful when evaluating the document type or the result of `Text.isElementContentWhitespace()`.  
 
@@ -221,7 +243,8 @@ Theoretically it is possible for maXMLian to support random access when the XML 
 
 # Open Source License Acknowledgement
 
-maXMLian itself does not depend on any third-party library, but the benchmark and unit test modules depend on the following libraries:
+maXMLian itself does not depend on any third-party library, but the benchmark and/or unit test modules depend on the following libraries:
 
 * [Aalto XML](https://github.com/FasterXML/aalto-xml) ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0))
 * [Woodstox](https://github.com/FasterXML/woodstox) ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0))
+* [Jimfs](https://github.com/google/jimfs) ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0))

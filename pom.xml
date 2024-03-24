@@ -7,7 +7,7 @@
 	<groupId>dd.kms.maxmlian</groupId>
 	<artifactId>maxmlian-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.2-SNAPSHOT</version>
 	<modules>
 		<module>maXMLian</module>
 		<module>maXMLian-benchmarks</module>

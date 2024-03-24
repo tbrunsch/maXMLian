@@ -1,6 +1,7 @@
 package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.CharacterData;
+import dd.kms.maxmlian.api.StringStream;
 
 abstract class CharacterDataImpl extends NodeImpl implements CharacterData
 {
@@ -10,7 +11,8 @@ abstract class CharacterDataImpl extends NodeImpl implements CharacterData
 		super(eventReader, nodeFactory);
 	}
 
-	void setData(String data) {
+	void initialize(String data) {
+		super.initialize();
 		this.data = data;
 	}
 
@@ -22,5 +24,15 @@ abstract class CharacterDataImpl extends NodeImpl implements CharacterData
 	@Override
 	public String getNodeValue() {
 		return data;
+	}
+
+	@Override
+	public String getTextContent() {
+		return data;
+	}
+
+	@Override
+	public StringStream getTextContentStream() {
+		return new SingleStringStream(data);
 	}
 }

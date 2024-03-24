@@ -7,19 +7,21 @@ public interface Node
 	NodeType getNodeType();
 
 	Node getParentNode();
-	Node getFirstChild() throws XmlException;
-	Node getNextSibling() throws XmlException;
-	Element getFirstChildElement() throws XmlException;
-	Element getNextSiblingElement() throws XmlException;
-	NamedAttributeMap getAttributes();
+	Node getFirstChild() throws XmlException, XmlStateException;
+	Node getNextSibling() throws XmlException, XmlStateException;
+	Element getFirstChildElement() throws XmlException, XmlStateException;
+	Element getNextSiblingElement() throws XmlException, XmlStateException;
+	NamedAttributeMap getAttributes() throws XmlStateException;
 
 	String getNamespaceURI();
 	String getPrefix();
 	String getLocalName();
 
+	String getTextContent() throws XmlException, XmlStateException;
+
 	/**
-	 * @return the concatenation of the texts of all text nodes in the tree rooted
-	 * at this node, including this node. The tree is traversed in preorder.
+	 * This method essentially returns the same as {@link #getTextContent()}, but
+	 * as a {@link StringStream}, i.e., one can query the text content junk wise.
 	 */
-	String getTextContent() throws XmlException;
+	StringStream getTextContentStream();
 }

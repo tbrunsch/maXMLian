@@ -1,5 +1,7 @@
 package dd.kms.maxmlian.impl;
 
+import dd.kms.maxmlian.api.XmlStateException;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.EntityDeclaration;
@@ -13,16 +15,17 @@ import static javax.xml.stream.XMLStreamConstants.*;
 
 class NodeFactory
 {
-	private static final Pattern 	DOCTYPE_PATTERN			= Pattern.compile("^\\s*<!DOCTYPE\\s+.*", Pattern.DOTALL);
+	private static final Pattern 	DOCTYPE_PATTERN						= Pattern.compile("^\\s*<!DOCTYPE\\s+.*", Pattern.DOTALL);
 
-	private static final String		PROPERTY_ENTITIES		= "javax.xml.stream.entities";
-	private static final String		PROPERTY_NOTATIONS		= "javax.xml.stream.notations";
+	private static final String		PROPERTY_ENTITIES					= "javax.xml.stream.entities";
+	private static final String		PROPERTY_NOTATIONS					= "javax.xml.stream.notations";
+	private static final String		PARSE_NEXT_TEXT_CONTENT_PART_ERROR	= "Cannot parse next part of text content when the XML reader has already parsed beyond the position of that part";
 
 	private final ExtendedXmlStreamReader	streamReader;
 	private final XMLStreamReader			reader;
 	private final ObjectFactory				objectFactory;
 	private final boolean					namespaceAware;
-	private final StringBuilder				additionalCharactersBuilder	= new StringBuilder();
+	private final StringBuilder				stringBuilder	= new StringBuilder();
 
 	NodeFactory(ExtendedXmlStreamReader streamReader, boolean reuseInstances, boolean namespaceAware) {
 		this.streamReader = streamReader;
@@ -60,6 +63,42 @@ class NodeFactory
 		while (readUntilNextSibling(depth)) {
 			if (reader.getEventType() == START_ELEMENT) {
 				return createElement();
+			}
+		}
+		return null;
+	}
+
+	String getTextContent(NodeImpl node) throws XMLStreamException, XmlStateException {
+		long expectedPosition = node.getInitialPosition();
+		stringBuilder.setLength(0);
+		String textContentPart;
+		while ((textContentPart = getNextTextContentPart(node, expectedPosition)) != null) {
+			stringBuilder.append(textContentPart);
+			expectedPosition = streamReader.position();
+		}
+		return stringBuilder.toString();
+	}
+
+	String getNextTextContentPart(NodeImpl node, long expectedPosition) throws XMLStreamException, XmlStateException {
+		if (!streamReader.position(expectedPosition)) {
+			throw node.createStateException(PARSE_NEXT_TEXT_CONTENT_PART_ERROR);
+		}
+		int nodeDepth = node.getInitialDepth();
+		while (streamReader.hasNext()) {
+			streamReader.next();
+			int currentDepth = streamReader.getDepth();
+			if (currentDepth <= nodeDepth) {
+				// reached end of node
+				return null;
+			}
+			int eventType = reader.getEventType();
+			switch (eventType) {
+				case CHARACTERS:
+				case CDATA:
+					return reader.getText();
+				default:
+					// other events can be ignored for determining the text content
+					break;
 			}
 		}
 		return null;
@@ -134,7 +173,7 @@ class NodeFactory
 		}
 	}
 
-	private AbstractDocumentTypeImpl createDocumentType() {
+	private AbstractDocumentTypeImpl createDocumentType() throws XMLStreamException {
 		String text = reader.getText();
 		List<EntityDeclaration> entityDeclarations = (List<EntityDeclaration>) reader.getProperty(PROPERTY_ENTITIES);
 		List<NotationDeclaration> notationDeclarations = (List<NotationDeclaration>) reader.getProperty(PROPERTY_NOTATIONS);
@@ -173,17 +212,17 @@ class NodeFactory
 		return element;
 	}
 
-	private TextImpl createText(int eventType) throws XMLStreamException {
+	private TextImpl createText(int eventType) {
 		int depth = streamReader.getDepth();
 		TextImpl text = objectFactory.createText(depth);
-		text.initialize(reader.getText(), readAdditionalCharacters(eventType), eventType == SPACE);
+		text.initialize(reader.getText(), eventType == SPACE);
 		return text;
 	}
 
-	private TextImpl createCData() throws XMLStreamException {
+	private TextImpl createCData() {
 		int depth = streamReader.getDepth();
 		TextImpl text = objectFactory.createCDataSection(depth);
-		text.initialize(reader.getText(), readAdditionalCharacters(CDATA), false);
+		text.initialize(reader.getText(), false);
 		return text;
 	}
 
@@ -191,22 +230,6 @@ class NodeFactory
 		CommentImpl comment = objectFactory.createComment(streamReader.getDepth());
 		comment.initialize(reader.getText());
 		return comment;
-	}
-
-	/**
-	 * @return the concatenated text of all successive events of type {@code charactersEventType}.
-	 */
-	private StringBuilder readAdditionalCharacters(int charactersEventType) throws XMLStreamException {
-		additionalCharactersBuilder.setLength(0);
-		while (streamReader.hasNext()) {
-			streamReader.peek();
-			if (reader.getEventType() != charactersEventType) {
-				break;
-			}
-			additionalCharactersBuilder.append(reader.getText());
-			streamReader.next();
-		}
-		return additionalCharactersBuilder;
 	}
 
 	private ProcessingInstructionImpl createProcessingInstruction() {
@@ -237,12 +260,12 @@ class NodeFactory
 		return attr;
 	}
 
-	private String getStringFromReader(String methodName, String errorMessage) {
+	private String getStringFromReader(String methodName, String errorMessage) throws XMLStreamException {
 		try {
 			Method method = reader.getClass().getMethod(methodName);
 			return (String) method.invoke(reader);
 		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-			return null;
+			throw new XMLStreamException(errorMessage);
 		}
 	}
 }
