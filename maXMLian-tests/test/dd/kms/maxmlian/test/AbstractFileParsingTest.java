@@ -8,6 +8,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,20 +46,20 @@ abstract class AbstractFileParsingTest
 
 	private class ParameterizedFileParsingTest
 	{
-		private final Path						xmlFile;
-		private final boolean					namespaceAware;
-		private final boolean					considerOnlyChildElements;
-		private final XmlInputFactoryProvider xmlInputFactoryProvider;
+		private final Path				xmlFile;
+		private final boolean			namespaceAware;
+		private final boolean			considerOnlyChildElements;
+		private final XMLInputFactory	xmlInputFactory;
 
 		ParameterizedFileParsingTest(Path xmlFile, boolean namespaceAware, boolean considerOnlyChildElements, XmlInputFactoryProvider xmlInputFactoryProvider) {
 			this.xmlFile = xmlFile;
 			this.namespaceAware = namespaceAware;
 			this.considerOnlyChildElements = considerOnlyChildElements;
-			this.xmlInputFactoryProvider = xmlInputFactoryProvider;
+			this.xmlInputFactory = xmlInputFactoryProvider.getXMLInputFactory().get();
 		}
 
 		void compareXmlStructure() throws ParserConfigurationException, IOException, XmlException, SAXException {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactoryProvider);
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactory);
 			DocumentBuilder documentBuilder = factory
 				.reuseInstances(true)
 				.namespaceAware(namespaceAware)

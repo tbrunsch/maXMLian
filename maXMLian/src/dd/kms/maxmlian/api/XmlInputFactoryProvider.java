@@ -43,4 +43,21 @@ public interface XmlInputFactoryProvider
 			}
 		};
 	}
+
+	/**
+	 * Returns the first available {@link XMLInputFactory} returned by one of the specified
+	 * {@link XmlInputFactoryProvider}s.
+	 *
+	 * @throws IllegalStateException if none of the specified {@code XmlInputFactoryProvider}s
+	 *                               returned an {@code XMLInputFactory}.
+	 */
+	static XMLInputFactory getFirstXmlInputFactory(XmlInputFactoryProvider... xmlInputFactoryProviders) throws IllegalStateException {
+		for (XmlInputFactoryProvider xmlInputFactoryProvider : xmlInputFactoryProviders) {
+			XMLInputFactory factory = xmlInputFactoryProvider.getXMLInputFactory().orElse(null);
+			if (factory != null) {
+				return factory;
+			}
+		}
+		throw new IllegalStateException("Cannot instantiate an XMLInputFactory");
+	}
 }

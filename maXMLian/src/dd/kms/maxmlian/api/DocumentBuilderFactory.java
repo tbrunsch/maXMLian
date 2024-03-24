@@ -1,43 +1,64 @@
 package dd.kms.maxmlian.api;
 
+import javax.xml.stream.XMLInputFactory;
+
 /**
- * Creates a {@link DocumentBuilder} for parsing an XML document.<br/>
- * <br/>
+ * Creates a {@link DocumentBuilder} for parsing an XML document.<br>
+ * <br>
  * Features:
  * <ul>
  *     <li>
- *         Instance reuse: When parsing a huge XML file, many node instances have to be created.
- *         For stream-based parsing this is usually not reasonable because even if you hold a
- *         reference to some node, you cannot do much with that node if the parser has already
- *         proceeded. This is why it makes sense to reuse instances. Note that nodes are only
- *         reused if they have the same type and depth as the requested node instance. In particular,
- *         you can be sure that a parent and a child are always different instances.
+ *         Instance reuse: When parsing a huge XML file, many node instances have to
+ *         be created. For stream-based parsing this is usually not reasonable because
+ *         even if you hold a reference to some node, you cannot do much with that
+ *         node if the parser has already proceeded. This is why it makes sense to
+ *         reuse instances. Note that nodes are only reused if they have the same type
+ *         and depth as the requested node instance. In particular, you can be sure
+ *         that a parent and a child are always different instances.
+ *     </li>
+ *     <li>
+ *         Namespace awareness: Specifies whether namespaces are considered separately
+ *         or considered part of the local names.
+ *     </li>
+ *     <li>
+ *         Normalization: Specifies whether adjacent text nodes are joined or not.
  *     </li>
  * </ul>
  */
 public interface DocumentBuilderFactory
 {
 	/**
-	 * Creates an instance of {@link DocumentBuilderFactory}. It will use the StAX parser
-	 * of the first {@link javax.xml.stream.XMLInputFactory} provided by the specified
-	 * {@code xmlInputFactoryProviders}. If no such providers are specified, then an
-	 * internal prioritized list of {@link XmlInputFactoryProvider}s is used.
-	 *
-	 * @throws IllegalStateException	if no {@code XMLInputFactory} can be created
+	 * Creates a {@link DocumentBuilderFactory} that internally uses the first
+	 * available StaX parser from the following list:
+	 * <ol>
+	 *     <li>Woodstox</li>
+	 *     <li>Xerces</li>
+	 *     <li>default StAX parser</li>
+	 * </ol>
 	 */
-	static DocumentBuilderFactory newInstance(XmlInputFactoryProvider... xmlInputFactoryProviders) throws IllegalStateException {
-		return xmlInputFactoryProviders.length > 0
-				? new dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl(xmlInputFactoryProviders)
-				: new dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl(
-					XmlInputFactoryProvider.WOODSTOX,
-					XmlInputFactoryProvider.XERCES,
-					XmlInputFactoryProvider.DEFAULT
-				);
+	static DocumentBuilderFactory newInstance() {
+		return newInstance(XmlInputFactoryProvider.getFirstXmlInputFactory(
+			XmlInputFactoryProvider.WOODSTOX,
+			XmlInputFactoryProvider.XERCES,
+			XmlInputFactoryProvider.DEFAULT
+		));
 	}
 
 	/**
-	 * Specify whether instances are reused or not (default). Instance reuse avoids unnecessary object instantiations,
-	 * but maXMLian has less chances to detect incorrect (i.e., non-streamed) API usages.
+	 * Creates a {@link DocumentBuilderFactory} that internally uses the StAX parser
+	 * returned by the specified {@link XMLInputFactory}. Note that maXMLian may modify
+	 * this factory by setting certain properties.<br>
+	 * You may use {@link XmlInputFactoryProvider} for creating and selecting an
+	 * {@code XMLInputFactory}.
+	 */
+	static DocumentBuilderFactory newInstance(XMLInputFactory xmlInputFactory) {
+		return new dd.kms.maxmlian.impl.DocumentBuilderFactoryImpl(xmlInputFactory);
+	}
+
+	/**
+	 * Specify whether instances are reused or not (default). Instance reuse avoids
+	 * unnecessary object instantiations, but maXMLian has less chances to detect
+	 * incorrect (i.e., non-streamed) API usages.
 	 */
 	DocumentBuilderFactory reuseInstances(boolean reuseInstances);
 

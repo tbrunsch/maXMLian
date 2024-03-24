@@ -8,6 +8,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +36,8 @@ public class TextContentTest
 	@ParameterizedTest(name = "{0}, normalize: {1}, streamed text content: {2}, subtree height: {3}, StAX parser: {4}")
 	@MethodSource("getParameters")
 	public void testGetTextContent(Path xmlFile, boolean normalize, boolean useTextContentStream, int subtreeHeightToEvaluate, XmlInputFactoryProvider xmlInputFactoryProvider) throws IOException, SAXException, ParserConfigurationException, XmlException {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactoryProvider);
+		XMLInputFactory xmlInputFactory = xmlInputFactoryProvider.getXMLInputFactory().get();
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactory);
 		DocumentBuilder documentBuilder = factory
 			.reuseInstances(true)
 			.normalize(normalize)
