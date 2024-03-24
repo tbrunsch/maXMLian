@@ -7,17 +7,17 @@ public interface Node
 	NodeType getNodeType();
 
 	Node getParentNode();
-	Node getFirstChild() throws XmlException;
-	Node getNextSibling() throws XmlException;
-	Element getFirstChildElement() throws XmlException;
-	Element getNextSiblingElement() throws XmlException;
-	NamedAttributeMap getAttributes();
+	Node getFirstChild() throws XmlException, XmlStateException;
+	Node getNextSibling() throws XmlException, XmlStateException;
+	Element getFirstChildElement() throws XmlException, XmlStateException;
+	Element getNextSiblingElement() throws XmlException, XmlStateException;
+	NamedAttributeMap getAttributes() throws XmlStateException;
 
 	String getNamespaceURI();
 	String getPrefix();
 	String getLocalName();
 
-	String getTextContent() throws XmlException;
+	String getTextContent() throws XmlException, XmlStateException;
 
 	/**
 	 * This method essentially returns the same as {@link #getTextContent()}, but

@@ -36,7 +36,7 @@ maXMLian can be considered a high-level stream-based pull parser: In contrast to
 
 The maXMLian API resembles the DOM API in many aspects with similar interfaces and methods. This makes the API more convenient than the low-level SAX or StAX API. However, one has to keep in mind to use the API in a stream-based fashion. It is, for instance, not possible to iterate the children of a node twice although the API does not prevent that. With the default settings, however, you will get an exception when the parser has already parsed beyond a node that you are trying to access (see Section [Instance Reuse](#instance-reuse) for details).
 
-Rule of thumb: Whenever a method declares to throw an `XmlException`, then this method will most likely load the relevant data on demand. Calling this method later when the internal parser has continued parsing the XML file will probably result in an `XmlException`.
+Rule of thumb: Whenever a method declares to throw an `XmlStateException`, then this method will most likely load the relevant data on demand. Calling this method later when the internal parser has continued parsing the XML file will probably result in an `XmlStateException`.
 
 Having said that, there is one important exception where calling such a method does not necessarily cause an exception: You can always request to go to the next sibling node or the next sibling element (even when the parser is not at the beginning of the current node anymore) as long as the parser is still inside the current node.
 

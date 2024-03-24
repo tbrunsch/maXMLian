@@ -7,5 +7,5 @@ public interface StringStream
 	 *
 	 * @throws XmlException
 	 */
-	String next() throws XmlException;
+	String next() throws XmlException, XmlStateException;
 }

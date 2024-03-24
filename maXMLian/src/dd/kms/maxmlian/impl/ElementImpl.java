@@ -3,6 +3,7 @@ package dd.kms.maxmlian.impl;
 import dd.kms.maxmlian.api.Attr;
 import dd.kms.maxmlian.api.Element;
 import dd.kms.maxmlian.api.NamedAttributeMap;
+import dd.kms.maxmlian.api.XmlStateException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -28,7 +29,7 @@ class ElementImpl extends NodeImpl implements Element
 		this.attributeMap = null;
 	}
 
-	private void initializeAttributeMap() {
+	private void initializeAttributeMap() throws XmlStateException {
 		if (attributeMap != null) {
 			return;
 		}
@@ -80,21 +81,21 @@ class ElementImpl extends NodeImpl implements Element
 	}
 
 	@Override
-	public String getAttribute(String qName) {
+	public String getAttribute(String qName) throws XmlStateException {
 		initializeAttributeMap();
 		Attr attr = attributeMap.get(qName);
 		return attr != null ? attr.getValue() : null;
 	}
 
 	@Override
-	public boolean hasAttribute(String qName) {
+	public boolean hasAttribute(String qName) throws XmlStateException {
 		initializeAttributeMap();
 		Attr attr = attributeMap.get(qName);
 		return attr == null;
 	}
 
 	@Override
-	public NamedAttributeMap getAttributes() {
+	public NamedAttributeMap getAttributes() throws XmlStateException {
 		initializeAttributeMap();
 		return attributeMap;
 	}

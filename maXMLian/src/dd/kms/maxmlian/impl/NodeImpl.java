@@ -40,7 +40,7 @@ abstract class NodeImpl implements Node
 		return streamReader.getReader();
 	}
 
-	void resetReaderPosition(String errorMessage) {
+	void resetReaderPosition(String errorMessage) throws XmlStateException {
 		if (!streamReader.position(initialPosition)) {
 			throw createStateException(errorMessage);
 		}
@@ -57,7 +57,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public NodeImpl getFirstChild() throws XmlException {
+	public NodeImpl getFirstChild() throws XmlException, XmlStateException {
 		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
 		try {
 			NodeImpl firstChild = nodeFactory.readFirstChild();
@@ -71,7 +71,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public NodeImpl getNextSibling() throws XmlException {
+	public NodeImpl getNextSibling() throws XmlException, XmlStateException {
 		if (streamReader.getDepth() < initialDepth || streamReader.getNodeCounter(initialDepth) != initialNodeCounterDepth) {
 			resetReaderPosition(PARSE_SIBLING_ERROR);
 		}
@@ -89,7 +89,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public Element getFirstChildElement() throws XmlException {
+	public Element getFirstChildElement() throws XmlException, XmlStateException {
 		resetReaderPosition(PARSE_FIRST_CHILD_ERROR);
 		try {
 			ElementImpl firstChildElement = nodeFactory.readFirstChildElement();
@@ -103,7 +103,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public Element getNextSiblingElement() throws XmlException {
+	public Element getNextSiblingElement() throws XmlException, XmlStateException {
 		if (streamReader.getDepth() < initialDepth || streamReader.getNodeCounter(initialDepth) != initialNodeCounterDepth) {
 			resetReaderPosition(PARSE_SIBLING_ERROR);
 		}
@@ -126,7 +126,7 @@ abstract class NodeImpl implements Node
 	}
 
 	@Override
-	public String getTextContent() throws XmlException {
+	public String getTextContent() throws XmlException, XmlStateException {
 		try {
 			return nodeFactory.getTextContent(this);
 		} catch (XMLStreamException e) {
@@ -191,7 +191,7 @@ abstract class NodeImpl implements Node
 		}
 
 		@Override
-		public String next() throws XmlException {
+		public String next() throws XmlException, XmlStateException {
 			try {
 				String nextTextContentPart = nodeFactory.getNextTextContentPart(NodeImpl.this, expectedPosition);
 				expectedPosition = streamReader.position();

@@ -1,5 +1,7 @@
 package dd.kms.maxmlian.impl;
 
+import dd.kms.maxmlian.api.XmlStateException;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.EntityDeclaration;
@@ -66,7 +68,7 @@ class NodeFactory
 		return null;
 	}
 
-	String getTextContent(NodeImpl node) throws XMLStreamException {
+	String getTextContent(NodeImpl node) throws XMLStreamException, XmlStateException {
 		long expectedPosition = node.getInitialPosition();
 		stringBuilder.setLength(0);
 		String textContentPart;
@@ -77,7 +79,7 @@ class NodeFactory
 		return stringBuilder.toString();
 	}
 
-	String getNextTextContentPart(NodeImpl node, long expectedPosition) throws XMLStreamException {
+	String getNextTextContentPart(NodeImpl node, long expectedPosition) throws XMLStreamException, XmlStateException {
 		if (!streamReader.position(expectedPosition)) {
 			throw node.createStateException(PARSE_NEXT_TEXT_CONTENT_PART_ERROR);
 		}
