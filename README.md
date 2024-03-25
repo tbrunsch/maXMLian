@@ -16,7 +16,7 @@ maXMLian targets on reading large XML files with a complex structure, i.e., when
 *Warning:* maXMLian currently uses the StAX API internally. During tests with different StAX parsers we have observed that:
 
 * All StAX parsers we have considered behave differently in some situations (see Section [Known Inconsistencies](#known-inconsistencies)).
-* The StAX API does not suffice to implement all methods that DOM provides and that we decided to support. This problem becomes apparent when trying to retrieve all information from the internal document type declaration. We assume that this is why the Xerces StAX parser does not comply with the StAX API for the DTD event and why there is a StAX2 API, which is implemented by the Woodstox and Aalto StAX parsers.   
+* The StAX API does not suffice to implement all methods that DOM provides and that we decided to support. This problem becomes apparent when trying to retrieve all information from the internal document type definition. We assume that this is why the Xerces StAX parser does not comply with the StAX API for the DTD event and why there is a StAX2 API, which is implemented by the Woodstox and Aalto StAX parsers.   
 
 For these reasons, we strongly advise you to check whether maXMLian matches your expectations before using it in production code. Having said that, this advice also applies for any other XML parser since each behaves slightly differently.  
 
