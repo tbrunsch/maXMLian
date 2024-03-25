@@ -113,6 +113,10 @@ while ((textContentPart = textContentStream.next()) != null) {
 }
 ```
 
+## Document Type Definition Support
+
+DTDs (document type definitions) allow different kinds of XML based attacks (see, e.g., <a href="https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing">XML External Entity (XXE) Processing</a>). Hence, it is safest to prevent parsing DTDs completely. This is the default behavior of maXMLian. However, in some cases one needs to parse DTDs in order to correctly parse certain XML files. By calling `DocumentBuilderFactory.dtdSupport()` one can enable the support for parsing internal and also external DTDs. 
+
 # Performance
 
 We benchmarked the performance of maXMLian and other XML parsers for XML files of size 500 MB, 1 GB, and 2 GB. The benchmark setup was as follows:
