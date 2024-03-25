@@ -12,9 +12,17 @@ class DocumentBuilderImpl implements DocumentBuilder
 	private final XMLInputFactory	xmlInputFactory;
 	private final boolean			reuseInstances;
 
-	DocumentBuilderImpl(XMLInputFactory xmlInputFactory, boolean reuseInstances) {
+	DocumentBuilderImpl(XMLInputFactory xmlInputFactory, boolean reuseInstances, DtdSupport dtdSupport) {
 		this.xmlInputFactory = xmlInputFactory;
 		this.reuseInstances = reuseInstances;
+		applyDtdSupport(dtdSupport);
+	}
+
+	private void applyDtdSupport(DtdSupport dtdSupport) {
+		boolean supportDtds = dtdSupport != DtdSupport.NONE;
+		boolean supportExternalDtds = dtdSupport == DtdSupport.INTERNAL_AND_EXTERNAL;
+		xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, supportDtds);
+		xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, supportExternalDtds);
 	}
 
 	@Override
