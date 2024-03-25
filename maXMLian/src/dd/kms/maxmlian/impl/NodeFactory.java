@@ -180,7 +180,7 @@ class NodeFactory
 
 		/*
 		 * According to the StAX specification, the text should only contain the internal subset.
-		 * However, the common StAX parsers Xerces returns the full document type declaration.
+		 * However, the common StAX parsers Xerces returns the full document type definition.
 		 * Hence, we have to treat this parser differently.
 		 */
 		boolean containsFullDocTypeDeclaration = DOCTYPE_PATTERN.matcher(text).matches();
@@ -198,9 +198,9 @@ class NodeFactory
 		 * and the system id. The FasterXML StAX2 API does, but we do not want to hard-code against
 		 * its classes. Hence, we try to call the methods via reflection.
 		 */
-		String documentTypeName = getStringFromReader("getDTDRootName", "Cannot obtain name of document type declaration");
-		String publicId = getStringFromReader("getDTDPublicId", "Cannot obtain public id of document type declaration");
-		String systemId = getStringFromReader("getDTDSystemId", "Cannot obtain public id of document type declaration");
+		String documentTypeName = getStringFromReader("getDTDRootName", "Cannot obtain name of document type definition");
+		String publicId = getStringFromReader("getDTDPublicId", "Cannot obtain public id of document type definition");
+		String systemId = getStringFromReader("getDTDSystemId", "Cannot obtain public id of document type definition");
 		DocumentTypeImpl documentType = new DocumentTypeImpl(streamReader, this);
 		documentType.initialize(documentTypeName, publicId, systemId, internalSubset, entityDeclarations, notationDeclarations);
 		return documentType;

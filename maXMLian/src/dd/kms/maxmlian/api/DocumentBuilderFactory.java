@@ -23,6 +23,10 @@ import javax.xml.stream.XMLInputFactory;
  *     <li>
  *         Normalization: Specifies whether adjacent text nodes are joined or not.
  *     </li>
+ *     <li>
+ *         DTD (document type definition) support: Specify to which extent DTDs are
+ *         supported: No support, only internal DTDs, or internal and external DTDs.
+ *     </li>
  * </ul>
  */
 public interface DocumentBuilderFactory
@@ -76,6 +80,16 @@ public interface DocumentBuilderFactory
 	 * undermining the streaming approach of maXMLian.
 	 */
 	DocumentBuilderFactory normalize(boolean normalize);
+
+	/**
+	 * Specify the extent to which DTDs (document type definitions) are supported:
+	 * No support (default), only support for internal DTDs, or support for internal
+	 * and external DTDs. Note that the more DTDs are supported, the higher the risk
+	 * for XML based attacks (see, e.g.,
+	 * <a href="https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing">XML External Entity (XXE) Processing</a>
+	 * on OWASP).
+	 */
+	DocumentBuilderFactory dtdSupport(DtdSupport dtdSupport);
 
 	DocumentBuilder newDocumentBuilder();
 }

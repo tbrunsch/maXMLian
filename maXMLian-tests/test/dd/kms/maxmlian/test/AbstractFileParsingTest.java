@@ -64,6 +64,7 @@ abstract class AbstractFileParsingTest
 				.reuseInstances(true)
 				.namespaceAware(namespaceAware)
 				.normalize(true)
+				.dtdSupport(DtdSupport.INTERNAL_AND_EXTERNAL)
 				.newDocumentBuilder();
 			Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 

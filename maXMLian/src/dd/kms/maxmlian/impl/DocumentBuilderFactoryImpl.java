@@ -2,13 +2,15 @@ package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.DocumentBuilder;
 import dd.kms.maxmlian.api.DocumentBuilderFactory;
+import dd.kms.maxmlian.api.DtdSupport;
 
 import javax.xml.stream.XMLInputFactory;
 
 public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 {
 	private final XMLInputFactory	xmlInputFactory;
-	private boolean	reuseInstances	= false;
+	private boolean					reuseInstances	= false;
+	private DtdSupport				dtdSupport		= DtdSupport.NONE;
 
 	public DocumentBuilderFactoryImpl(XMLInputFactory xmlInputFactory) throws IllegalStateException {
 		this.xmlInputFactory = xmlInputFactory;
@@ -39,7 +41,13 @@ public class DocumentBuilderFactoryImpl implements DocumentBuilderFactory
 	}
 
 	@Override
+	public DocumentBuilderFactory dtdSupport(DtdSupport dtdSupport) {
+		this.dtdSupport = dtdSupport;
+		return this;
+	}
+
+	@Override
 	public DocumentBuilder newDocumentBuilder() {
-		return new DocumentBuilderImpl(xmlInputFactory, reuseInstances);
+		return new DocumentBuilderImpl(xmlInputFactory, reuseInstances, dtdSupport);
 	}
 }
