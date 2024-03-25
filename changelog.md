@@ -11,6 +11,7 @@ API changes:
 Behavioral changes:
 * `DocumentBuilderFactory.namespaceAware()` may now throw an `IllegalStateException` if the underlying `XMLInputFactory` does not support this option.
 * Adjacent text nodes are not joined anymore by default. You have to call `DocumentBuilderFactory.normalize()` to achieve this.
+* DTD (document type definition) support is now disabled by default for security reasons. You have to call `DocumentBuilderFactory.dtdSupport()` to specify to which extent DTDs shall be supported. 
 
 ## v0.1.0
 First maXMLian release
