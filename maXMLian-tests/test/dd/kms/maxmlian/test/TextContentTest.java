@@ -41,6 +41,7 @@ public class TextContentTest
 		DocumentBuilder documentBuilder = factory
 			.reuseInstances(true)
 			.normalize(normalize)
+			.dtdSupport(DtdSupport.INTERNAL_AND_EXTERNAL)
 			.newDocumentBuilder();
 		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
