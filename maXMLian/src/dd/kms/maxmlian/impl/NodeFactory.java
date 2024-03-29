@@ -198,11 +198,24 @@ class NodeFactory
 		 * and the system id. The FasterXML StAX2 API does, but we do not want to hard-code against
 		 * its classes. Hence, we try to call the methods via reflection.
 		 */
-		String documentTypeName = getStringFromReader("getDTDRootName", "Cannot obtain name of document type definition");
-		String publicId = getStringFromReader("getDTDPublicId", "Cannot obtain public id of document type definition");
-		String systemId = getStringFromReader("getDTDSystemId", "Cannot obtain public id of document type definition");
+		int validFlags = 0;
+		String documentTypeName = null;
+		try {
+			documentTypeName = getStringFromReader("getDTDRootName");
+			validFlags |= DocumentTypeImpl.VALID_FLAG_DOCUMENT_TYPE_NAME;
+		} catch (UnsupportedOperationException ignored) {}
+		String publicId = null;
+		try {
+			publicId = getStringFromReader("getDTDPublicId");
+			validFlags |= DocumentTypeImpl.VALID_FLAG_PUBLIC_ID;
+		} catch (UnsupportedOperationException ignored) {}
+		String systemId = null;
+		try {
+			systemId = getStringFromReader("getDTDSystemId");
+			validFlags |= DocumentTypeImpl.VALID_FLAG_SYSTEM_ID;
+		} catch (UnsupportedOperationException ignored) {}
 		DocumentTypeImpl documentType = new DocumentTypeImpl(streamReader, this);
-		documentType.initialize(documentTypeName, publicId, systemId, internalSubset, entityDeclarations, notationDeclarations);
+		documentType.initialize(documentTypeName, publicId, systemId, validFlags, internalSubset, entityDeclarations, notationDeclarations);
 		return documentType;
 	}
 
@@ -260,12 +273,12 @@ class NodeFactory
 		return attr;
 	}
 
-	private String getStringFromReader(String methodName, String errorMessage) throws XMLStreamException {
+	private String getStringFromReader(String methodName) {
 		try {
 			Method method = reader.getClass().getMethod(methodName);
 			return (String) method.invoke(reader);
-		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-			throw new XMLStreamException(errorMessage);
+		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassCastException e) {
+			throw new UnsupportedOperationException("Cannot retrieve String from method '" + methodName + "()': " + e.getMessage());
 		}
 	}
 }
