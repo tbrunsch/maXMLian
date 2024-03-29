@@ -1,6 +1,6 @@
 package dd.kms.maxmlian.api;
 
-public interface Document extends Node
+public interface Document extends Node, AutoCloseable
 {
 	@Override
 	default NodeType getNodeType() {
@@ -12,4 +12,7 @@ public interface Document extends Node
 	String getXmlEncoding();
 	boolean getXmlStandalone();
 	String getXmlVersion();
+
+	@Override
+	void close() throws XmlException;
 }

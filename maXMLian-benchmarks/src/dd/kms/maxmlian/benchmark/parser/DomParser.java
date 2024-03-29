@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -21,10 +22,12 @@ public class DomParser extends AbstractParser
 		factory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
 
-		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
-		documentCreationFinished();
+		try (InputStream stream = Files.newInputStream(xmlFile)) {
+			Document document = documentBuilder.parse(stream);
+			documentCreationFinished();
 
-		traverse(document.getDocumentElement());
+			traverse(document.getDocumentElement());
+		}
 	}
 
 	private void traverse(Node node) {

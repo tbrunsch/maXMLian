@@ -16,14 +16,15 @@ public class AttributesSample
 	public static void main(String[] args) throws XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-		Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()));
-		Element sample = document.getDocumentElement();
-		for (Node child = sample.getFirstChild(); child != null; child = child.getNextSibling()) {
-			NamedAttributeMap attributes = child.getAttributes();
-			int numAttributes = attributes.size();
-			for (int i = 0; i < numAttributes; i++) {
-				Attr attr = attributes.get(i);
-				System.out.println(attr.getName() + "=" + attr.getValue());
+		try (Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()))) {
+			Element sample = document.getDocumentElement();
+			for (Node child = sample.getFirstChild(); child != null; child = child.getNextSibling()) {
+				NamedAttributeMap attributes = child.getAttributes();
+				int numAttributes = attributes.size();
+				for (int i = 0; i < numAttributes; i++) {
+					Attr attr = attributes.get(i);
+					System.out.println(attr.getName() + "=" + attr.getValue());
+				}
 			}
 		}
 	}

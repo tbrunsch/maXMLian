@@ -10,6 +10,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -43,17 +44,22 @@ public class TextContentTest
 			.normalize(normalize)
 			.dtdSupport(DtdSupport.INTERNAL_AND_EXTERNAL)
 			.newDocumentBuilder();
-		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
 
-		javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-		domFactory.setNamespaceAware(true);
-		javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
-		org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
-		if (normalize) {
-			domDocument.normalize();
+		try (InputStream stream1 = Files.newInputStream(xmlFile);
+			Document document = documentBuilder.parse(stream1)) {
+
+			javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+			domFactory.setNamespaceAware(true);
+			javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
+			try (InputStream stream2 = Files.newInputStream(xmlFile)) {
+				org.w3c.dom.Document domDocument = builder.parse(stream2);
+				if (normalize) {
+					domDocument.normalize();
+				}
+
+				compareNodes(document, domDocument, useTextContentStream, subtreeHeightToEvaluate);
+			}
 		}
-
-		compareNodes(document, domDocument, useTextContentStream, subtreeHeightToEvaluate);
 	}
 
 	private void compareNodes(Node node, org.w3c.dom.Node domNode, boolean useTextContentStream, int subtreeHeightToEvaluate) throws XmlException {

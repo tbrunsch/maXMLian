@@ -24,13 +24,14 @@ public class TextContentStreamSample
 	public static void main(String[] args) throws XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-		Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()));
-		Element sample = document.getDocumentElement();
-		StringStream textContentStream = sample.getTextContentStream();
-		int i = 1;
-		String textContentPart;
-		while ((textContentPart = textContentStream.next()) != null) {
-			System.out.println("Junk " + i++ + ": " + textContentPart);
+		try (Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()))) {
+			Element sample = document.getDocumentElement();
+			StringStream textContentStream = sample.getTextContentStream();
+			int i = 1;
+			String textContentPart;
+			while ((textContentPart = textContentStream.next()) != null) {
+				System.out.println("Junk " + i++ + ": " + textContentPart);
+			}
 		}
 	}
 }

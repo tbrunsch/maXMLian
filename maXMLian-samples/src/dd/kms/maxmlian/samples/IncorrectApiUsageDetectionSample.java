@@ -31,28 +31,28 @@ public class IncorrectApiUsageDetectionSample
 	private static void incorrectApiUsage(boolean reuseInstances) throws XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance().reuseInstances(reuseInstances);
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-		Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()));
+		try (Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()))) {
+			Element sample = document.getDocumentElement();
+			Element element1 = sample.getFirstChildElement();
+			Element element2 = element1.getNextSiblingElement();
 
-		Element sample = document.getDocumentElement();
-		Element element1 = sample.getFirstChildElement();
-		Element element2 = element1.getNextSiblingElement();
-
-		if (element2 == element1) {
-			System.out.println("Element instance has been reused");
-		}
-
-		/*
-		 * Try to access children of element 1, which is not possible because the parser has already
-		 * parsed until element 2.
-		 */
-		try {
-			System.out.println("Subelements of element 1:");
-			for (Element child = element1.getFirstChildElement(); child != null; child = child.getNextSiblingElement()) {
-				Attr nameAttribute = child.getAttributes().get("name");
-				System.out.println(nameAttribute.getValue());
+			if (element2 == element1) {
+				System.out.println("Element instance has been reused");
 			}
-		} catch (XmlStateException e) {
-			System.out.println("Caught XmlStateException: " + e.getMessage());
+
+			/*
+			 * Try to access children of element 1, which is not possible because the parser has already
+			 * parsed until element 2.
+			 */
+			try {
+				System.out.println("Subelements of element 1:");
+				for (Element child = element1.getFirstChildElement(); child != null; child = child.getNextSiblingElement()) {
+					Attr nameAttribute = child.getAttributes().get("name");
+					System.out.println(nameAttribute.getValue());
+				}
+			} catch (XmlStateException e) {
+				System.out.println("Caught XmlStateException: " + e.getMessage());
+			}
 		}
 	}
 }

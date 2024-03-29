@@ -48,7 +48,10 @@ The following code creates a document node:
 Path xmlFile = Paths.get("path/to/file.xml"); 
 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
+try (InputStream stream = Files.newInputStream(xmlFile);
+	Document document = documentBuilder.parse(stream)) {
+	// do something with document
+}
 ```
 
 ## Iterating Children and Getting Text Content

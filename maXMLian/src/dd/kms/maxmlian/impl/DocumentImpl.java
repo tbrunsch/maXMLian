@@ -2,6 +2,9 @@ package dd.kms.maxmlian.impl;
 
 import dd.kms.maxmlian.api.*;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
 class DocumentImpl extends NodeImpl implements Document
 {
 	private String			xmlEncoding;
@@ -87,5 +90,15 @@ class DocumentImpl extends NodeImpl implements Document
 	@Override
 	public String getNodeName() {
 		return "#document";
+	}
+
+	@Override
+	public void close() throws XmlException {
+		try {
+			XMLStreamReader reader = getReader();
+			reader.close();
+		} catch (XMLStreamException e) {
+			throw new XmlException("Error closing the internal XMLStreamReader: " + e, e);
+		}
 	}
 }

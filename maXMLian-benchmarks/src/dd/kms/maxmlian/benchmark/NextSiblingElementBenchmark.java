@@ -3,6 +3,7 @@ package dd.kms.maxmlian.benchmark;
 import dd.kms.maxmlian.api.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,16 +60,18 @@ public class NextSiblingElementBenchmark
 	private static void traverseElements(Path xmlFile, ElementConsiderationMode elementConsiderationMode) throws IOException, XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance().reuseInstances(true);
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
-		switch (elementConsiderationMode) {
-			case FILTER_REQUESTED_CHILDREN:
-				traverseElementsByFilteringChildren(document);
-				break;
-			case REQUEST_CHILD_ELEMENTS:
-				traverseElementsByRequestingElements(document);
-				break;
-			default:
-				throw new UnsupportedOperationException("Unexpected element consideration mode: " + elementConsiderationMode);
+		try (InputStream stream = Files.newInputStream(xmlFile);
+			Document document = documentBuilder.parse(stream)) {
+			switch (elementConsiderationMode) {
+				case FILTER_REQUESTED_CHILDREN:
+					traverseElementsByFilteringChildren(document);
+					break;
+				case REQUEST_CHILD_ELEMENTS:
+					traverseElementsByRequestingElements(document);
+					break;
+				default:
+					throw new UnsupportedOperationException("Unexpected element consideration mode: " + elementConsiderationMode);
+			}
 		}
 	}
 

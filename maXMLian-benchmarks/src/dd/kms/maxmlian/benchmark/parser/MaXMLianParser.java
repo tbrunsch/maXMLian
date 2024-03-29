@@ -2,6 +2,7 @@ package dd.kms.maxmlian.benchmark.parser;
 
 import dd.kms.maxmlian.api.*;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -18,10 +19,12 @@ public class MaXMLianParser extends AbstractParser
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance().reuseInstances(reuseInstances);
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
 
-		Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
-		documentCreationFinished();
+		try (InputStream stream = Files.newInputStream(xmlFile);
+			Document document = documentBuilder.parse(stream)) {
+			documentCreationFinished();
 
-		traverse(document.getDocumentElement());
+			traverse(document.getDocumentElement());
+		}
 	}
 
 	private void traverse(Node node) throws XmlException {

@@ -10,6 +10,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -66,18 +67,21 @@ abstract class AbstractFileParsingTest
 				.normalize(true)
 				.dtdSupport(DtdSupport.INTERNAL_AND_EXTERNAL)
 				.newDocumentBuilder();
-			Document document = documentBuilder.parse(Files.newInputStream(xmlFile));
+			try (InputStream stream1 = Files.newInputStream(xmlFile);
+				Document document = documentBuilder.parse(stream1)) {
+				javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+				domFactory.setNamespaceAware(namespaceAware);
+				domFactory.setValidating(false);
 
-			javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-			domFactory.setNamespaceAware(namespaceAware);
-			domFactory.setValidating(false);
+				javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
+				try (InputStream stream2 = Files.newInputStream(xmlFile)) {
+					org.w3c.dom.Document domDocument = builder.parse(stream2);
 
-			javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
-			org.w3c.dom.Document domDocument = builder.parse(Files.newInputStream(xmlFile));
+					prepareTest(domDocument, considerOnlyChildElements);
 
-			prepareTest(domDocument, considerOnlyChildElements);
-
-			compareNodesRecursively(document, domDocument, 0);
+					compareNodesRecursively(document, domDocument, 0);
+				}
+			}
 		}
 
 		private void compareNodesRecursively(Node node, org.w3c.dom.Node domNode, int depth) throws XmlException {

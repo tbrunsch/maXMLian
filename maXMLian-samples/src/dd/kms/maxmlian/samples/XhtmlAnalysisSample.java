@@ -2,7 +2,6 @@ package dd.kms.maxmlian.samples;
 
 import dd.kms.maxmlian.api.*;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 
 public class XhtmlAnalysisSample
@@ -26,8 +25,9 @@ public class XhtmlAnalysisSample
 	public static void main(String[] args) throws XmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-		Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()));
-		printBoldTexts(document);
+		try (Document document = documentBuilder.parse(new ByteArrayInputStream(XML.getBytes()))) {
+			printBoldTexts(document);
+		}
 	}
 
 	private static void printBoldTexts(Node node) throws XmlException {
