@@ -239,10 +239,10 @@ As a consequence, Woodstox has become the first choice for the internally used S
 During our tests we have detected several inconsistencies between the StAX parsers:
 
 * Document type: Aalto does not provide notations and entities at all. Xerces returns the full text of the DTD instead of the internal subset as specified in the specification. Woodstox implements the StAX 2 API, which allows querying the document type name, the public id, and the system id, which cannot be queried via the StAX API.
-* Character events: StAX distinguishes between character, space, and CDATA events. The return value of `Text.isElementContentWhitespace()` depends on the type of the character event. We have observed cases where Aalto signals a different type of character event than Xerces and Woodstox do.
+* Character events: StAX distinguishes between character, space, and CDATA events. The return value of `Text.isElementContentWhitespace()` depends on the type of the character event. We have observed cases where Aalto signals a different type of character event than Xerces and Woodstox do. We have also observed cases in which Xerces reports other character events when the file has Unix or Mac line breaks instead of Windows line breaks.
 * Coalescing: Aalto seems to coalesce adjacent character data independent of how you set the option `javax.xml.stream.isCoalescing`. In many cases this will be no problem. However, in cases where the amount of data in adjacent text blocks is large this can be problematic and undermines the streaming approach.  
 
-We have implemented some workarounds to deal with these parser inconsistencies and our unit tests ensure that maXMLian behaves like the Xerces DOM parser for all our test files. Nevertheless, you should particularly be careful when evaluating the document type or the result of `Text.isElementContentWhitespace()`.  
+We have implemented some workarounds to deal with these parser inconsistencies and our unit tests ensure that maXMLian behaves like the Xerces DOM parser for all our test files for both, the Xerces and the Woodstox StAX parser, and Windows line breaks. Nevertheless, you should particularly be careful when evaluating the document type or the result of `Text.isElementContentWhitespace()`.  
 
 # Random Access Considerations
 
