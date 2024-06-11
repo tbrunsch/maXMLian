@@ -28,15 +28,17 @@ public class TextContentTest
 			XmlInputFactoryProvider.XERCES,
 			XmlInputFactoryProvider.WOODSTOX
 		);
-		return TestUtils.cartesianProduct(Arrays.asList(paths, normalizeValues, useTextContentStreamValues, subtreeHeightValues, inputFactoryProviders))
+		List<LineBreakStyle> lineBreakStyles = Arrays.asList(LineBreakStyle.WINDOWS, LineBreakStyle.UNIX, LineBreakStyle.MAC);
+
+		return TestUtils.cartesianProduct(Arrays.asList(paths, normalizeValues, useTextContentStreamValues, subtreeHeightValues, inputFactoryProviders, lineBreakStyles))
 			.stream()
 			.map(List::toArray)
 			.collect(Collectors.toList());
 	}
 
-	@ParameterizedTest(name = "{0}, normalize: {1}, streamed text content: {2}, subtree height: {3}, StAX parser: {4}")
+	@ParameterizedTest(name = "{0}, normalize: {1}, streamed text content: {2}, subtree height: {3}, StAX parser: {4}, line breaks: {5}")
 	@MethodSource("getParameters")
-	public void testGetTextContent(Path xmlFile, boolean normalize, boolean useTextContentStream, int subtreeHeightToEvaluate, XmlInputFactoryProvider xmlInputFactoryProvider) throws IOException, SAXException, ParserConfigurationException, XmlException {
+	public void testGetTextContent(Path xmlFile, boolean normalize, boolean useTextContentStream, int subtreeHeightToEvaluate, XmlInputFactoryProvider xmlInputFactoryProvider, LineBreakStyle lineBreakStyle) throws IOException, SAXException, ParserConfigurationException, XmlException {
 		XMLInputFactory xmlInputFactory = xmlInputFactoryProvider.getXMLInputFactory().get();
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactory);
 		DocumentBuilder documentBuilder = factory
@@ -45,13 +47,13 @@ public class TextContentTest
 			.dtdSupport(DtdSupport.INTERNAL_AND_EXTERNAL)
 			.newDocumentBuilder();
 
-		try (InputStream stream1 = Files.newInputStream(xmlFile);
+		try (InputStream stream1 = TestUtils.createInputStream(xmlFile, lineBreakStyle);
 			Document document = documentBuilder.parse(stream1)) {
 
 			javax.xml.parsers.DocumentBuilderFactory domFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
 			domFactory.setNamespaceAware(true);
 			javax.xml.parsers.DocumentBuilder builder = domFactory.newDocumentBuilder();
-			try (InputStream stream2 = Files.newInputStream(xmlFile)) {
+			try (InputStream stream2 = TestUtils.createInputStream(xmlFile, lineBreakStyle)) {
 				org.w3c.dom.Document domDocument = builder.parse(stream2);
 				if (normalize) {
 					domDocument.normalize();
