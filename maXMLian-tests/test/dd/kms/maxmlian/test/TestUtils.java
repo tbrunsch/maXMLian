@@ -7,6 +7,7 @@ import dd.kms.maxmlian.LargeXmlFileGenerator;
 import dd.kms.maxmlian.api.NodeType;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -21,6 +22,13 @@ class TestUtils
 	private static final Path		LARGE_XML_FILE				= TEST_FILE_SYSTEM.getPath("/LargeXmlFile.xml");
 	private static final Path		LARGE_TEXT_NODE_XML_FILE	= TEST_FILE_SYSTEM.getPath("/LargeTextNodeXmlFile.xml");
 	private static final long		LARGE_FILE_SIZE				= 20 * (1 << 20);	// 20 MB
+
+	static InputStream createInputStream(Path file, LineBreakStyle lineBreakStyle) throws IOException {
+		return new EndOfLineCorrectingInputStream(
+			Files.newInputStream(file),
+			lineBreakStyle
+		);
+	}
 
 	static List<Path> getTestFiles() throws IOException {
 		Path resourceDirectory = getResourceDirectory();
