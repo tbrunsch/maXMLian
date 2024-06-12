@@ -23,8 +23,10 @@ abstract class AbstractFileParsingTest
 {
 	/**
 	 * The Xerces parser does not recognize whitespace content in elements correctly
-	 * for reflections.xml when the file has Unix or Mac line breaks. We don't
-	 * consider this critical, so we simply exclude these tests from the unit test.
+	 * for reflections.xml when the file has Unix or Mac line breaks and activated
+	 * coalescing (= normalization). We don't consider this critical, so we simply
+	 * skip testing whether the element content consists of whitespaces in these
+	 * special cases.
 	 */
 	private static final Predicate<ParameterizedFileParsingTest>	SKIP_ELEMENT_CONTENT_WHITESPACE_TEST_PREDICATE =
 		test -> test.xmlFile.getFileName().toString().equals("reflections.xml")
