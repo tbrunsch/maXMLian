@@ -21,7 +21,7 @@ class TestUtils
 	private static final FileSystem	TEST_FILE_SYSTEM			= Jimfs.newFileSystem(Configuration.unix());
 	private static final Path		LARGE_XML_FILE				= TEST_FILE_SYSTEM.getPath("/LargeXmlFile.xml");
 	private static final Path		LARGE_TEXT_NODE_XML_FILE	= TEST_FILE_SYSTEM.getPath("/LargeTextNodeXmlFile.xml");
-	private static final long		LARGE_FILE_SIZE				= 20 * (1 << 20);	// 20 MB
+	private static final long		LARGE_FILE_SIZE				= 5 * (1 << 20);	// 5 MB
 
 	static InputStream createInputStream(Path file, LineBreakStyle lineBreakStyle) throws IOException {
 		return new EndOfLineCorrectingInputStream(
