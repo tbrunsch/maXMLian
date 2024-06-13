@@ -2,6 +2,7 @@ package dd.kms.maxmlian.test;
 
 import dd.kms.maxmlian.api.*;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.w3c.dom.NodeList;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -77,7 +79,9 @@ public class TextContentTest
 		}
 
 		void compareTextContent() throws IOException, SAXException, ParserConfigurationException, XmlException {
-			XMLInputFactory xmlInputFactory = xmlInputFactoryProvider.getXMLInputFactory().get();
+			Optional<XMLInputFactory> optXmlInputFactory = xmlInputFactoryProvider.getXMLInputFactory();
+			Assumptions.assumeTrue(optXmlInputFactory.isPresent(), "Cannot create XMLInputFactory " + xmlInputFactoryProvider);
+			XMLInputFactory xmlInputFactory = optXmlInputFactory.get();
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(xmlInputFactory);
 			DocumentBuilder documentBuilder = factory
 				.reuseInstances(true)
