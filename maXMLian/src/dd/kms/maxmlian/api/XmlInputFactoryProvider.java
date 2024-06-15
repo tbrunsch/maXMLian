@@ -8,9 +8,29 @@ public interface XmlInputFactoryProvider
 {
 	Optional<XMLInputFactory> getXMLInputFactory();
 
+	/**
+	 * This {@code XmlInputFactoryProvider} creates the Xerces {@link XMLInputFactory}. Note that this factory
+	 * provider does not work for Java 17+ because the required reflective call is blocked there.
+	 */
 	XmlInputFactoryProvider XERCES		= fromClass("com.sun.xml.internal.stream.XMLInputFactoryImpl",	"Xerces");
+
+	/**
+	 * This {@code XmlInputFactoryProvider} creates the Woodstox {@link XMLInputFactory}. For the creation of
+	 * this factory to succeed, FasterXML Woodstox must be on the class path.
+	 */
 	XmlInputFactoryProvider WOODSTOX	= fromClass("com.ctc.wstx.stax.WstxInputFactory",				"Woodstox");
+
+	/**
+	 * This {@code XmlInputFactoryProvider} creates the Aalto {@link XMLInputFactory}. For the creation of
+	 * this factory to succeed, FasterXML Aalto must be on the class path.
+	 */
 	XmlInputFactoryProvider AALTO		= fromClass("com.fasterxml.aalto.stax.InputFactoryImpl",		"Aalto");
+
+	/**
+	 * This {@code XmlInputFactoryProvider} creates the default {@link XMLInputFactory} via
+	 * {@link XMLInputFactory#newFactory()}. See that method for details which {@code XMLInputFactory}
+	 * will be created.
+	 */
 	XmlInputFactoryProvider DEFAULT		= new XmlInputFactoryProvider()
 	{
 		@Override
