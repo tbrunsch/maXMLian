@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1
+
+Test adaptions:
+* Take into account that some StAX parsers have problems with Unix and Mac line breaks.
+* Take into account that for Java 17+ it is not possible anymore to create a Xerces StAX parser explicitly.
+
 ## v0.2.0
 
 API changes:
