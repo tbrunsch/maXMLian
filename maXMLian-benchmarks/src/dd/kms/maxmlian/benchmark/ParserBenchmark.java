@@ -3,9 +3,11 @@ package dd.kms.maxmlian.benchmark;
 import dd.kms.maxmlian.benchmark.parser.*;
 import dd.kms.maxmlian.api.XmlInputFactoryProvider;
 
+import javax.xml.stream.XMLInputFactory;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ParserBenchmark
 {
@@ -19,15 +21,33 @@ public class ParserBenchmark
 	static {
 		// Register parsers
 		PARSERS_BY_NAME.put(DUMMY_PARSER_NAME,					new MaXMLianParser(true));
-		PARSERS_BY_NAME.put("Xerces (Cursor API)",				new StAXParserCursor(XmlInputFactoryProvider.XERCES));
-		PARSERS_BY_NAME.put("Woodstox (Cursor API)",			new StAXParserCursor(XmlInputFactoryProvider.WOODSTOX));
-		PARSERS_BY_NAME.put("Aalto (Cursor API)",				new StAXParserCursor(XmlInputFactoryProvider.AALTO));
-		PARSERS_BY_NAME.put("Xerces (Iterator API)",			new StAXParserIterator(XmlInputFactoryProvider.XERCES));
-		PARSERS_BY_NAME.put("Woodstox (Iterator API)",			new StAXParserIterator(XmlInputFactoryProvider.WOODSTOX));
-		PARSERS_BY_NAME.put("Aalto (Iterator API)",				new StAXParserIterator(XmlInputFactoryProvider.AALTO));
+		registerStAXParserCursor("Xerces (Cursor API)",			XmlInputFactoryProvider.XERCES);
+		registerStAXParserCursor("Woodstox (Cursor API)",		XmlInputFactoryProvider.WOODSTOX);
+		registerStAXParserCursor("Aalto (Cursor API)",			XmlInputFactoryProvider.AALTO);
+		registerStAXParserIterator("Xerces (Iterator API)",		XmlInputFactoryProvider.XERCES);
+		registerStAXParserIterator("Woodstox (Iterator API)",	XmlInputFactoryProvider.WOODSTOX);
+		registerStAXParserIterator("Aalto (Iterator API)",		XmlInputFactoryProvider.AALTO);
 		PARSERS_BY_NAME.put("maXMLian with instance reuse",		new MaXMLianParser(true));
 		PARSERS_BY_NAME.put("maXMLian without instance reuse",	new MaXMLianParser(false));
 		PARSERS_BY_NAME.put("DOM parser",						new DomParser());
+	}
+
+	private static void registerStAXParserCursor(String parserName, XmlInputFactoryProvider xmlInputFactoryProvider) {
+		Optional<XMLInputFactory> dummyFactory = xmlInputFactoryProvider.getXMLInputFactory();
+		if (!dummyFactory.isPresent()) {
+			System.out.println("Skipping benchmark '" + parserName + "' because the '" + xmlInputFactoryProvider + "' StAX parser cannot be generated");
+			return;
+		}
+		PARSERS_BY_NAME.put(parserName, new StAXParserCursor(xmlInputFactoryProvider));
+	}
+
+	private static void registerStAXParserIterator(String parserName, XmlInputFactoryProvider xmlInputFactoryProvider) {
+		Optional<XMLInputFactory> dummyFactory = xmlInputFactoryProvider.getXMLInputFactory();
+		if (!dummyFactory.isPresent()) {
+			System.out.println("Skipping benchmark '" + parserName + "' because the '" + xmlInputFactoryProvider + "' StAX parser cannot be generated");
+			return;
+		}
+		PARSERS_BY_NAME.put(parserName, new StAXParserIterator(xmlInputFactoryProvider));
 	}
 
 	private final int	numTrials;
